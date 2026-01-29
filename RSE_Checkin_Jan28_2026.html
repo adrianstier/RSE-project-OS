@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSE Check-in — Jan 28, 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --sea-deep: #0a2f35;
+      --sea-mid: #134e4a;
+      --sea-light: #2dd4bf;
+      --ocean-deep: #0c4a6e;
+      --ocean-mid: #0369a1;
+      --ocean-light: #38bdf8;
+      --coral: #f97316;
+      --coral-soft: #fed7aa;
+      --sand: #fef3e2;
+      --foam: #f0fdfa;
+      --ink: #1e293b;
+      --stone: #64748b;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--sand);
+      color: var(--ink);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(ellipse 80% 50% at 20% 40%, rgba(45, 212, 191, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 20%, rgba(249, 115, 22, 0.06) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.4;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    /* Navigation */
+    .nav {
+      position: sticky;
+      top: 0;
+      background: rgba(254, 243, 226, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      z-index: 100;
+      padding: 0.75rem 2rem;
+    }
+    
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .nav-brand {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+      color: var(--sea-deep);
+    }
+    
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .nav-tab {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--stone);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .nav-tab:hover {
+      background: rgba(0,0,0,0.05);
+      color: var(--ink);
+    }
+    
+    .nav-tab.active {
+      background: var(--sea-deep);
+      color: white;
+    }
+    
+    .nav-tab.active.mote {
+      background: var(--ocean-deep);
+    }
+    
+    .nav-tab.active.fundemar {
+      background: var(--sea-mid);
+    }
+    
+    /* Pages */
+    .page {
+      display: none;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .page.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Headers */
+    header {
+      position: relative;
+      margin-bottom: 2.5rem;
+      padding: 2rem 0;
+    }
+    
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--coral), var(--sea-light));
+      border-radius: 2px;
+    }
+    
+    .page.mote header::after {
+      background: linear-gradient(90deg, var(--ocean-light), var(--coral));
+    }
+    
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--sea-mid);
+      margin-bottom: 0.5rem;
+    }
+    
+    .page.mote .eyebrow { color: var(--ocean-mid); }
+    
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 4vw, 2.75rem);
+      font-weight: 400;
+      color: var(--sea-deep);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+    
+    .page.mote h1 { color: var(--ocean-deep); }
+    
+    .subtitle {
+      font-size: 1rem;
+      color: var(--stone);
+      margin-top: 0.75rem;
+      font-weight: 300;
+    }
+    
+    /* Section styling */
+    .section {
+      margin-bottom: 2.5rem;
+    }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--sea-deep);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    
+    .page.mote .section-icon { background: var(--ocean-deep); }
+    
+    .section-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+    }
+    
+    .section h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.35rem;
+      font-weight: 400;
+      color: var(--sea-deep);
+    }
+    
+    .page.mote .section h2 { color: var(--ocean-deep); }
+    
+    /* Agenda items */
+    .agenda-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .agenda-item {
+      background: white;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: all 0.25s ease;
+      border-left: 4px solid transparent;
+    }
+    
+    .agenda-item:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    
+    .agenda-item.mote { border-left-color: var(--ocean-mid); }
+    .agenda-item.fundemar { border-left-color: var(--sea-light); }
+    .agenda-item.general { border-left-color: var(--coral); }
+    
+    .time-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      flex-shrink: 0;
+      min-width: 50px;
+      text-align: center;
+      background: #f1f5f9;
+      color: var(--stone);
+    }
+    
+    .agenda-content { flex: 1; }
+    
+    .agenda-title {
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 0.25rem;
+    }
+    
+    .agenda-meta {
+      font-size: 0.875rem;
+      color: var(--stone);
+    }
+    
+    /* Context box */
+    .context-box {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .context-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(180, 83, 9, 0.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #b45309;
+    }
+    
+    .context-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+    
+    .context-content h3 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #b45309;
+      margin-bottom: 0.4rem;
+    }
+    
+    .context-content p {
+      color: #78350f;
+      font-size: 0.9rem;
+    }
+    
+    /* Task cards */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    
+    .task-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+    
+    .task-card:hover {
+      border-color: var(--sea-light);
+    }
+    
+    .page.mote .task-card:hover {
+      border-color: var(--ocean-light);
+    }
+    
+    .owner-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.55rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.5rem;
+      border-radius: 5px;
+      flex-shrink: 0;
+      min-width: 60px;
+      text-align: center;
+    }
+    
+    .owner-badge.raine { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1e40af; }
+    .owner-badge.adrian { background: linear-gradient(135deg, var(--coral-soft), #fde68a); color: #92400e; }
+    .owner-badge.fundemar { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; }
+    .owner-badge.tnc { background: linear-gradient(135deg, #fce7f3, #fbcfe8); color: #9d174d; }
+    .owner-badge.all { background: linear-gradient(135deg, var(--sea-light), #5eead4); color: var(--sea-deep); }
+    
+    .task-content { flex: 1; }
+    
+    .task-title {
+      font-weight: 500;
+      color: var(--ink);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .status-pill {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.55rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    
+    .status-pill.done { background: #dcfce7; color: #166534; }
+    .status-pill.waiting { background: #fef3c7; color: #92400e; }
+    .status-pill.next { background: #dbeafe; color: #1e40af; }
+    .status-pill.priority { background: #fee2e2; color: #991b1b; }
+    
+    .task-meta {
+      font-size: 0.8rem;
+      color: var(--stone);
+      margin-top: 0.2rem;
+    }
+    
+    /* Scenario cards */
+    .scenario-card {
+      background: white;
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
+    }
+    
+    .scenario-card:hover {
+      border-color: var(--sea-light);
+      box-shadow: 0 6px 20px rgba(10, 47, 53, 0.08);
+    }
+    
+    .page.mote .scenario-card:hover {
+      border-color: var(--ocean-light);
+      box-shadow: 0 6px 20px rgba(12, 74, 110, 0.08);
+    }
+    
+    .scenario-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .scenario-number {
+      background: var(--sea-deep);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+    
+    .page.mote .scenario-number { background: var(--ocean-deep); }
+    
+    .scenario-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    
+    .decision-question {
+      background: var(--foam);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-style: italic;
+      color: var(--sea-mid);
+      border-left: 3px solid var(--sea-light);
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .page.mote .decision-question {
+      background: #f0f9ff;
+      color: var(--ocean-mid);
+      border-left-color: var(--ocean-light);
+    }
+    
+    .scenario-content p {
+      color: var(--stone);
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .scenario-content h4 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--stone);
+      margin: 1rem 0 0.4rem 0;
+    }
+    
+    .scenario-content ul {
+      margin-left: 1rem;
+      color: var(--ink);
+      font-size: 0.85rem;
+    }
+    
+    .scenario-content li { margin-bottom: 0.25rem; }
+    
+    .badge {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.55rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+    }
+    
+    .badge.flagship { background: var(--ocean-mid); color: white; }
+    .badge.jameal { background: #dbeafe; color: #1e40af; }
+    .badge.data-ready { background: #dcfce7; color: #166534; }
+    .badge.data-partial { background: #fef3c7; color: #92400e; }
+    
+    /* Discussion box */
+    .discussion-box {
+      background: white;
+      border-radius: 14px;
+      padding: 1.5rem;
+      border: 2px dashed var(--sea-light);
+      margin-top: 1.5rem;
+    }
+    
+    .page.mote .discussion-box { border-color: var(--ocean-light); }
+    
+    .discussion-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .discussion-header-icon { color: var(--sea-mid); }
+    .page.mote .discussion-header-icon { color: var(--ocean-mid); }
+    
+    .discussion-header-icon svg { width: 20px; height: 20px; }
+    
+    .discussion-box h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+      color: var(--sea-deep);
+    }
+    
+    .page.mote .discussion-box h3 { color: var(--ocean-deep); }
+    
+    .discussion-box ul { list-style: none; }
+    
+    .discussion-box li {
+      padding: 0.4rem 0;
+      padding-left: 1.25rem;
+      position: relative;
+      color: var(--ink);
+      font-size: 0.9rem;
+    }
+    
+    .discussion-box li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.7rem;
+      width: 6px;
+      height: 6px;
+      background: var(--coral);
+      border-radius: 2px;
+      transform: rotate(45deg);
+    }
+    
+    .discussion-box li strong { color: var(--sea-deep); }
+    .page.mote .discussion-box li strong { color: var(--ocean-deep); }
+    
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 1.25rem;
+    }
+    
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--sea-light), var(--coral), var(--sea-mid));
+      border-radius: 1px;
+    }
+    
+    .timeline-item {
+      position: relative;
+      padding: 0.5rem 0 0.5rem 1.25rem;
+    }
+    
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -4px;
+      top: 0.85rem;
+      width: 10px;
+      height: 10px;
+      background: white;
+      border: 2px solid var(--sea-mid);
+      border-radius: 50%;
+    }
+    
+    .timeline-item.done::before {
+      background: var(--sea-light);
+      border-color: var(--sea-light);
+    }
+    
+    .timeline-item.soon::before {
+      background: var(--coral-soft);
+      border-color: var(--coral);
+    }
+    
+    .timeline-date {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--sea-mid);
+    }
+    
+    .timeline-event {
+      font-size: 0.85rem;
+      color: var(--ink);
+    }
+    
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e2e8f0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--stone);
+      text-align: center;
+    }
+    
+    @media (max-width: 700px) {
+      .nav-inner { flex-direction: column; gap: 0.75rem; }
+      .task-card { flex-direction: column; gap: 0.5rem; }
+      .owner-badge { align-self: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-brand">RSE Check-in</div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-page="agenda">Agenda</button>
+        <button class="nav-tab mote" data-page="mote">Mote</button>
+        <button class="nav-tab fundemar" data-page="fundemar">Fundemar</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- AGENDA PAGE -->
+  <div class="page active" id="agenda">
+    <header>
+      <div class="eyebrow">Wednesday, January 28, 2026 · 12:00 PM PT</div>
+      <h1>RSE Team Check-in</h1>
+      <p class="subtitle">Adrian, Raine, Jameal, Darcy · 1 hour</p>
+    </header>
+    
+    <div class="context-box">
+      <div class="context-icon">
+        <i data-lucide="info"></i>
+      </div>
+      <div class="context-content">
+        <h3>Meeting Context</h3>
+        <p>Debriefs from Fundemar (Jan 21) and Mote (Jan 23) calls. Goal: align on scenarios, prioritize action items, and plan Phase 3 scope. Darcy hopes to wrap Fundemar by May, set Mote foundation by May, with MARS being the majority of Phase 3 work.</p>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon">
+          <i data-lucide="list-checks"></i>
+        </div>
+        <h2>Agenda</h2>
+      </div>
+      
+      <div class="agenda-list">
+        <div class="agenda-item general">
+          <span class="time-badge">5 min</span>
+          <div class="agenda-content">
+            <div class="agenda-title">Quick updates</div>
+            <div class="agenda-meta">Fundemar annual report received (Raine summarizing), Mote follow-up scheduled for week of 2/9</div>
+          </div>
+        </div>
+        
+        <div class="agenda-item mote">
+          <span class="time-badge">20 min</span>
+          <div class="agenda-content">
+            <div class="agenda-title">Mote debrief + scenario review</div>
+            <div class="agenda-meta">Three candidate scenarios. Priority: which go in concept note for Jason? Is facilitation scenario tractable now? DLAB data search plan.</div>
+          </div>
+        </div>
+        
+        <div class="agenda-item fundemar">
+          <span class="time-badge">20 min</span>
+          <div class="agenda-content">
+            <div class="agenda-title">Fundemar debrief + scenario review</div>
+            <div class="agenda-meta">Four scenarios scoped. Waiting on cost data. Model updates: performance metrics, local vs. regional parameterization. What's realistic by May?</div>
+          </div>
+        </div>
+        
+        <div class="agenda-item general">
+          <span class="time-badge">10 min</span>
+          <div class="agenda-content">
+            <div class="agenda-title">Phase 3 scope + timeline</div>
+            <div class="agenda-meta">$150K, 18 months. MARS = majority of work. Operationalization question (Shiny v2?). Raine's funding ends May 2026.</div>
+          </div>
+        </div>
+        
+        <div class="agenda-item general">
+          <span class="time-badge">5 min</span>
+          <div class="agenda-content">
+            <div class="agenda-title">Action items + next steps</div>
+            <div class="agenda-meta">Assign owners, set deadlines for Mote concept note, Fundemar sensitivity analyses, DLAB data search.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon">
+          <i data-lucide="target"></i>
+        </div>
+        <h2>Key Decisions Needed</h2>
+      </div>
+      
+      <div class="task-list">
+        <div class="task-card">
+          <span class="owner-badge all">Mote</span>
+          <div class="task-content">
+            <div class="task-title">Which 2-3 scenarios go in concept note for Jason?</div>
+            <div class="task-meta">Jameal's facilitation idea most compelling but data-limited. Nursery allocation more tractable now.</div>
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <span class="owner-badge all">Fundemar</span>
+          <div class="task-content">
+            <div class="task-title">What's realistic scope by May?</div>
+            <div class="task-meta">Updated scenarios, performance metrics, local vs. regional, DLAB model. What's essential vs. nice-to-have?</div>
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <span class="owner-badge all">Phase 3</span>
+          <div class="task-content">
+            <div class="task-title">How do we operationalize outputs?</div>
+            <div class="task-meta">Darcy's concern: disconnect between useful approach and actual use for decision-making. Shiny v2? Something else?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon">
+          <i data-lucide="calendar"></i>
+        </div>
+        <h2>Key Dates</h2>
+      </div>
+      
+      <div class="timeline">
+        <div class="timeline-item done">
+          <div class="timeline-date">Jan 21</div>
+          <div class="timeline-event">Fundemar call ✓</div>
+        </div>
+        <div class="timeline-item done">
+          <div class="timeline-date">Jan 23</div>
+          <div class="timeline-event">Mote call ✓ · Cost data request sent ✓</div>
+        </div>
+        <div class="timeline-item done">
+          <div class="timeline-date">Jan 27</div>
+          <div class="timeline-event">Annual report received ✓</div>
+        </div>
+        <div class="timeline-item soon">
+          <div class="timeline-date">Week of 2/9</div>
+          <div class="timeline-event">Mote follow-up call (times: 2/9 9-10am, 2/10 12-2pm, 2/11 9-10am or 12:30-2:30)</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">~Feb</div>
+          <div class="timeline-event">Lab vs. orchard data from Fundemar</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">May 2026</div>
+          <div class="timeline-event">Current contract ends · Raine's TNC funding ends · Goal: Fundemar wrapped, Mote foundation set</div>
+        </div>
+      </div>
+    </div>
+    
+    <footer>
+      Use tabs above to see detailed Mote and Fundemar pages
+    </footer>
+  </div>
+
+  <!-- MOTE PAGE -->
+  <div class="page mote" id="mote">
+    <header>
+      <div class="eyebrow">Restoration Strategy Evaluation</div>
+      <h1>Mote Marine Lab</h1>
+      <p class="subtitle">Species: APAL + DLAB · Data contacts: Aaron Muller (genetics), Logan Merion (survival)</p>
+    </header>
+    
+    <div class="context-box">
+      <div class="context-icon">
+        <i data-lucide="target"></i>
+      </div>
+      <div class="context-content">
+        <h3>Core RSE Value</h3>
+        <p>The power isn't just population modeling — it's exploring scenarios that help people make decisions under uncertainty. Jason most excited about multispecies facilitation, but that's 1-3 years out for data. Focus on what's tractable now.</p>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon">
+          <i data-lucide="git-branch"></i>
+        </div>
+        <h2>Candidate Scenarios</h2>
+      </div>
+      
+      <!-- Scenario 1 -->
+      <div class="scenario-card">
+        <div class="scenario-header">
+          <div class="scenario-number">1</div>
+          <div class="scenario-title">
+            Facilitation Strategy Under Mixed Disturbance
+            <span class="badge flagship">Flagship</span>
+            <span class="badge jameal">Jameal's idea</span>
+          </div>
+        </div>
+        
+        <div class="decision-question">
+          "Should we outplant Diploria under gorgonian canopy (heat protection) or with A. cervicornis (physical protection)?"
+        </div>
+        
+        <div class="scenario-content">
+          <p>Compare allocation across heat vs. physical disturbance regimes. Gorgonians shade against heat but vulnerable to hurricanes; ACER provides ~70% survival increase (fish predation) but is itself disturbance-prone.</p>
+          
+          <h4>RSE Exploration</h4>
+          <ul>
+            <li>Vary heat wave × hurricane frequency</li>
+            <li>Optimal allocation across disturbance space</li>
+            <li>Hedged portfolio minimizing worst-case</li>
+          </ul>
+          
+          <h4>Data Needs</h4>
+          <ul>
+            <li>Shading effect on DLAB survival (have ACPA obs)</li>
+            <li>ACER protection specifics</li>
+            <li>Disturbance mortality by strategy</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Scenario 2 -->
+      <div class="scenario-card">
+        <div class="scenario-header">
+          <div class="scenario-number">2</div>
+          <div class="scenario-title">
+            Genotype Portfolio Under Uncertainty
+            <span class="badge data-partial">Data Partial</span>
+          </div>
+        </div>
+        
+        <div class="decision-question">
+          "Concentrated bet (top 10 thermally tolerant) vs. diversified (50+ genets)?"
+        </div>
+        
+        <div class="scenario-content">
+          <p>~160 wild APAL founding genets. Classic portfolio problem. May require eco-evo dynamics component.</p>
+          
+          <h4>Data Needs</h4>
+          <ul>
+            <li>Genotype × stress response matrix — Aaron Muller</li>
+            <li>Field performance by genotype × site — Logan Merion</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Scenario 3 -->
+      <div class="scenario-card">
+        <div class="scenario-header">
+          <div class="scenario-number">3</div>
+          <div class="scenario-title">
+            Nursery vs. Field Allocation During Recovery
+            <span class="badge data-ready">Data Available</span>
+          </div>
+        </div>
+        
+        <div class="decision-question">
+          "Post-2023, deploy fragments right away or keep in lab longer?"
+        </div>
+        
+        <div class="scenario-content">
+          <p>Rebuilding APAL from near-zero after pathogen event. Tension between field testing and maintaining backup. Most immediately tractable — data exists, decision happening now.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon">
+          <i data-lucide="check-square"></i>
+        </div>
+        <h2>Action Items</h2>
+      </div>
+      
+      <div class="task-list">
+        <div class="task-card">
+          <span class="owner-badge tnc">TNC</span>
+          <div class="task-content">
+            <div class="task-title">
+              Schedule follow-up with Jason
+              <span class="status-pill priority">Priority 1</span>
+            </div>
+            <div class="task-meta">Week of 2/9. Highest priority: identify which scenarios to focus on.</div>
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <span class="owner-badge raine">Raine</span>
+          <div class="task-content">
+            <div class="task-title">
+              Start DLAB data search
+              <span class="status-pill next">Next up</span>
+            </div>
+            <div class="task-meta">Start with Pete Edmonds' St. John model. Make spreadsheet of what we have vs. need.</div>
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <span class="owner-badge adrian">Adrian</span>
+          <div class="task-content">
+            <div class="task-title">Draft concept note for Jason</div>
+            <div class="task-meta">1-2 pages: model structure, candidate scenarios, parameter wishlist. Have ready for 2/9 call.</div>
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <span class="owner-badge raine">Raine</span>
+          <div class="task-content">
+            <div class="task-title">Scope initial data request</div>
+            <div class="task-meta">APAL + DLAB survival rates, genetic data. Be specific about minimum vs. nice-to-have.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="discussion-box">
+      <div class="discussion-header">
+        <div class="discussion-header-icon">
+          <i data-lucide="message-circle-question"></i>
+        </div>
+        <h3>Discussion Questions</h3>
+      </div>
+      <ul>
+        <li><strong>Scenario 1:</strong> Tractable with "habitat quality proxy" or requires explicit multispecies modeling?</li>
+        <li><strong>Scenario 2:</strong> Does genetic portfolio require eco-evo dynamics?</li>
+        <li><strong>Ordering:</strong> Lead with #1 (Jason's interest) or #3 (quick win)?</li>
+        <li><strong>DLAB shared with Fundemar:</strong> How explicit do we make this connection?</li>
+      </ul>
+    </div>
+    
+    <footer>
+      Notes from Jan 23 call · Follow-up week of 2/9
+    </footer>
+  </div>
+
+  <!-- FUNDEMAR PAGE -->
+  <div class="page fundemar" id="fundemar">
+    <header>
+      <div class="eyebrow">Coral Restoration Strategy Evaluation</div>
+      <h1>Fundemar</h1>
+      <p class="subtitle">Species: APAL (running) + DLAB (next) · Expansion: 500 reef stars in 2026</p>
+    </header>
+    
+    <div class="context-box">
+      <div class="context-icon">
+        <i data-lucide="lightbulb"></i>
+      </div>
+      <div class="context-content">
+        <h3>Key Model Finding</h3>
+        <p>Results matched Fundemar's intuition — good validation. Short horizons (5-10 yr) favor reef deployment; long horizons (50-100 yr) favor orchard for reproductive capacity. As disturbance increases, optimal strategy shifts toward orchard.</p>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon">
+          <i data-lucide="git-branch"></i>
+        </div>
+        <h2>RSE Scenarios</h2>
+      </div>
+      
+      <!-- Scenario 1 -->
+      <div class="scenario-card">
+        <div class="scenario-header">
+          <div class="scenario-number">1</div>
+          <div class="scenario-title">Outplanting Allocations</div>
+        </div>
+        
+        <div class="decision-question">
+          "What proportion of substrates should go to orchard vs. reef?"
+        </div>
+        
+        <div class="scenario-content">
+          <p>Long-term goal: reproductive orchards as baby coral source. Need to grow orchards (no adults yet) while continuing reef outplanting.</p>
+          
+          <h4>Key Parameters</h4>
+          <ul>
+            <li>Survival/growth rates: orchard vs. reef</li>
+            <li>Disturbance impacts: orchard vs. reef</li>
+            <li>Costs: orchard maintenance, spawn collection</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Scenario 2 -->
+      <div class="scenario-card">
+        <div class="scenario-header">
+          <div class="scenario-number">2</div>
+          <div class="scenario-title">Lab Grow-out</div>
+        </div>
+        
+        <div class="decision-question">
+          "How many substrates kept in lab vs. immediately outplanted?"
+        </div>
+        
+        <div class="scenario-content">
+          <p>Testing 4-7 month grow-out with feeding. Expect better post-outplanting survival but higher costs + aquarium failure risk.</p>
+          
+          <h4>Modeling Note</h4>
+          <p>Annual timestep requires approximation: immediate = current timestep, longer grow-out = following timestep with modified survival/size.</p>
+        </div>
+      </div>
+      
+      <!-- Scenario 3 -->
+      <div class="scenario-card">
+        <div class="scenario-header">
+          <div class="scenario-number">3</div>
+          <div class="scenario-title">Substrate Choice</div>
+        </div>
+        
+        <div class="decision-question">
+          "What proportion ceramic vs. cement?"
+        </div>
+        
+        <div class="scenario-content">
+          <p>Cement: cheaper, higher settlement, lower survival. Ceramic: expensive, lower settlement, higher survival.</p>
+        </div>
+      </div>
+      
+      <!-- Scenario 4 -->
+      <div class="scenario-card">
+        <div class="scenario-header">
+          <div class="scenario-number">4</div>
+          <div class="scenario-title">Orchard Use</div>
+        </div>
+        
+        <div class="decision-question">
+          "Use orchard corals for spawning or transplant directly to reefs?"
+        </div>
+        
+        <div class="scenario-content">
+          <p>Survival increases with colony size. If recruit survival is low, large orchard corals might contribute more via direct transplant than spawning.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon">
+          <i data-lucide="inbox"></i>
+        </div>
+        <h2>Waiting on Fundemar</h2>
+      </div>
+      
+      <div class="task-list">
+        <div class="task-card">
+          <span class="owner-badge fundemar">Fundemar</span>
+          <div class="task-content">
+            <div class="task-title">
+              Cost data
+              <span class="status-pill waiting">Requested Jan 23</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <span class="owner-badge fundemar">Fundemar</span>
+          <div class="task-content">
+            <div class="task-title">
+              Lab vs. orchard growth + survival data
+              <span class="status-pill waiting">~1 month</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <span class="owner-badge fundemar">Maria</span>
+          <div class="task-content">
+            <div class="task-title">
+              2025 annual report
+              <span class="status-pill done">Received</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon">
+          <i data-lucide="wrench"></i>
+        </div>
+        <h2>Model Development</h2>
+      </div>
+      
+      <div class="task-list">
+        <div class="task-card">
+          <span class="owner-badge raine">Raine</span>
+          <div class="task-content">
+            <div class="task-title">
+              Update scenario analyses
+              <span class="status-pill next">Next up</span>
+            </div>
+            <div class="task-meta">Orchard expansion, spawn source, 5 yr vs. 100 yr effects</div>
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <span class="owner-badge raine">Raine</span>
+          <div class="task-content">
+            <div class="task-title">
+              Add performance metrics
+              <span class="status-pill next">Next up</span>
+            </div>
+            <div class="task-meta">Time to reproduction, reef function beyond coral cover</div>
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <span class="owner-badge raine">Raine</span>
+          <div class="task-content">
+            <div class="task-title">Run local vs. regional parameterization</div>
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <span class="owner-badge raine">Raine</span>
+          <div class="task-content">
+            <div class="task-title">Build DLAB model</div>
+            <div class="task-meta">Start with Pete Edmonds' data. Shared foundation with Mote.</div>
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <span class="owner-badge raine">Raine</span>
+          <div class="task-content">
+            <div class="task-title">Summarize annual report</div>
+            <div class="task-meta">Distribute to Adrian, Jameal, Darcy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="discussion-box">
+      <div class="discussion-header">
+        <div class="discussion-header-icon">
+          <i data-lucide="message-circle-question"></i>
+        </div>
+        <h3>Discussion Questions</h3>
+      </div>
+      <ul>
+        <li><strong>Scope by May:</strong> What's realistic given Raine's funding timeline?</li>
+        <li><strong>Performance metrics:</strong> How to integrate time to reproduction, reef function?</li>
+        <li><strong>Operationalization:</strong> Shiny app v2? What format do Maria and Yamil want?</li>
+        <li><strong>500 reef stars:</strong> Can we inform placement decisions?</li>
+      </ul>
+    </div>
+    
+    <footer>
+      Notes from Jan 21 call · Waiting on cost data + annual report summary
+    </footer>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    
+    // Tab navigation
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Update active tab
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        // Show corresponding page
+        const pageId = tab.dataset.page;
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
