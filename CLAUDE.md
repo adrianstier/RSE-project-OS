@@ -4,7 +4,18 @@ This file provides guidance for Claude Code when working on this project.
 
 ## Project Overview
 
-RSE Tracker is a React/TypeScript application for managing coral restoration project scenarios, action items, and timeline events. It uses Supabase as the backend.
+RSE Tracker is an internal React/TypeScript application for managing coral restoration project scenarios, action items, and timeline events. It uses Supabase as the backend.
+
+## Team Members
+
+The app has four core users. Owner fields use a dropdown of these names:
+
+- Adrian Stier
+- Raine Detmer
+- Darcy Bradley
+- Jameal Samhouri
+
+Authentication is via Google OAuth (or email/password). The "My Tasks" filter matches items by the signed-in user's display name or first name.
 
 ## Tech Stack
 
@@ -43,7 +54,7 @@ src/
 ## Database Tables
 
 - **scenarios**: id, name, description, status, data_status, project, created_at, updated_at
-- **action_items**: id, scenario_id, title, description, status, priority, owner, due_date, created_at, updated_at
+- **action_items**: id, scenario_id, title, description, status, owner, due_date, project, user_id, created_at, updated_at
 - **timeline_events**: id, scenario_id, title, description, event_date, event_type, created_at, updated_at
 
 ## Commands
@@ -76,9 +87,10 @@ vercel --prod    # Deploy to Vercel
 
 ## Authentication
 
-- Supabase Auth with email/password and OAuth (Google, GitHub)
+- Supabase Auth with Google OAuth and email/password
 - Protected routes require authentication
 - Auth state managed via AuthContext
+- Display name and avatar extracted from Google user_metadata (full_name, avatar_url)
 
 ## Deployment
 

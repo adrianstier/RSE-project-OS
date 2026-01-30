@@ -1,17 +1,24 @@
 # RSE Tracker
 
-A project management application for Restoration Strategy Evaluation (RSE) coral conservation initiatives. Built with React, TypeScript, and Supabase.
+An internal project management application for Restoration Strategy Evaluation (RSE) coral conservation initiatives. Built with React, TypeScript, and Supabase.
 
 **Live:** https://rse-tracker.vercel.app
+
+## Team
+
+- Adrian Stier
+- Raine Detmer
+- Darcy Bradley
+- Jameal Samhouri
 
 ## Features
 
 - **Scenarios** - Track restoration scenarios with status, data readiness, and project assignments (Mote/Fundemar)
-- **Action Items** - Manage tasks with priorities, owners, due dates, and status tracking
+- **Action Items** - Manage tasks with owners, due dates, status tracking, and drag-and-drop Kanban board
 - **Timeline** - View milestones, deadlines, meetings, and deliverables
 - **Dashboard** - Overview of project progress and key metrics
 - **Real-time Updates** - Supabase realtime subscriptions for live collaboration
-- **Authentication** - Email/password and OAuth (Google, GitHub)
+- **Authentication** - Google OAuth and email/password
 
 ## Tech Stack
 
@@ -62,7 +69,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 ### Tables
 
 - **scenarios** - Restoration scenarios with name, description, status, data_status, project
-- **action_items** - Tasks with title, description, status, priority, owner, due_date, scenario_id
+- **action_items** - Tasks with title, description, status, owner, due_date, project, scenario_id
 - **timeline_events** - Events with title, description, event_date, event_type, scenario_id
 
 ## Deployment
@@ -76,7 +83,7 @@ vercel --prod
 
 ## OAuth Setup
 
-See [docs/OAUTH_SETUP.md](docs/OAUTH_SETUP.md) for instructions on configuring Google and GitHub OAuth.
+See [docs/OAUTH_SETUP.md](docs/OAUTH_SETUP.md) for configuring Google OAuth.
 
 ## Design
 
