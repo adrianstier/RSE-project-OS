@@ -31,12 +31,16 @@ import {
   GripVertical,
   UserCheck,
   Users,
+  Calendar,
+  FileText,
+  Layers,
 } from 'lucide-react';
 import {
   useActionItems,
   useUpdateActionItem,
   useDeleteActionItem,
   useRealtimeActionItems,
+  useScenarios,
 } from '../hooks/useSupabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
@@ -48,7 +52,7 @@ import Modal from '../components/Modal';
 import DeleteConfirm from '../components/DeleteConfirm';
 import { ActionItemForm } from '../components/forms';
 import { useToast } from '../components/Toast';
-import type { ActionItem, ActionItemStatus, Project } from '../types/database';
+import type { ActionItem, ActionItemStatus, Project, Scenario } from '../types/database';
 
 const statusOptions: { value: ActionItemStatus; label: string; icon: typeof Circle }[] = [
   { value: 'todo', label: 'To Do', icon: Circle },
@@ -74,6 +78,7 @@ export default function ActionItems() {
   const [editingItem, setEditingItem] = useState<ActionItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<ActionItem | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ActionItem | null>(null);
 
   // Feature 1: My Tasks toggle
   const { user } = useAuth();
@@ -86,9 +91,15 @@ export default function ActionItems() {
 
   const queryClient = useQueryClient();
   const { data: actionItems, isLoading } = useActionItems();
+  const { data: scenarios } = useScenarios();
   const updateActionItem = useUpdateActionItem();
   const deleteActionItem = useDeleteActionItem();
   const { success, error: showError } = useToast();
+
+  const getScenarioById = useCallback((id: string | null): Scenario | null => {
+    if (!id || !scenarios) return null;
+    return scenarios.find(s => s.id === id) || null;
+  }, [scenarios]);
 
   // Enable realtime updates
   useRealtimeActionItems();
@@ -463,6 +474,7 @@ export default function ActionItems() {
         >
           <KanbanBoard
             itemsByStatus={itemsByStatus}
+            onSelect={setSelectedItem}
             onEdit={handleEdit}
             onDelete={setDeletingItem}
             onOwnerChange={handleOwnerChange}
@@ -502,7 +514,8 @@ export default function ActionItems() {
                   return (
                     <tr
                       key={item.id}
-                      className="border-b border-surface-border last:border-0 hover:bg-surface-hover transition-colors"
+                      onClick={() => setSelectedItem(item)}
+                      className="border-b border-surface-border last:border-0 hover:bg-surface-hover transition-colors cursor-pointer"
                     >
                       <td className="py-3 px-4">
                         <p className={`text-sm font-medium text-text-primary ${item.status === 'done' ? 'line-through opacity-60' : ''}`}>
@@ -514,7 +527,7 @@ export default function ActionItems() {
                           </p>
                         )}
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
                         <InlineOwnerEdit
                           owner={item.owner}
                           onSave={(newOwner) => handleOwnerChange(item.id, newOwner)}
@@ -545,7 +558,7 @@ export default function ActionItems() {
                           <span className="text-sm text-text-muted">-</span>
                         )}
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
                         <select
                           value={item.status}
                           onChange={(e) =>
@@ -560,7 +573,7 @@ export default function ActionItems() {
                           ))}
                         </select>
                       </td>
-                      <td className="py-3 px-4 text-right">
+                      <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleEdit(item)}
@@ -586,6 +599,32 @@ export default function ActionItems() {
           </div>
         </Card>
       )}
+
+      {/* Detail Modal */}
+      <Modal
+        isOpen={!!selectedItem}
+        onClose={() => setSelectedItem(null)}
+        title={selectedItem?.title ?? ''}
+        size="lg"
+      >
+        {selectedItem && (
+          <ActionItemDetail
+            item={selectedItem}
+            scenario={getScenarioById(selectedItem.scenario_id)}
+            getDueDateStatus={getDueDateStatus}
+            onEdit={() => {
+              const item = selectedItem;
+              setSelectedItem(null);
+              handleEdit(item);
+            }}
+            onDelete={() => {
+              const item = selectedItem;
+              setSelectedItem(null);
+              setDeletingItem(item);
+            }}
+          />
+        )}
+      </Modal>
 
       {/* Create/Edit Modal */}
       <Modal
@@ -618,6 +657,7 @@ export default function ActionItems() {
 // Feature 5: Kanban Board with keyboard navigation
 interface KanbanBoardProps {
   itemsByStatus: Record<ActionItemStatus, ActionItem[]>;
+  onSelect: (item: ActionItem) => void;
   onEdit: (item: ActionItem) => void;
   onDelete: (item: ActionItem) => void;
   onOwnerChange: (itemId: string, newOwner: string) => void;
@@ -630,6 +670,7 @@ const STATUS_ORDER: ActionItemStatus[] = ['todo', 'in_progress', 'done', 'blocke
 
 function KanbanBoard({
   itemsByStatus,
+  onSelect,
   onEdit,
   onDelete,
   onOwnerChange,
@@ -708,11 +749,11 @@ function KanbanBoard({
           break;
         }
         case 'Enter': {
-          // Enter to open edit
+          // Enter to open detail
           e.preventDefault();
-          const editItem = currentColItems[focusedRow];
-          if (editItem) {
-            onEdit(editItem);
+          const detailItem = currentColItems[focusedRow];
+          if (detailItem) {
+            onSelect(detailItem);
           }
           break;
         }
@@ -721,7 +762,7 @@ function KanbanBoard({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [focusedCol, focusedRow, grid, onEdit, onQuickToggleDone]);
+  }, [focusedCol, focusedRow, grid, onSelect, onQuickToggleDone]);
 
   // Focus the correct card when focusedCol/focusedRow changes
   useEffect(() => {
@@ -741,6 +782,7 @@ function KanbanBoard({
           label={label}
           icon={Icon}
           items={itemsByStatus[value]}
+          onSelect={onSelect}
           onEdit={onEdit}
           onDelete={onDelete}
           onOwnerChange={onOwnerChange}
@@ -764,6 +806,7 @@ interface KanbanColumnProps {
   label: string;
   icon: typeof Circle;
   items: ActionItem[];
+  onSelect: (item: ActionItem) => void;
   onEdit: (item: ActionItem) => void;
   onDelete: (item: ActionItem) => void;
   onOwnerChange: (itemId: string, newOwner: string) => void;
@@ -779,6 +822,7 @@ function KanbanColumn({
   label,
   icon: Icon,
   items,
+  onSelect,
   onEdit,
   onDelete,
   onOwnerChange,
@@ -829,6 +873,7 @@ function KanbanColumn({
             <DraggableCard
               key={item.id}
               item={item}
+              onSelect={onSelect}
               onEdit={onEdit}
               onDelete={onDelete}
               onOwnerChange={onOwnerChange}
@@ -848,6 +893,7 @@ function KanbanColumn({
 // Draggable Card Component
 interface DraggableCardProps {
   item: ActionItem;
+  onSelect: (item: ActionItem) => void;
   onEdit: (item: ActionItem) => void;
   onDelete: (item: ActionItem) => void;
   onOwnerChange: (itemId: string, newOwner: string) => void;
@@ -860,6 +906,7 @@ interface DraggableCardProps {
 
 function DraggableCard({
   item,
+  onSelect,
   onEdit,
   onDelete,
   onOwnerChange,
@@ -896,7 +943,8 @@ function DraggableCard({
       data-card-id={item.id}
       tabIndex={0}
       onFocus={onFocus}
-      className={`glass-card !p-4 outline-none transition-all duration-150 ${
+      onClick={() => onSelect(item)}
+      className={`glass-card !p-4 outline-none transition-all duration-150 cursor-pointer ${
         isDragging ? 'shadow-lg ring-2 ring-coral-400/50' : ''
       } ${
         isFocused ? 'ring-2 ring-coral-400/60 bg-surface-hover/50' : ''
@@ -906,7 +954,7 @@ function DraggableCard({
         <div className="flex items-start justify-between gap-2">
           {/* Feature 2: Quick action checkbox */}
           <button
-            onClick={() => onQuickToggleDone(item)}
+            onClick={(e) => { e.stopPropagation(); onQuickToggleDone(item); }}
             className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-150 ${
               isDone
                 ? 'bg-emerald-400/20 border-emerald-400 text-emerald-400'
@@ -936,14 +984,14 @@ function DraggableCard({
           </p>
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
-              onClick={() => onEdit(item)}
+              onClick={(e) => { e.stopPropagation(); onEdit(item); }}
               className="p-1.5 text-text-muted hover:text-coral-400 hover:bg-surface-hover rounded-lg transition-colors"
               aria-label="Edit"
             >
               <Pencil className="w-4 h-4" />
             </button>
             <button
-              onClick={() => onDelete(item)}
+              onClick={(e) => { e.stopPropagation(); onDelete(item); }}
               className="p-1.5 text-text-muted hover:text-red-400 hover:bg-surface-hover rounded-lg transition-colors"
               aria-label="Delete"
             >
@@ -978,7 +1026,7 @@ function DraggableCard({
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-surface-border">
+        <div className="flex items-center justify-between pt-2 border-t border-surface-border" onClick={(e) => e.stopPropagation()}>
           {/* Inline Owner Editing */}
           <InlineOwnerEdit
             owner={item.owner}
@@ -1054,6 +1102,125 @@ function DragOverlayCard({ item, getDueDateStatus }: DragOverlayCardProps) {
             </span>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Action Item Detail Component
+interface ActionItemDetailProps {
+  item: ActionItem;
+  scenario: Scenario | null;
+  getDueDateStatus: (dueDate: string | null, status: ActionItemStatus) => { type: 'overdue' | 'today' | 'tomorrow'; label: string } | null;
+  onEdit: () => void;
+  onDelete: () => void;
+}
+
+function ActionItemDetail({ item, scenario, getDueDateStatus, onEdit, onDelete }: ActionItemDetailProps) {
+  const dueDateStatus = getDueDateStatus(item.due_date, item.status);
+
+  return (
+    <div className="space-y-6">
+      {/* Badges row */}
+      <div className="flex flex-wrap gap-2">
+        <StatusBadge variant="action" value={item.status} />
+        {item.project && <StatusBadge variant="project" value={item.project} />}
+      </div>
+
+      {/* Description */}
+      <div>
+        {item.description ? (
+          <p className="text-sm text-text-secondary whitespace-pre-line leading-relaxed">
+            {item.description}
+          </p>
+        ) : (
+          <p className="text-sm text-text-muted italic">No description provided.</p>
+        )}
+      </div>
+
+      {/* Metadata */}
+      <div className="border-t border-ocean-700/30 pt-4">
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="flex items-center gap-2 text-text-secondary">
+            <User className="w-4 h-4" />
+            <span>Owner</span>
+          </div>
+          <div className="text-text-primary">
+            {item.owner || <span className="text-text-muted">Unassigned</span>}
+          </div>
+
+          <div className="flex items-center gap-2 text-text-secondary">
+            <Clock className="w-4 h-4" />
+            <span>Due Date</span>
+          </div>
+          <div className={`flex items-center gap-2 ${
+            dueDateStatus?.type === 'overdue' ? 'text-red-400' :
+            dueDateStatus?.type === 'today' ? 'text-amber-400' :
+            'text-text-primary'
+          }`}>
+            {item.due_date ? (
+              <>
+                {dueDateStatus?.type === 'overdue' && <AlertCircle className="w-3.5 h-3.5" />}
+                {format(new Date(item.due_date), 'MMM d, yyyy')}
+                {dueDateStatus && (
+                  <span className="text-xs opacity-75">({dueDateStatus.label})</span>
+                )}
+              </>
+            ) : (
+              <span className="text-text-muted">No due date</span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 text-text-secondary">
+            <Calendar className="w-4 h-4" />
+            <span>Created</span>
+          </div>
+          <div className="text-text-primary">
+            {format(new Date(item.created_at), 'MMM d, yyyy')}
+          </div>
+
+          <div className="flex items-center gap-2 text-text-secondary">
+            <FileText className="w-4 h-4" />
+            <span>Updated</span>
+          </div>
+          <div className="text-text-primary">
+            {format(new Date(item.updated_at), 'MMM d, yyyy')}
+          </div>
+        </div>
+      </div>
+
+      {/* Linked Scenario */}
+      <div className="border-t border-ocean-700/30 pt-4">
+        <h4 className="flex items-center gap-2 text-sm font-medium text-text-primary mb-3">
+          <Layers className="w-4 h-4 text-coral-400" />
+          Linked Scenario
+        </h4>
+        {scenario ? (
+          <div className="flex items-center justify-between p-3 bg-surface-lighter rounded-lg">
+            <div className="flex items-center gap-2 min-w-0">
+              <Layers className="w-4 h-4 text-coral-400 flex-shrink-0" />
+              <span className="text-sm text-text-primary truncate">{scenario.title}</span>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <StatusBadge variant="project" value={scenario.project} />
+              <StatusBadge variant="status" value={scenario.status} />
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-text-muted">No linked scenario.</p>
+        )}
+      </div>
+
+      {/* Action buttons */}
+      <div className="border-t border-ocean-700/30 pt-4 flex gap-3 justify-end">
+        <button onClick={onDelete} className="btn-secondary flex items-center gap-2 text-red-400 hover:text-red-300">
+          <Trash2 className="w-4 h-4" />
+          Delete
+        </button>
+        <button onClick={onEdit} className="btn-primary flex items-center gap-2">
+          <Pencil className="w-4 h-4" />
+          Edit
+        </button>
       </div>
     </div>
   );
