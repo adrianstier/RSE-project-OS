@@ -91,6 +91,18 @@ export default function ActionItems() {
     localStorage.removeItem('rse-my-tasks-preference');
   }, []);
 
+  // Mobile: auto-switch to list view on small screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640 && viewMode === 'kanban') {
+        setViewMode('list');
+      }
+    };
+    handleResize(); // check on mount
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [viewMode]);
+
   const queryClient = useQueryClient();
   const { data: actionItems, isLoading } = useActionItems();
   const { data: scenarios } = useScenarios();
@@ -344,7 +356,7 @@ export default function ActionItems() {
       {/* Page Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="font-heading text-2xl md:text-3xl font-extrabold text-text-primary tracking-tight flex items-center gap-3">
+          <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary tracking-tight flex items-center gap-3">
             <CheckSquare className="w-7 h-7 md:w-8 md:h-8 text-coral-400 flex-shrink-0" />
             <span className="truncate">Action Items</span>
           </h1>
@@ -417,7 +429,7 @@ export default function ActionItems() {
       </div>
 
       {/* Filters */}
-      <Card className="!p-4">
+      <Card compact>
         <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-2 text-text-secondary">
             <Filter className="w-4 h-4" />
@@ -596,7 +608,7 @@ export default function ActionItems() {
                             {format(new Date(item.due_date), 'MMM d, yyyy')}
                           </span>
                         ) : (
-                          <span className="text-sm text-text-muted">-</span>
+                          <span className="text-text-muted text-xs">No date</span>
                         )}
                       </td>
                       <td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
@@ -902,7 +914,7 @@ function KanbanColumn({
       </div>
 
       <div
-        className="space-y-3 flex-1 min-h-[200px] p-2"
+        className="space-y-3 flex-1 min-h-[200px] p-2 max-h-[calc(100vh-320px)] overflow-y-auto"
       >
         {items.length === 0 ? (
           <div className="glass-card !p-4 text-center">

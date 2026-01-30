@@ -42,13 +42,14 @@ export default {
         surface: {
           DEFAULT: '#0f1c22',
           card: '#162229',
-          hover: '#1c2a32',
-          border: '#243640',
+          lighter: '#1c2a32',
+          hover: '#1a2830',
+          border: '#243038',
         },
         text: {
           primary: '#e5ebed',
           secondary: '#8a9ba3',
-          muted: '#5c6f78',
+          muted: '#7a8d96',
         }
       },
       fontFamily: {
@@ -67,6 +68,12 @@ export default {
       animation: {
         'fade-in': 'fadeIn 0.15s ease-out',
         'slide-up': 'slideUp 0.2s ease-out',
+        'stagger': 'fadeIn 0.3s ease-out',
+        'stagger-1': 'staggerIn 0.4s ease-out both',
+        'stagger-2': 'staggerIn 0.4s ease-out 0.1s both',
+        'stagger-3': 'staggerIn 0.4s ease-out 0.2s both',
+        'stagger-4': 'staggerIn 0.4s ease-out 0.3s both',
+        'bounce-once': 'bounceOnce 0.5s ease-out',
       },
       keyframes: {
         fadeIn: {
@@ -76,6 +83,15 @@ export default {
         slideUp: {
           '0%': { opacity: '0', transform: 'translateY(8px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        staggerIn: {
+          '0%': { opacity: '0', transform: 'translateY(12px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        bounceOnce: {
+          '0%': { transform: 'scale(0)' },
+          '50%': { transform: 'scale(1.2)' },
+          '100%': { transform: 'scale(1)' },
         },
       },
     },

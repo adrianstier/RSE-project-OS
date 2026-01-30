@@ -225,15 +225,6 @@ export default function Layout() {
                 <kbd className="ml-auto px-2 py-0.5 bg-ocean-700/50 rounded-lg text-[10px] font-mono text-coral-400 border border-ocean-600/50">?</kbd>
               </button>
             </Tooltip>
-
-            {/* Connection status */}
-            <div className="flex items-center gap-2 px-4 py-2 text-xs text-text-muted" role="status" aria-live="polite">
-              <span className="relative flex h-2 w-2" aria-hidden="true">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-              </span>
-              <span>Connected to Supabase</span>
-            </div>
           </div>
         </div>
       </aside>
@@ -259,15 +250,15 @@ export default function Layout() {
 
             {/* Project badges */}
             <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-surface-lighter/50 rounded-full border border-ocean-700/20">
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-surface-lighter/50 rounded-full border border-ocean-700/20">
                 <Waves className="w-4 h-4 text-coral-400/60" />
                 <span className="text-xs text-text-muted font-medium">Conservation Projects</span>
               </div>
-              <span className="px-3 py-1.5 text-xs font-semibold rounded-full project-mote border backdrop-blur-sm">
+              <span className="hidden sm:inline-flex px-3 py-1.5 text-xs font-semibold rounded-full project-mote border backdrop-blur-sm">
                 <span className="w-3 h-3 inline-flex items-center justify-center bg-current/20 rounded text-[8px] mr-1.5 font-bold">M</span>
                 Mote
               </span>
-              <span className="px-3 py-1.5 text-xs font-semibold rounded-full project-fundemar border backdrop-blur-sm">
+              <span className="hidden sm:inline-flex px-3 py-1.5 text-xs font-semibold rounded-full project-fundemar border backdrop-blur-sm">
                 <span className="w-3 h-3 inline-flex items-center justify-center bg-current/20 rounded text-[8px] mr-1.5 font-bold">F</span>
                 Fundemar
               </span>

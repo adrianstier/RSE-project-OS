@@ -141,7 +141,7 @@ export default function Timeline() {
       {/* Page Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="font-heading text-2xl md:text-3xl font-extrabold text-text-primary tracking-tight flex items-center gap-3">
+          <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary tracking-tight flex items-center gap-3">
             <Calendar className="w-7 h-7 md:w-8 md:h-8 text-coral-400 flex-shrink-0" />
             <span className="truncate">Timeline</span>
           </h1>
@@ -219,6 +219,24 @@ export default function Timeline() {
             />
             <span className="text-sm text-text-secondary">Show past events</span>
           </label>
+        </div>
+      </Card>
+
+      {/* Legend (top) */}
+      <Card className="!p-4">
+        <div className="flex flex-wrap items-center gap-6">
+          <span className="text-sm font-medium text-text-secondary">Event Types:</span>
+          {Object.entries(eventTypeConfig).map(([type, config]) => {
+            const Icon = config.icon;
+            return (
+              <div key={type} className="flex items-center gap-2">
+                <div className={`w-6 h-6 rounded-full ${config.bgColor}/20 flex items-center justify-center`}>
+                  <Icon className={`w-3 h-3 ${config.color}`} />
+                </div>
+                <span className="text-sm text-text-secondary capitalize">{type}</span>
+              </div>
+            );
+          })}
         </div>
       </Card>
 

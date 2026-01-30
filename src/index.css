@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design token CSS custom properties */
+:root {
+  --color-coral-400: #4ecdc4;
+  --color-mote-400: #ee7996;
+  --color-fundemar-400: #5bb5d5;
+  --color-blue: #3b82f6;
+  --color-purple: #a855f7;
+  --color-red: #ef4444;
+  --color-gold-400: #f0c850;
+  --color-emerald: #10b981;
+}
+
 /* Base styles - Clean and minimal */
 @layer base {
   html {
@@ -167,7 +179,7 @@
     @apply px-4 py-2 bg-coral-400 text-ocean-900 font-medium rounded-lg;
     @apply transition-colors duration-150;
     @apply hover:bg-coral-500;
-    @apply focus:outline-none focus:ring-2 focus:ring-coral-400/50 focus:ring-offset-2 focus:ring-offset-surface;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-coral-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ocean-900;
   }
 
   .btn-primary:active {
@@ -179,7 +191,7 @@
     @apply border border-surface-border;
     @apply transition-colors duration-150;
     @apply hover:bg-ocean-700 hover:border-ocean-600;
-    @apply focus:outline-none focus:ring-2 focus:ring-ocean-500/50 focus:ring-offset-2 focus:ring-offset-surface;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-coral-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ocean-900;
   }
 
   .btn-secondary:active {
@@ -190,14 +202,14 @@
     @apply px-3 py-2 text-text-secondary font-medium rounded-lg;
     @apply transition-colors duration-150;
     @apply hover:bg-surface-hover hover:text-text-primary;
-    @apply focus:outline-none focus:ring-2 focus:ring-ocean-500/50;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-coral-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ocean-900;
   }
 
   .btn-gold {
     @apply px-4 py-2 bg-gold-400 text-ocean-900 font-medium rounded-lg;
     @apply transition-colors duration-150;
     @apply hover:bg-gold-500;
-    @apply focus:outline-none focus:ring-2 focus:ring-gold-400/50 focus:ring-offset-2 focus:ring-offset-surface;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-coral-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ocean-900;
   }
 
   .btn-danger {
@@ -205,7 +217,7 @@
     @apply border border-red-500/20;
     @apply transition-colors duration-150;
     @apply hover:bg-red-500/25;
-    @apply focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-2 focus:ring-offset-surface;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-coral-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ocean-900;
   }
 
   /* Input fields - clean */
@@ -214,7 +226,7 @@
     @apply bg-surface-card border border-surface-border;
     @apply text-text-primary placeholder-text-muted;
     @apply transition-colors duration-150;
-    @apply focus:outline-none focus:ring-2 focus:ring-coral-400/30 focus:border-coral-400/50;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-coral-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ocean-900 focus:border-coral-400/50;
   }
 
   .input-field:hover:not(:focus) {
@@ -226,7 +238,7 @@
     @apply bg-surface-card border border-surface-border;
     @apply text-text-primary cursor-pointer appearance-none;
     @apply transition-colors duration-150;
-    @apply focus:outline-none focus:ring-2 focus:ring-coral-400/30 focus:border-coral-400/50;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-coral-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ocean-900 focus:border-coral-400/50;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%238a9ba3' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
     background-position: right 0.5rem center;
     background-repeat: no-repeat;
@@ -300,6 +312,13 @@
   }
 
   /* Line clamp */
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -325,7 +344,7 @@
 
   /* Focus ring */
   .focus-ring {
-    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-coral-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-coral-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ocean-900;
   }
 
   /* Touch target minimum */
@@ -357,7 +376,7 @@
 
   /* Focus visible */
   *:focus-visible {
-    @apply outline-none ring-2 ring-coral-400/50 ring-offset-2 ring-offset-surface;
+    @apply outline-none ring-2 ring-coral-400/50 ring-offset-2 ring-offset-ocean-900;
   }
 
   /* Responsive mobile */

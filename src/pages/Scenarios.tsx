@@ -107,7 +107,7 @@ export default function Scenarios() {
       {/* Page Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="font-heading text-2xl md:text-3xl font-extrabold text-text-primary tracking-tight flex items-center gap-3">
+          <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary tracking-tight flex items-center gap-3">
             <Layers className="w-7 h-7 md:w-8 md:h-8 text-coral-400 flex-shrink-0" />
             <span className="truncate">Scenarios</span>
           </h1>
@@ -267,7 +267,7 @@ function ScenarioCard({ scenario, actions, isExpanded, onToggleExpand, onEdit, o
     <Card hover onClick={onSelect} className="flex flex-col" role="listitem">
       <CardHeader className="flex-shrink-0">
         <div className="flex-1 min-w-0">
-          <CardTitle className="truncate">{scenario.title}</CardTitle>
+          <CardTitle className="line-clamp-2">{scenario.title}</CardTitle>
         </div>
         <div className="flex items-center gap-2">
           <StatusBadge variant="project" value={scenario.project} />
@@ -402,7 +402,7 @@ function renderDescription(description: string | null) {
   const flushParagraph = (key: string) => {
     if (currentParagraph.length > 0) {
       elements.push(
-        <p key={key} className="text-text-secondary leading-relaxed">
+        <p key={key} className="text-text-secondary leading-relaxed whitespace-pre-line">
           {currentParagraph.join('\n')}
         </p>,
       );

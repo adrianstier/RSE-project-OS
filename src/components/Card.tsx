@@ -4,13 +4,14 @@ interface CardProps {
   children: ReactNode;
   className?: string;
   hover?: boolean;
+  compact?: boolean;
   onClick?: () => void;
   variant?: 'default' | 'mote' | 'fundemar' | 'highlight';
   role?: string;
   'aria-label'?: string;
 }
 
-export default function Card({ children, className = '', hover = false, onClick, variant = 'default', role: customRole, 'aria-label': ariaLabel }: CardProps) {
+export default function Card({ children, className = '', hover = false, compact = false, onClick, variant = 'default', role: customRole, 'aria-label': ariaLabel }: CardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Track mouse position for glow effect
@@ -43,7 +44,7 @@ export default function Card({ children, className = '', hover = false, onClick,
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
       className={`
-        glass-card p-5 lg:p-6
+        glass-card ${compact ? 'p-4' : 'p-5 lg:p-6'}
         transition-all duration-300 ease-out
         ${hover ? 'hover-lift cursor-pointer' : ''}
         ${variantClasses[variant]}

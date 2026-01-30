@@ -21,6 +21,17 @@ import { StatCardSkeleton, ListItemSkeleton } from '../components/Skeleton';
 import WelcomeHeader from '../components/WelcomeHeader';
 import Tooltip from '../components/Tooltip';
 
+const THEME_COLORS = {
+  coral: 'var(--color-coral-400, #4ecdc4)',
+  mote: 'var(--color-mote-400, #ee7996)',
+  fundemar: 'var(--color-fundemar-400, #5bb5d5)',
+  blue: 'var(--color-blue, #3b82f6)',
+  purple: 'var(--color-purple, #a855f7)',
+  red: 'var(--color-red, #ef4444)',
+  gold: 'var(--color-gold-400, #f0c850)',
+  emerald: 'var(--color-emerald, #10b981)',
+};
+
 interface StatCardProps {
   title: string;
   value: number | string;
@@ -34,7 +45,7 @@ interface StatCardProps {
 }
 
 // Progress ring component for visual stats
-function ProgressRing({ progress, size = 48, strokeWidth = 4, color = '#4ecdc4' }: {
+function ProgressRing({ progress, size = 48, strokeWidth = 4, color = THEME_COLORS.coral }: {
   progress: number;
   size?: number;
   strokeWidth?: number;
@@ -79,13 +90,13 @@ function StatCard({ title, value, icon: Icon, iconBg, iconColor, subtitle, href,
       {/* Decorative gradient blob */}
       <div
         className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-20 transition-opacity duration-300 group-hover:opacity-30"
-        style={{ background: accentColor || '#4ecdc4' }}
+        style={{ background: accentColor || THEME_COLORS.coral }}
       />
 
       <div className="relative flex items-start justify-between">
         <div className="space-y-1">
           <p className="text-sm font-medium text-text-secondary">{title}</p>
-          <p className="font-heading text-4xl font-extrabold text-text-primary tracking-tight">{value}</p>
+          <p className="font-heading text-4xl font-bold text-text-primary tracking-tight">{value}</p>
           {subtitle && (
             <p className="text-xs text-text-muted flex items-center gap-1">
               <span className="w-1 h-1 rounded-full bg-current opacity-50" />
@@ -288,7 +299,7 @@ export default function Dashboard() {
                   iconColor="text-coral-400"
                   subtitle={`${stats.activeCount} active`}
                   href="/scenarios"
-                  accentColor="#4ecdc4"
+                  accentColor={THEME_COLORS.coral}
                 />
               </Tooltip>
             </div>
@@ -302,7 +313,7 @@ export default function Dashboard() {
                   iconColor="text-blue-400"
                   subtitle={stats.blockedActions > 0 ? `${stats.blockedActions} blocked` : 'On track'}
                   href="/actions"
-                  accentColor="#3b82f6"
+                  accentColor={THEME_COLORS.blue}
                 />
               </Tooltip>
             </div>
@@ -316,7 +327,7 @@ export default function Dashboard() {
                   iconColor="text-purple-400"
                   subtitle="Next 7 days"
                   href="/timeline"
-                  accentColor="#a855f7"
+                  accentColor={THEME_COLORS.purple}
                 />
               </Tooltip>
             </div>
@@ -328,7 +339,7 @@ export default function Dashboard() {
                 iconBg={stats.overdueCount > 0 ? 'bg-red-500/15' : 'bg-emerald-500/15'}
                 iconColor={stats.overdueCount > 0 ? 'text-red-400' : 'text-emerald-400'}
                 subtitle={stats.overdueCount > 0 ? 'Overdue items' : 'All on track'}
-                accentColor={stats.overdueCount > 0 ? '#ef4444' : '#10b981'}
+                accentColor={stats.overdueCount > 0 ? THEME_COLORS.red : THEME_COLORS.emerald}
               />
             </div>
           </>
@@ -366,7 +377,7 @@ export default function Dashboard() {
                       cy="60"
                       r="50"
                       fill="none"
-                      stroke="#10b981"
+                      stroke={THEME_COLORS.emerald}
                       strokeWidth="12"
                       strokeLinecap="round"
                       strokeDasharray={`${2 * Math.PI * 50}`}
@@ -514,7 +525,7 @@ export default function Dashboard() {
                         progress={(stats.moteCount / stats.totalScenarios) * 100}
                         size={56}
                         strokeWidth={5}
-                        color="#ee7996"
+                        color={THEME_COLORS.mote}
                       />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span className="text-sm font-bold text-mote-400">
@@ -581,7 +592,7 @@ export default function Dashboard() {
                         progress={(stats.fundemarCount / stats.totalScenarios) * 100}
                         size={56}
                         strokeWidth={5}
-                        color="#2cc4ff"
+                        color={THEME_COLORS.fundemar}
                       />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span className="text-sm font-bold text-fundemar-400">
