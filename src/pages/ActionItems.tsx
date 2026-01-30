@@ -1276,35 +1276,36 @@ function InlineOwnerEdit({ owner, onSave }: InlineOwnerEditProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(owner || '');
 
-  const handleSave = () => {
-    if (value !== (owner || '')) {
-      onSave(value);
+  const teamMembers = [
+    { value: '', label: 'Unassigned' },
+    { value: 'Adrian Stier', label: 'Adrian Stier' },
+    { value: 'Raine Detmer', label: 'Raine Detmer' },
+    { value: 'Darcy Bradley', label: 'Darcy Bradley' },
+    { value: 'Jameal Samhouri', label: 'Jameal Samhouri' },
+  ];
+
+  const handleChange = (newValue: string) => {
+    setValue(newValue);
+    if (newValue !== (owner || '')) {
+      onSave(newValue);
     }
     setIsEditing(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSave();
-    } else if (e.key === 'Escape') {
-      setValue(owner || '');
-      setIsEditing(false);
-    }
-  };
-
   if (isEditing) {
     return (
-      <input
-        type="text"
+      <select
         value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={handleSave}
-        onKeyDown={handleKeyDown}
+        onChange={(e) => handleChange(e.target.value)}
+        onBlur={() => setIsEditing(false)}
         autoFocus
-        className="w-24 px-2 py-1 text-xs bg-surface-card border border-surface-border rounded focus:outline-none focus:ring-2 focus:ring-coral-400/50"
-        placeholder="Owner name"
-        aria-label="Owner name"
-      />
+        className="w-32 px-2 py-1 text-xs bg-surface-card border border-surface-border rounded focus:outline-none focus:ring-2 focus:ring-coral-400/50"
+        aria-label="Select owner"
+      >
+        {teamMembers.map((opt) => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
     );
   }
 

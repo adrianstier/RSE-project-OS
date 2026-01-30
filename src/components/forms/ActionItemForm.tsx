@@ -32,6 +32,14 @@ const projectOptions: { value: Project | ''; label: string }[] = [
   { value: 'fundemar', label: 'Fundemar' },
 ];
 
+const ownerOptions: { value: string; label: string }[] = [
+  { value: '', label: 'Unassigned' },
+  { value: 'Adrian Stier', label: 'Adrian Stier' },
+  { value: 'Raine Detmer', label: 'Raine Detmer' },
+  { value: 'Darcy Bradley', label: 'Darcy Bradley' },
+  { value: 'Jameal Samhouri', label: 'Jameal Samhouri' },
+];
+
 const statusOptions: { value: ActionItemStatus; label: string }[] = [
   { value: 'todo', label: 'To Do' },
   { value: 'in_progress', label: 'In Progress' },
@@ -198,14 +206,18 @@ export default function ActionItemForm({ actionItem, onSuccess, onCancel }: Acti
           <label htmlFor="owner" className="block text-sm font-medium text-text-secondary mb-2">
             Owner
           </label>
-          <input
-            type="text"
+          <select
             id="owner"
             value={formData.owner}
             onChange={(e) => setFormData({ ...formData, owner: e.target.value })}
-            className="input-field"
-            placeholder="Assign to someone"
-          />
+            className="select-field"
+          >
+            {ownerOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Status */}
