@@ -5,6 +5,7 @@ import {
   useUpdateActionItem,
   useScenarios,
 } from '../../hooks/useSupabase';
+import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../Toast';
 import CharacterCount from '../CharacterCount';
 import Tooltip from '../Tooltip';
@@ -41,6 +42,7 @@ const statusOptions: { value: ActionItemStatus; label: string }[] = [
 export default function ActionItemForm({ actionItem, onSuccess, onCancel }: ActionItemFormProps) {
   const isEditing = !!actionItem;
   const { success, error: showError } = useToast();
+  const { displayName } = useAuth();
 
   const createActionItem = useCreateActionItem();
   const updateActionItem = useUpdateActionItem();
@@ -49,7 +51,7 @@ export default function ActionItemForm({ actionItem, onSuccess, onCancel }: Acti
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    owner: '',
+    owner: displayName || '',
     status: 'todo' as ActionItemStatus,
     due_date: '',
     project: '' as Project | '',

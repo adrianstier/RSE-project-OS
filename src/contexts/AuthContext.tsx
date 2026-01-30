@@ -14,6 +14,8 @@ interface AuthState {
 }
 
 interface AuthContextValue extends AuthState {
+  displayName: string | null;
+  avatarUrl: string | null;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<{ error: AuthError | null }>;
@@ -141,11 +143,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // CONTEXT VALUE
   // ============================================
 
+  // Extract display name and avatar from OAuth metadata
+  const metadata = state.user?.user_metadata;
+  const displayName = metadata?.full_name || metadata?.name || null;
+  const avatarUrl = metadata?.avatar_url || metadata?.picture || null;
+
   const value: AuthContextValue = {
     user: state.user,
     session: state.session,
     loading: state.loading,
     initialized: state.initialized,
+    displayName,
+    avatarUrl,
     signIn,
     signUp,
     signOut,

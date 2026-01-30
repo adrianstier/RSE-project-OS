@@ -83,7 +83,7 @@ export default function ActionItems() {
   const [selectedItem, setSelectedItem] = useState<ActionItem | null>(null);
 
   // Feature 1: My Tasks toggle
-  const { user } = useAuth();
+  const { user, displayName } = useAuth();
   const [showMyTasks, setShowMyTasks] = useState<boolean>(false);
 
   // Clear stale localStorage preference
@@ -159,13 +159,18 @@ export default function ActionItems() {
   const filteredItems = useMemo(() => {
     if (!actionItems) return [];
     return actionItems.filter((item) => {
-      // My Tasks filter
+      // My Tasks filter — match by display name, email, or email prefix
       if (showMyTasks && user?.email) {
-        const userEmail = user.email.toLowerCase();
         const ownerValue = (item.owner || '').toLowerCase();
-        // Match by email or by display name (part before @)
-        const displayName = userEmail.split('@')[0];
-        if (ownerValue !== userEmail && ownerValue !== displayName) {
+        const userEmail = user.email.toLowerCase();
+        const emailPrefix = userEmail.split('@')[0];
+        const userName = displayName?.toLowerCase() || '';
+        if (
+          ownerValue !== userEmail &&
+          ownerValue !== emailPrefix &&
+          (userName && ownerValue !== userName) &&
+          (!userName || !ownerValue)
+        ) {
           return false;
         }
       }

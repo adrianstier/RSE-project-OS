@@ -172,6 +172,13 @@ export default function Dashboard() {
       (e) => isAfter(new Date(e.event_date), now) && isBefore(new Date(e.event_date), nextWeek)
     );
 
+    // Status breakdown for progress visualization
+    const todoCount = actionItems.filter((a) => a.status === 'todo').length;
+    const inProgressCount = actionItems.filter((a) => a.status === 'in_progress').length;
+    const doneCount = actionItems.filter((a) => a.status === 'done').length;
+    const blockedCount = blockedActions.length;
+    const totalItems = actionItems.length;
+
     return {
       totalScenarios: scenarios.length,
       moteCount: moteScenarios.length,
@@ -181,6 +188,13 @@ export default function Dashboard() {
       blockedActions: blockedActions.length,
       overdueCount: overdueActions.length,
       upcomingEventsCount: upcomingEvents.length,
+      // Progress breakdown
+      todoCount,
+      inProgressCount,
+      doneCount,
+      blockedCount,
+      totalItems,
+      completionPercent: totalItems > 0 ? Math.round((doneCount / totalItems) * 100) : 0,
     };
   }, [scenarios, actionItems, timelineEvents]);
 
@@ -320,6 +334,139 @@ export default function Dashboard() {
           </>
         ) : null}
       </div>
+
+      {/* Feature 4: Progress Overview */}
+      {!isFirstTimeUser && stats && stats.totalItems > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-emerald-500/10 rounded-lg">
+                <TrendingUp className="w-5 h-5 text-emerald-400" />
+              </div>
+              <CardTitle>Progress Overview</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Donut chart */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="relative">
+                  <svg width="120" height="120" viewBox="0 0 120 120" className="transform -rotate-90">
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="50"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="12"
+                      className="text-surface-hover"
+                    />
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="50"
+                      fill="none"
+                      stroke="#10b981"
+                      strokeWidth="12"
+                      strokeLinecap="round"
+                      strokeDasharray={`${2 * Math.PI * 50}`}
+                      strokeDashoffset={`${2 * Math.PI * 50 * (1 - stats.completionPercent / 100)}`}
+                      style={{ transition: 'stroke-dashoffset 0.7s ease-out' }}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-2xl font-bold text-text-primary">{stats.completionPercent}%</span>
+                    <span className="text-xs text-text-muted">complete</span>
+                  </div>
+                </div>
+                <p className="text-sm text-text-secondary">
+                  {stats.doneCount} of {stats.totalItems} items done
+                </p>
+              </div>
+
+              {/* Status breakdown bar */}
+              <div className="flex flex-col justify-center gap-4">
+                <p className="text-sm font-medium text-text-secondary">Status Breakdown</p>
+                {/* Stacked bar */}
+                <div className="h-4 rounded-full overflow-hidden flex bg-surface-hover">
+                  {stats.todoCount > 0 && (
+                    <div
+                      className="bg-slate-400 transition-all duration-500"
+                      style={{ width: `${(stats.todoCount / stats.totalItems) * 100}%` }}
+                      title={`To Do: ${stats.todoCount}`}
+                    />
+                  )}
+                  {stats.inProgressCount > 0 && (
+                    <div
+                      className="bg-blue-400 transition-all duration-500"
+                      style={{ width: `${(stats.inProgressCount / stats.totalItems) * 100}%` }}
+                      title={`In Progress: ${stats.inProgressCount}`}
+                    />
+                  )}
+                  {stats.doneCount > 0 && (
+                    <div
+                      className="bg-emerald-400 transition-all duration-500"
+                      style={{ width: `${(stats.doneCount / stats.totalItems) * 100}%` }}
+                      title={`Done: ${stats.doneCount}`}
+                    />
+                  )}
+                  {stats.blockedCount > 0 && (
+                    <div
+                      className="bg-red-400 transition-all duration-500"
+                      style={{ width: `${(stats.blockedCount / stats.totalItems) * 100}%` }}
+                      title={`Blocked: ${stats.blockedCount}`}
+                    />
+                  )}
+                </div>
+                {/* Legend */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-sm bg-slate-400 flex-shrink-0" />
+                    <span className="text-xs text-text-secondary">To Do ({stats.todoCount})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-sm bg-blue-400 flex-shrink-0" />
+                    <span className="text-xs text-text-secondary">In Progress ({stats.inProgressCount})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-sm bg-emerald-400 flex-shrink-0" />
+                    <span className="text-xs text-text-secondary">Done ({stats.doneCount})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-sm bg-red-400 flex-shrink-0" />
+                    <span className="text-xs text-text-secondary">Blocked ({stats.blockedCount})</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Overdue indicator */}
+              <div className="flex flex-col items-center justify-center gap-3">
+                {stats.overdueCount > 0 ? (
+                  <>
+                    <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20">
+                      <AlertTriangle className="w-8 h-8 text-red-400" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-red-400">{stats.overdueCount}</p>
+                      <p className="text-sm text-red-400/80">overdue item{stats.overdueCount !== 1 ? 's' : ''}</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+                      <CheckSquare className="w-8 h-8 text-emerald-400" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium text-emerald-400">All on track</p>
+                      <p className="text-xs text-text-muted mt-0.5">No overdue items</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Project Breakdown - Enhanced with progress rings */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">

@@ -15,6 +15,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import Breadcrumbs from './Breadcrumbs';
 import KeyboardShortcuts from './KeyboardShortcuts';
+import GlobalSearch from './GlobalSearch';
 import Tooltip from './Tooltip';
 
 // Custom coral shell icon SVG
@@ -72,7 +73,7 @@ const navigation = [
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, signOut, loading } = useAuth();
+  const { user, displayName, avatarUrl, signOut, loading } = useAuth();
   const location = useLocation();
 
   const handleSignOut = async () => {
@@ -179,11 +180,20 @@ export default function Layout() {
             {/* User info */}
             {user && (
               <div className="flex items-center gap-3 p-3 rounded-xl bg-surface-lighter/30 border border-ocean-700/20">
-                <div className="p-2 bg-gradient-to-br from-coral-400/20 to-gold-400/10 rounded-full">
-                  <User className="w-4 h-4 text-coral-400" />
-                </div>
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="" className="w-8 h-8 rounded-full" referrerPolicy="no-referrer" />
+                ) : (
+                  <div className="p-2 bg-gradient-to-br from-coral-400/20 to-gold-400/10 rounded-full">
+                    <User className="w-4 h-4 text-coral-400" />
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-text-primary truncate">
+                  {displayName && (
+                    <p className="text-sm font-medium text-text-primary truncate">
+                      {displayName}
+                    </p>
+                  )}
+                  <p className={`text-text-muted truncate ${displayName ? 'text-xs' : 'text-sm font-medium text-text-primary'}`}>
                     {user.email}
                   </p>
                 </div>
@@ -243,7 +253,9 @@ export default function Layout() {
               <Menu className="w-6 h-6" aria-hidden="true" />
             </button>
 
-            <div className="flex-1 lg:flex-none" />
+            <div className="flex-1 flex items-center justify-center lg:justify-start">
+              <GlobalSearch />
+            </div>
 
             {/* Project badges */}
             <div className="flex items-center gap-3">

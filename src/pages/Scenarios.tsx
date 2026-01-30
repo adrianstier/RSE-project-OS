@@ -41,6 +41,7 @@ export default function Scenarios() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingScenario, setEditingScenario] = useState<Scenario | null>(null);
   const [deletingScenario, setDeletingScenario] = useState<Scenario | null>(null);
+  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
 
   const { data: scenarios, isLoading: scenariosLoading } = useScenarios();
   const { data: actionItems, isLoading: actionsLoading } = useActionItems();
@@ -180,6 +181,7 @@ export default function Scenarios() {
                 onToggleExpand={() => toggleExpand(scenario.id)}
                 onEdit={() => handleEdit(scenario)}
                 onDelete={() => setDeletingScenario(scenario)}
+                onSelect={() => setSelectedScenario(scenario)}
               />
             ))}
           </div>
@@ -198,6 +200,29 @@ export default function Scenarios() {
           </Card>
         )}
       </div>
+
+      {/* Detail Modal */}
+      <Modal
+        isOpen={!!selectedScenario}
+        onClose={() => setSelectedScenario(null)}
+        title={selectedScenario?.title ?? ''}
+        size="lg"
+      >
+        {selectedScenario && (
+          <ScenarioDetail
+            scenario={selectedScenario}
+            actions={getScenarioActions(selectedScenario.id)}
+            onEdit={() => {
+              setSelectedScenario(null);
+              handleEdit(selectedScenario);
+            }}
+            onDelete={() => {
+              setSelectedScenario(null);
+              setDeletingScenario(selectedScenario);
+            }}
+          />
+        )}
+      </Modal>
 
       {/* Create/Edit Modal */}
       <Modal
@@ -234,11 +259,12 @@ interface ScenarioCardProps {
   onToggleExpand: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onSelect: () => void;
 }
 
-function ScenarioCard({ scenario, actions, isExpanded, onToggleExpand, onEdit, onDelete }: ScenarioCardProps) {
+function ScenarioCard({ scenario, actions, isExpanded, onToggleExpand, onEdit, onDelete, onSelect }: ScenarioCardProps) {
   return (
-    <Card hover onClick={onToggleExpand} className="flex flex-col" role="listitem">
+    <Card hover onClick={onSelect} className="flex flex-col" role="listitem">
       <CardHeader className="flex-shrink-0">
         <div className="flex-1 min-w-0">
           <CardTitle className="truncate">{scenario.title}</CardTitle>
@@ -355,5 +381,134 @@ function ScenarioCard({ scenario, actions, isExpanded, onToggleExpand, onEdit, o
         </button>
       </CardFooter>
     </Card>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Scenario Detail (rendered inside the detail modal)                */
+/* ------------------------------------------------------------------ */
+
+const SECTION_HEADERS = ['Question:', 'Data needs:', 'Outputs:'] as const;
+
+function renderDescription(description: string | null) {
+  if (!description) {
+    return <p className="text-text-secondary">No description provided.</p>;
+  }
+
+  const lines = description.split('\n');
+  const elements: React.ReactNode[] = [];
+  let currentParagraph: string[] = [];
+
+  const flushParagraph = (key: string) => {
+    if (currentParagraph.length > 0) {
+      elements.push(
+        <p key={key} className="text-text-secondary leading-relaxed">
+          {currentParagraph.join('\n')}
+        </p>,
+      );
+      currentParagraph = [];
+    }
+  };
+
+  lines.forEach((line, idx) => {
+    const matchedHeader = SECTION_HEADERS.find((h) => line.trim().startsWith(h));
+    if (matchedHeader) {
+      flushParagraph(`p-before-${idx}`);
+      const rest = line.trim().slice(matchedHeader.length).trim();
+      elements.push(
+        <div key={`section-${idx}`} className="mt-4 first:mt-0">
+          <h4 className="text-sm font-bold text-text-primary mb-1">{matchedHeader}</h4>
+          {rest && <p className="text-text-secondary leading-relaxed">{rest}</p>}
+        </div>,
+      );
+    } else {
+      currentParagraph.push(line);
+    }
+  });
+
+  flushParagraph('p-end');
+
+  return <div className="space-y-2">{elements}</div>;
+}
+
+interface ScenarioDetailProps {
+  scenario: Scenario;
+  actions: { id: string; title: string; status: string }[];
+  onEdit: () => void;
+  onDelete: () => void;
+}
+
+function ScenarioDetail({ scenario, actions, onEdit, onDelete }: ScenarioDetailProps) {
+  return (
+    <div className="space-y-6">
+      {/* Badges row */}
+      <div className="flex flex-wrap gap-2">
+        <StatusBadge variant="project" value={scenario.project} />
+        <StatusBadge variant="status" value={scenario.status} />
+        <StatusBadge variant="data" value={scenario.data_status} />
+        <StatusBadge variant="priority" value={scenario.priority} />
+      </div>
+
+      {/* Description */}
+      <div>{renderDescription(scenario.description)}</div>
+
+      {/* Metadata */}
+      <div className="border-t border-ocean-700/30 pt-4">
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="flex items-center gap-2 text-text-secondary">
+            <Calendar className="w-4 h-4" />
+            <span>Created</span>
+          </div>
+          <div className="text-text-primary">
+            {format(new Date(scenario.created_at), 'MMM d, yyyy')}
+          </div>
+
+          <div className="flex items-center gap-2 text-text-secondary">
+            <FileText className="w-4 h-4" />
+            <span>Updated</span>
+          </div>
+          <div className="text-text-primary">
+            {format(new Date(scenario.updated_at), 'MMM d, yyyy')}
+          </div>
+        </div>
+      </div>
+
+      {/* Linked Action Items */}
+      <div className="border-t border-ocean-700/30 pt-4">
+        <h4 className="flex items-center gap-2 text-sm font-medium text-text-primary mb-3">
+          <CheckSquare className="w-4 h-4 text-coral-400" />
+          Linked Action Items ({actions.length})
+        </h4>
+        {actions.length > 0 ? (
+          <div className="space-y-2">
+            {actions.map((action) => (
+              <div
+                key={action.id}
+                className="flex items-center justify-between p-2 bg-surface-lighter rounded-lg"
+              >
+                <span className="text-sm text-text-secondary truncate flex-1 mr-2">
+                  {action.title}
+                </span>
+                <StatusBadge variant="action" value={action.status} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-text-muted">No linked action items yet.</p>
+        )}
+      </div>
+
+      {/* Action buttons */}
+      <div className="border-t border-ocean-700/30 pt-4 flex gap-3 justify-end">
+        <button onClick={onDelete} className="btn-secondary flex items-center gap-2 text-red-400 hover:text-red-300">
+          <Trash2 className="w-4 h-4" />
+          Delete
+        </button>
+        <button onClick={onEdit} className="btn-primary flex items-center gap-2">
+          <Pencil className="w-4 h-4" />
+          Edit
+        </button>
+      </div>
+    </div>
   );
 }
