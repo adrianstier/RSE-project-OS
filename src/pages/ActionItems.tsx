@@ -1,5 +1,19 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { format, isBefore, isToday, isTomorrow } from 'date-fns';
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragStartEvent,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import { useSortable } from '@dnd-kit/sortable';
+import { useDroppable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
 import {
   CheckSquare,
   Filter,
@@ -14,6 +28,9 @@ import {
   Plus,
   Pencil,
   Trash2,
+  GripVertical,
+  UserCheck,
+  Users,
 } from 'lucide-react';
 import {
   useActionItems,
@@ -21,6 +38,7 @@ import {
   useDeleteActionItem,
   useRealtimeActionItems,
 } from '../hooks/useSupabase';
+import { useAuth } from '../contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import Card from '../components/Card';
 import StatusBadge from '../components/StatusBadge';
@@ -55,6 +73,20 @@ export default function ActionItems() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ActionItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<ActionItem | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  // Feature 1: My Tasks toggle
+  const { user } = useAuth();
+  const [showMyTasks, setShowMyTasks] = useState<boolean>(() => {
+    const stored = localStorage.getItem('rse-my-tasks-preference');
+    if (stored !== null) return stored === 'true';
+    return false; // default to All Tasks
+  });
+
+  // Persist preference
+  useEffect(() => {
+    localStorage.setItem('rse-my-tasks-preference', String(showMyTasks));
+  }, [showMyTasks]);
 
   const queryClient = useQueryClient();
   const { data: actionItems, isLoading } = useActionItems();
@@ -64,6 +96,16 @@ export default function ActionItems() {
 
   // Enable realtime updates
   useRealtimeActionItems();
+
+  // DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor)
+  );
 
   // Handle keyboard shortcut for new item
   const openNewForm = useCallback(() => {
@@ -87,16 +129,26 @@ export default function ActionItems() {
     return Array.from(ownerSet).sort();
   }, [actionItems]);
 
-  // Filter items
+  // Filter items (with My Tasks support)
   const filteredItems = useMemo(() => {
     if (!actionItems) return [];
     return actionItems.filter((item) => {
+      // My Tasks filter
+      if (showMyTasks && user?.email) {
+        const userEmail = user.email.toLowerCase();
+        const ownerValue = (item.owner || '').toLowerCase();
+        // Match by email or by display name (part before @)
+        const displayName = userEmail.split('@')[0];
+        if (ownerValue !== userEmail && ownerValue !== displayName) {
+          return false;
+        }
+      }
       if (statusFilter !== 'all' && item.status !== statusFilter) return false;
       if (projectFilter !== 'all' && item.project !== projectFilter) return false;
       if (ownerFilter !== 'all' && item.owner !== ownerFilter) return false;
       return true;
     });
-  }, [actionItems, statusFilter, projectFilter, ownerFilter]);
+  }, [actionItems, statusFilter, projectFilter, ownerFilter, showMyTasks, user]);
 
   // Group items by status for Kanban view
   const itemsByStatus = useMemo(() => {
@@ -111,6 +163,12 @@ export default function ActionItems() {
     });
     return groups;
   }, [filteredItems]);
+
+  // Get the active item for drag overlay
+  const activeItem = useMemo(() => {
+    if (!activeId) return null;
+    return filteredItems.find((item) => item.id === activeId) || null;
+  }, [activeId, filteredItems]);
 
   // Optimistic status update
   const handleStatusChange = useCallback(
@@ -138,6 +196,39 @@ export default function ActionItems() {
     [queryClient, updateActionItem, success, showError]
   );
 
+  // Feature 2: Quick toggle done
+  const handleQuickToggleDone = useCallback(
+    (item: ActionItem) => {
+      const newStatus: ActionItemStatus = item.status === 'done' ? 'todo' : 'done';
+      handleStatusChange(item.id, newStatus);
+    },
+    [handleStatusChange]
+  );
+
+  // DnD handlers
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  }, []);
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      setActiveId(null);
+
+      if (!over) return;
+
+      const itemId = active.id as string;
+      const newStatus = over.id as ActionItemStatus;
+
+      // Find the item to check its current status
+      const item = filteredItems.find((i) => i.id === itemId);
+      if (!item || item.status === newStatus) return;
+
+      handleStatusChange(itemId, newStatus);
+    },
+    [filteredItems, handleStatusChange]
+  );
+
   // Inline owner editing
   const handleOwnerChange = useCallback(
     async (itemId: string, newOwner: string) => {
@@ -153,7 +244,7 @@ export default function ActionItems() {
       try {
         await updateActionItem.mutateAsync({ id: itemId, updates: { owner: newOwner || null } });
         success('Owner updated');
-      } catch (error) {
+      } catch {
         queryClient.setQueryData(['actionItems', undefined], previousData);
         showError('Failed to update owner');
       }
@@ -214,12 +305,42 @@ export default function ActionItems() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3 sm:gap-4 flex-shrink-0">
-          <div className="flex items-center gap-1.5 bg-surface-lighter/50 p-1 rounded-lg">
+          {/* Feature 1: My Tasks / All Tasks toggle */}
+          {user && (
+            <div className="flex items-center gap-1.5 bg-surface-hover p-1 rounded-lg">
+              <button
+                onClick={() => setShowMyTasks(true)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                  showMyTasks
+                    ? 'bg-coral-400/20 text-coral-400'
+                    : 'text-text-secondary hover:text-text-primary'
+                }`}
+                aria-pressed={showMyTasks}
+              >
+                <UserCheck className="w-4 h-4" />
+                <span className="hidden sm:inline">My Tasks</span>
+              </button>
+              <button
+                onClick={() => setShowMyTasks(false)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                  !showMyTasks
+                    ? 'bg-coral-400/20 text-coral-400'
+                    : 'text-text-secondary hover:text-text-primary'
+                }`}
+                aria-pressed={!showMyTasks}
+              >
+                <Users className="w-4 h-4" />
+                <span className="hidden sm:inline">All Tasks</span>
+              </button>
+            </div>
+          )}
+
+          <div className="flex items-center gap-1.5 bg-surface-hover p-1 rounded-lg">
             <button
               onClick={() => setViewMode('kanban')}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
                 viewMode === 'kanban'
-                  ? 'bg-coral-400/20 text-coral-400 shadow-sm'
+                  ? 'bg-coral-400/20 text-coral-400'
                   : 'text-text-secondary hover:text-text-primary'
               }`}
             >
@@ -229,7 +350,7 @@ export default function ActionItems() {
               onClick={() => setViewMode('list')}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
                 viewMode === 'list'
-                  ? 'bg-coral-400/20 text-coral-400 shadow-sm'
+                  ? 'bg-coral-400/20 text-coral-400'
                   : 'text-text-secondary hover:text-text-primary'
               }`}
             >
@@ -332,138 +453,45 @@ export default function ActionItems() {
       ) : filteredItems.length === 0 ? (
         <Card>
           <EmptyState
-            variant={statusFilter !== 'all' || projectFilter !== 'all' || ownerFilter !== 'all' ? 'filter' : 'actions'}
-            onAction={statusFilter === 'all' && projectFilter === 'all' && ownerFilter === 'all' ? openNewForm : undefined}
+            variant={statusFilter !== 'all' || projectFilter !== 'all' || ownerFilter !== 'all' || showMyTasks ? 'filter' : 'actions'}
+            onAction={statusFilter === 'all' && projectFilter === 'all' && ownerFilter === 'all' && !showMyTasks ? openNewForm : undefined}
           />
         </Card>
       ) : viewMode === 'kanban' ? (
-        // Kanban View
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {statusOptions.map(({ value, label, icon: Icon }) => (
-            <div key={value} className="flex flex-col">
-              <div className="flex items-center justify-between mb-3 px-1">
-                <div className="flex items-center gap-2">
-                  <Icon
-                    className={`w-4 h-4 ${
-                      value === 'todo'
-                        ? 'text-slate-400'
-                        : value === 'in_progress'
-                        ? 'text-blue-400'
-                        : value === 'done'
-                        ? 'text-emerald-400'
-                        : 'text-red-400'
-                    }`}
-                  />
-                  <span className="text-sm font-medium text-text-primary">{label}</span>
-                </div>
-                <span className="text-xs text-text-muted bg-surface-lighter px-2 py-0.5 rounded-full">
-                  {itemsByStatus[value].length}
-                </span>
-              </div>
+        // Kanban View with Drag and Drop
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <KanbanBoard
+            itemsByStatus={itemsByStatus}
+            onEdit={handleEdit}
+            onDelete={setDeletingItem}
+            onOwnerChange={handleOwnerChange}
+            onStatusChange={handleStatusChange}
+            onQuickToggleDone={handleQuickToggleDone}
+            getDueDateStatus={getDueDateStatus}
+          />
 
-              <div className="space-y-3 flex-1">
-                {itemsByStatus[value].length === 0 ? (
-                  <div className="glass-card !p-4 text-center">
-                    <p className="text-sm text-text-muted">No items</p>
-                  </div>
-                ) : (
-                  itemsByStatus[value].map((item) => {
-                    const dueDateStatus = getDueDateStatus(item.due_date, item.status);
-                    return (
-                      <Card key={item.id} hover className="!p-4">
-                        <div className="space-y-3">
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="text-sm font-medium text-text-primary line-clamp-2 flex-1">
-                              {item.title}
-                            </p>
-                            <div className="flex items-center gap-1 flex-shrink-0">
-                              <button
-                                onClick={() => handleEdit(item)}
-                                className="p-1.5 text-text-muted hover:text-coral-400 hover:bg-surface-lighter rounded-lg transition-colors"
-                                aria-label="Edit"
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => setDeletingItem(item)}
-                                className="p-1.5 text-text-muted hover:text-red-400 hover:bg-surface-lighter rounded-lg transition-colors"
-                                aria-label="Delete"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-
-                          {item.description && (
-                            <p className="text-xs text-text-muted line-clamp-2">
-                              {item.description}
-                            </p>
-                          )}
-
-                          <div className="flex flex-wrap items-center gap-2">
-                            {item.project && <StatusBadge variant="project" value={item.project} />}
-
-                            {item.due_date && (
-                              <span
-                                className={`flex items-center gap-1 text-xs ${
-                                  dueDateStatus?.type === 'overdue'
-                                    ? 'text-red-400'
-                                    : dueDateStatus?.type === 'today'
-                                    ? 'text-amber-400'
-                                    : 'text-text-muted'
-                                }`}
-                              >
-                                {dueDateStatus?.type === 'overdue' && <AlertCircle className="w-3 h-3" />}
-                                <Clock className="w-3 h-3" />
-                                {format(new Date(item.due_date), 'MMM d')}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="flex items-center justify-between pt-2 border-t border-ocean-700/30">
-                            {/* Inline Owner Editing */}
-                            <InlineOwnerEdit
-                              owner={item.owner}
-                              onSave={(newOwner) => handleOwnerChange(item.id, newOwner)}
-                            />
-
-                            {/* Status dropdown */}
-                            <div className="relative">
-                              <label htmlFor={`status-${item.id}`} className="sr-only">Change status for {item.title}</label>
-                              <select
-                                id={`status-${item.id}`}
-                                value={item.status}
-                                onChange={(e) =>
-                                  handleStatusChange(item.id, e.target.value as ActionItemStatus)
-                                }
-                                className="appearance-none bg-transparent text-xs text-text-secondary hover:text-text-primary cursor-pointer focus:outline-none focus:ring-2 focus:ring-coral-400/50 rounded pr-4"
-                                aria-label={`Change status for ${item.title}`}
-                              >
-                                {statusOptions.map((opt) => (
-                                  <option key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                  </option>
-                                ))}
-                              </select>
-                              <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 text-text-muted pointer-events-none" aria-hidden="true" />
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+          {/* Drag Overlay */}
+          <DragOverlay>
+            {activeItem ? (
+              <DragOverlayCard
+                item={activeItem}
+                getDueDateStatus={getDueDateStatus}
+              />
+            ) : null}
+          </DragOverlay>
+        </DndContext>
       ) : (
         // List View
         <Card>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-ocean-700/50">
+                <tr className="border-b border-surface-border">
                   <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Title</th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Owner</th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Project</th>
@@ -478,10 +506,12 @@ export default function ActionItems() {
                   return (
                     <tr
                       key={item.id}
-                      className="border-b border-ocean-700/30 last:border-0 hover:bg-surface-lighter/50 transition-colors"
+                      className="border-b border-surface-border last:border-0 hover:bg-surface-hover transition-colors"
                     >
                       <td className="py-3 px-4">
-                        <p className="text-sm font-medium text-text-primary">{item.title}</p>
+                        <p className={`text-sm font-medium text-text-primary ${item.status === 'done' ? 'line-through opacity-60' : ''}`}>
+                          {item.title}
+                        </p>
                         {item.description && (
                           <p className="text-xs text-text-muted line-clamp-1 mt-0.5">
                             {item.description}
@@ -538,14 +568,14 @@ export default function ActionItems() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleEdit(item)}
-                            className="p-1.5 text-text-muted hover:text-coral-400 hover:bg-surface-lighter rounded-lg transition-colors"
+                            className="p-1.5 text-text-muted hover:text-coral-400 hover:bg-surface-hover rounded-lg transition-colors"
                             aria-label="Edit"
                           >
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => setDeletingItem(item)}
-                            className="p-1.5 text-text-muted hover:text-red-400 hover:bg-surface-lighter rounded-lg transition-colors"
+                            className="p-1.5 text-text-muted hover:text-red-400 hover:bg-surface-hover rounded-lg transition-colors"
                             aria-label="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -589,6 +619,450 @@ export default function ActionItems() {
   );
 }
 
+// Feature 5: Kanban Board with keyboard navigation
+interface KanbanBoardProps {
+  itemsByStatus: Record<ActionItemStatus, ActionItem[]>;
+  onEdit: (item: ActionItem) => void;
+  onDelete: (item: ActionItem) => void;
+  onOwnerChange: (itemId: string, newOwner: string) => void;
+  onStatusChange: (itemId: string, newStatus: ActionItemStatus) => void;
+  onQuickToggleDone: (item: ActionItem) => void;
+  getDueDateStatus: (dueDate: string | null, status: ActionItemStatus) => { type: 'overdue' | 'today' | 'tomorrow'; label: string } | null;
+}
+
+const STATUS_ORDER: ActionItemStatus[] = ['todo', 'in_progress', 'done', 'blocked'];
+
+function KanbanBoard({
+  itemsByStatus,
+  onEdit,
+  onDelete,
+  onOwnerChange,
+  onStatusChange,
+  onQuickToggleDone,
+  getDueDateStatus,
+}: KanbanBoardProps) {
+  const [focusedCol, setFocusedCol] = useState(0);
+  const [focusedRow, setFocusedRow] = useState(0);
+  const boardRef = useRef<HTMLDivElement>(null);
+
+  // Build a 2D grid of item IDs for keyboard nav
+  const grid = useMemo(() => {
+    return STATUS_ORDER.map((status) => itemsByStatus[status]);
+  }, [itemsByStatus]);
+
+  // Keyboard navigation handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle if focus is within the board
+      if (!boardRef.current?.contains(document.activeElement)) return;
+
+      const target = e.target as HTMLElement;
+      // Skip if in input/select
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT'
+      ) {
+        return;
+      }
+
+      const currentColItems = grid[focusedCol];
+
+      switch (e.key) {
+        case 'ArrowDown': {
+          e.preventDefault();
+          const nextRow = Math.min(focusedRow + 1, currentColItems.length - 1);
+          setFocusedRow(nextRow);
+          break;
+        }
+        case 'ArrowUp': {
+          e.preventDefault();
+          const prevRow = Math.max(focusedRow - 1, 0);
+          setFocusedRow(prevRow);
+          break;
+        }
+        case 'ArrowRight': {
+          e.preventDefault();
+          const nextCol = Math.min(focusedCol + 1, STATUS_ORDER.length - 1);
+          setFocusedCol(nextCol);
+          // Clamp row to new column
+          const nextColItems = grid[nextCol];
+          if (focusedRow >= nextColItems.length) {
+            setFocusedRow(Math.max(nextColItems.length - 1, 0));
+          }
+          break;
+        }
+        case 'ArrowLeft': {
+          e.preventDefault();
+          const prevCol = Math.max(focusedCol - 1, 0);
+          setFocusedCol(prevCol);
+          const prevColItems = grid[prevCol];
+          if (focusedRow >= prevColItems.length) {
+            setFocusedRow(Math.max(prevColItems.length - 1, 0));
+          }
+          break;
+        }
+        case ' ': {
+          // Space to toggle done
+          e.preventDefault();
+          const item = currentColItems[focusedRow];
+          if (item) {
+            onQuickToggleDone(item);
+          }
+          break;
+        }
+        case 'Enter': {
+          // Enter to open edit
+          e.preventDefault();
+          const editItem = currentColItems[focusedRow];
+          if (editItem) {
+            onEdit(editItem);
+          }
+          break;
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [focusedCol, focusedRow, grid, onEdit, onQuickToggleDone]);
+
+  // Focus the correct card when focusedCol/focusedRow changes
+  useEffect(() => {
+    const item = grid[focusedCol]?.[focusedRow];
+    if (item && boardRef.current) {
+      const card = boardRef.current.querySelector(`[data-card-id="${item.id}"]`) as HTMLElement | null;
+      card?.focus();
+    }
+  }, [focusedCol, focusedRow, grid]);
+
+  return (
+    <div ref={boardRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {statusOptions.map(({ value, label, icon: Icon }, colIndex) => (
+        <KanbanColumn
+          key={value}
+          status={value}
+          label={label}
+          icon={Icon}
+          items={itemsByStatus[value]}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onOwnerChange={onOwnerChange}
+          onStatusChange={onStatusChange}
+          onQuickToggleDone={onQuickToggleDone}
+          getDueDateStatus={getDueDateStatus}
+          focusedItemIndex={focusedCol === colIndex ? focusedRow : -1}
+          onCardFocus={(rowIndex) => {
+            setFocusedCol(colIndex);
+            setFocusedRow(rowIndex);
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Kanban Column Component
+interface KanbanColumnProps {
+  status: ActionItemStatus;
+  label: string;
+  icon: typeof Circle;
+  items: ActionItem[];
+  onEdit: (item: ActionItem) => void;
+  onDelete: (item: ActionItem) => void;
+  onOwnerChange: (itemId: string, newOwner: string) => void;
+  onStatusChange: (itemId: string, newStatus: ActionItemStatus) => void;
+  onQuickToggleDone: (item: ActionItem) => void;
+  getDueDateStatus: (dueDate: string | null, status: ActionItemStatus) => { type: 'overdue' | 'today' | 'tomorrow'; label: string } | null;
+  focusedItemIndex: number;
+  onCardFocus: (rowIndex: number) => void;
+}
+
+function KanbanColumn({
+  status,
+  label,
+  icon: Icon,
+  items,
+  onEdit,
+  onDelete,
+  onOwnerChange,
+  onStatusChange,
+  onQuickToggleDone,
+  getDueDateStatus,
+  focusedItemIndex,
+  onCardFocus,
+}: KanbanColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: status,
+  });
+
+  return (
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between mb-3 px-1">
+        <div className="flex items-center gap-2">
+          <Icon
+            className={`w-4 h-4 ${
+              status === 'todo'
+                ? 'text-slate-400'
+                : status === 'in_progress'
+                ? 'text-blue-400'
+                : status === 'done'
+                ? 'text-emerald-400'
+                : 'text-red-400'
+            }`}
+          />
+          <span className="text-sm font-medium text-text-primary">{label}</span>
+        </div>
+        <span className="text-xs text-text-muted bg-surface-hover px-2 py-0.5 rounded-full">
+          {items.length}
+        </span>
+      </div>
+
+      <div
+        ref={setNodeRef}
+        className={`space-y-3 flex-1 min-h-[200px] p-2 rounded-lg transition-colors ${
+          isOver ? 'bg-coral-400/10 ring-2 ring-coral-400/30' : 'bg-transparent'
+        }`}
+      >
+        {items.length === 0 ? (
+          <div className="glass-card !p-4 text-center">
+            <p className="text-sm text-text-muted">No items</p>
+          </div>
+        ) : (
+          items.map((item, index) => (
+            <DraggableCard
+              key={item.id}
+              item={item}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onOwnerChange={onOwnerChange}
+              onStatusChange={onStatusChange}
+              onQuickToggleDone={onQuickToggleDone}
+              getDueDateStatus={getDueDateStatus}
+              isFocused={focusedItemIndex === index}
+              onFocus={() => onCardFocus(index)}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Draggable Card Component
+interface DraggableCardProps {
+  item: ActionItem;
+  onEdit: (item: ActionItem) => void;
+  onDelete: (item: ActionItem) => void;
+  onOwnerChange: (itemId: string, newOwner: string) => void;
+  onStatusChange: (itemId: string, newStatus: ActionItemStatus) => void;
+  onQuickToggleDone: (item: ActionItem) => void;
+  getDueDateStatus: (dueDate: string | null, status: ActionItemStatus) => { type: 'overdue' | 'today' | 'tomorrow'; label: string } | null;
+  isFocused: boolean;
+  onFocus: () => void;
+}
+
+function DraggableCard({
+  item,
+  onEdit,
+  onDelete,
+  onOwnerChange,
+  onStatusChange,
+  onQuickToggleDone,
+  getDueDateStatus,
+  isFocused,
+  onFocus,
+}: DraggableCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: item.id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const dueDateStatus = getDueDateStatus(item.due_date, item.status);
+  const isDone = item.status === 'done';
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      data-card-id={item.id}
+      tabIndex={0}
+      onFocus={onFocus}
+      className={`glass-card !p-4 outline-none transition-all duration-150 ${
+        isDragging ? 'shadow-lg ring-2 ring-coral-400/50' : ''
+      } ${
+        isFocused ? 'ring-2 ring-coral-400/60 bg-surface-hover/50' : ''
+      }`}
+    >
+      <div className="space-y-3">
+        <div className="flex items-start justify-between gap-2">
+          {/* Feature 2: Quick action checkbox */}
+          <button
+            onClick={() => onQuickToggleDone(item)}
+            className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-150 ${
+              isDone
+                ? 'bg-emerald-400/20 border-emerald-400 text-emerald-400'
+                : 'border-text-muted/40 hover:border-coral-400 text-transparent hover:text-coral-400/50'
+            }`}
+            aria-label={isDone ? 'Mark as not done' : 'Mark as done'}
+          >
+            {isDone && (
+              <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </button>
+          {/* Drag Handle */}
+          <button
+            {...attributes}
+            {...listeners}
+            className="p-1 -ml-1 text-text-muted hover:text-text-secondary cursor-grab active:cursor-grabbing touch-none"
+            aria-label="Drag to reorder"
+          >
+            <GripVertical className="w-4 h-4" />
+          </button>
+          <p className={`text-sm font-medium flex-1 line-clamp-2 transition-all duration-150 ${
+            isDone ? 'line-through text-text-muted' : 'text-text-primary'
+          }`}>
+            {item.title}
+          </p>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <button
+              onClick={() => onEdit(item)}
+              className="p-1.5 text-text-muted hover:text-coral-400 hover:bg-surface-hover rounded-lg transition-colors"
+              aria-label="Edit"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => onDelete(item)}
+              className="p-1.5 text-text-muted hover:text-red-400 hover:bg-surface-hover rounded-lg transition-colors"
+              aria-label="Delete"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {item.description && (
+          <p className={`text-xs line-clamp-2 ${isDone ? 'text-text-muted/50' : 'text-text-muted'}`}>
+            {item.description}
+          </p>
+        )}
+
+        <div className="flex flex-wrap items-center gap-2">
+          {item.project && <StatusBadge variant="project" value={item.project} />}
+
+          {item.due_date && (
+            <span
+              className={`flex items-center gap-1 text-xs ${
+                dueDateStatus?.type === 'overdue'
+                  ? 'text-red-400'
+                  : dueDateStatus?.type === 'today'
+                  ? 'text-amber-400'
+                  : 'text-text-muted'
+              }`}
+            >
+              {dueDateStatus?.type === 'overdue' && <AlertCircle className="w-3 h-3" />}
+              <Clock className="w-3 h-3" />
+              {format(new Date(item.due_date), 'MMM d')}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between pt-2 border-t border-surface-border">
+          {/* Inline Owner Editing */}
+          <InlineOwnerEdit
+            owner={item.owner}
+            onSave={(newOwner) => onOwnerChange(item.id, newOwner)}
+          />
+
+          {/* Status dropdown */}
+          <div className="relative">
+            <label htmlFor={`status-${item.id}`} className="sr-only">Change status for {item.title}</label>
+            <select
+              id={`status-${item.id}`}
+              value={item.status}
+              onChange={(e) =>
+                onStatusChange(item.id, e.target.value as ActionItemStatus)
+              }
+              className="appearance-none bg-transparent text-xs text-text-secondary hover:text-text-primary cursor-pointer focus:outline-none focus:ring-2 focus:ring-coral-400/50 rounded pr-4"
+              aria-label={`Change status for ${item.title}`}
+            >
+              {statusOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 text-text-muted pointer-events-none" aria-hidden="true" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Drag Overlay Card (shown while dragging)
+interface DragOverlayCardProps {
+  item: ActionItem;
+  getDueDateStatus: (dueDate: string | null, status: ActionItemStatus) => { type: 'overdue' | 'today' | 'tomorrow'; label: string } | null;
+}
+
+function DragOverlayCard({ item, getDueDateStatus }: DragOverlayCardProps) {
+  const dueDateStatus = getDueDateStatus(item.due_date, item.status);
+
+  return (
+    <div className="glass-card !p-4 shadow-xl ring-2 ring-coral-400/50 rotate-2 cursor-grabbing">
+      <div className="space-y-3">
+        <div className="flex items-start gap-2">
+          <GripVertical className="w-4 h-4 text-coral-400" />
+          <p className="text-sm font-medium text-text-primary line-clamp-2 flex-1">
+            {item.title}
+          </p>
+        </div>
+
+        {item.description && (
+          <p className="text-xs text-text-muted line-clamp-2">
+            {item.description}
+          </p>
+        )}
+
+        <div className="flex flex-wrap items-center gap-2">
+          {item.project && <StatusBadge variant="project" value={item.project} />}
+
+          {item.due_date && (
+            <span
+              className={`flex items-center gap-1 text-xs ${
+                dueDateStatus?.type === 'overdue'
+                  ? 'text-red-400'
+                  : dueDateStatus?.type === 'today'
+                  ? 'text-amber-400'
+                  : 'text-text-muted'
+              }`}
+            >
+              <Clock className="w-3 h-3" />
+              {format(new Date(item.due_date), 'MMM d')}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Inline Owner Edit Component
 interface InlineOwnerEditProps {
   owner: string | null;
@@ -624,7 +1098,7 @@ function InlineOwnerEdit({ owner, onSave }: InlineOwnerEditProps) {
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
         autoFocus
-        className="w-24 px-2 py-1 text-xs bg-surface-light border border-ocean-600 rounded focus:outline-none focus:ring-2 focus:ring-coral-400/50"
+        className="w-24 px-2 py-1 text-xs bg-surface-card border border-surface-border rounded focus:outline-none focus:ring-2 focus:ring-coral-400/50"
         placeholder="Owner name"
         aria-label="Owner name"
       />
