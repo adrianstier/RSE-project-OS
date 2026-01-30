@@ -77,16 +77,12 @@ export default function ActionItems() {
 
   // Feature 1: My Tasks toggle
   const { user } = useAuth();
-  const [showMyTasks, setShowMyTasks] = useState<boolean>(() => {
-    const stored = localStorage.getItem('rse-my-tasks-preference');
-    if (stored !== null) return stored === 'true';
-    return false; // default to All Tasks
-  });
+  const [showMyTasks, setShowMyTasks] = useState<boolean>(false);
 
-  // Persist preference
+  // Clear stale localStorage preference
   useEffect(() => {
-    localStorage.setItem('rse-my-tasks-preference', String(showMyTasks));
-  }, [showMyTasks]);
+    localStorage.removeItem('rse-my-tasks-preference');
+  }, []);
 
   const queryClient = useQueryClient();
   const { data: actionItems, isLoading } = useActionItems();
