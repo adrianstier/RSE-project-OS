@@ -3,13 +3,15 @@ import { format, isBefore, isToday, isTomorrow } from 'date-fns';
 import {
   DndContext,
   DragOverlay,
-  closestCorners,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
   DragStartEvent,
   DragEndEvent,
+  pointerWithin,
+  rectIntersection,
+  CollisionDetection,
 } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { useDroppable } from '@dnd-kit/core';
@@ -113,6 +115,23 @@ export default function ActionItems() {
     }),
     useSensor(KeyboardSensor)
   );
+
+  // Custom collision detection that prioritizes column droppables over cards
+  const collisionDetection: CollisionDetection = useCallback((args) => {
+    const pointerCollisions = pointerWithin(args);
+    const rectCollisions = rectIntersection(args);
+    const allCollisions = [...pointerCollisions, ...rectCollisions];
+    const columnIds: string[] = ['todo', 'in_progress', 'done', 'blocked'];
+
+    // Prioritize column collisions
+    const columnCollision = allCollisions.find(
+      collision => columnIds.includes(collision.id as string)
+    );
+    if (columnCollision) return [columnCollision];
+
+    // Fall back to any collision (card-to-card)
+    return allCollisions.length > 0 ? allCollisions : [];
+  }, []);
 
   // Handle keyboard shortcut for new item
   const openNewForm = useCallback(() => {
@@ -225,13 +244,30 @@ export default function ActionItems() {
       if (!over) return;
 
       const itemId = active.id as string;
-      const newStatus = over.id as ActionItemStatus;
+      const targetId = over.id as string;
+      const draggedItem = filteredItems.find((i) => i.id === itemId);
+      if (!draggedItem) return;
 
-      // Find the item to check its current status
-      const item = filteredItems.find((i) => i.id === itemId);
-      if (!item || item.status === newStatus) return;
+      const columnIds: ActionItemStatus[] = ['todo', 'in_progress', 'done', 'blocked'];
+      const previousStatus = draggedItem.status;
 
-      handleStatusChange(itemId, newStatus);
+      // Check if dropped on a column
+      if (columnIds.includes(targetId as ActionItemStatus)) {
+        const newStatus = targetId as ActionItemStatus;
+        if (previousStatus !== newStatus) {
+          handleStatusChange(itemId, newStatus);
+        }
+        return;
+      }
+
+      // Check if dropped on another card — inherit that card's status
+      const overItem = filteredItems.find((i) => i.id === targetId);
+      if (overItem) {
+        const targetStatus = overItem.status;
+        if (previousStatus !== targetStatus) {
+          handleStatusChange(itemId, targetStatus);
+        }
+      }
     },
     [filteredItems, handleStatusChange]
   );
@@ -468,7 +504,7 @@ export default function ActionItems() {
         // Kanban View with Drag and Drop
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCorners}
+          collisionDetection={collisionDetection}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
@@ -837,8 +873,10 @@ function KanbanColumn({
   });
 
   return (
-    <div className="flex flex-col">
-      <div className="flex items-center justify-between mb-3 px-1">
+    <div ref={setNodeRef} className={`flex flex-col rounded-lg transition-colors ${
+      isOver ? 'bg-coral-400/10 ring-2 ring-coral-400/30' : 'bg-transparent'
+    }`}>
+      <div className="flex items-center justify-between mb-3 px-3 pt-2">
         <div className="flex items-center gap-2">
           <Icon
             className={`w-4 h-4 ${
@@ -859,10 +897,7 @@ function KanbanColumn({
       </div>
 
       <div
-        ref={setNodeRef}
-        className={`space-y-3 flex-1 min-h-[200px] p-2 rounded-lg transition-colors ${
-          isOver ? 'bg-coral-400/10 ring-2 ring-coral-400/30' : 'bg-transparent'
-        }`}
+        className="space-y-3 flex-1 min-h-[200px] p-2"
       >
         {items.length === 0 ? (
           <div className="glass-card !p-4 text-center">
