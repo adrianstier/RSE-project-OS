@@ -161,25 +161,25 @@ export default function ActionItems() {
     return actionItems.filter((item) => {
       // My Tasks filter — match by display name, email, or email prefix
       if (showMyTasks && user?.email) {
-        const ownerValue = (item.owner || '').toLowerCase();
+        const ownerValue = (item.owner || '').toLowerCase().trim();
+        if (!ownerValue) return false;
         const userEmail = user.email.toLowerCase();
         const emailPrefix = userEmail.split('@')[0];
-        const userName = displayName?.toLowerCase() || '';
-        if (
-          ownerValue !== userEmail &&
-          ownerValue !== emailPrefix &&
-          (userName && ownerValue !== userName) &&
-          (!userName || !ownerValue)
-        ) {
-          return false;
-        }
+        const userName = displayName?.toLowerCase().trim() || '';
+        const firstName = userName.split(' ')[0];
+        const isMyTask =
+          ownerValue === userEmail ||
+          ownerValue === emailPrefix ||
+          (userName && ownerValue === userName) ||
+          (firstName && ownerValue === firstName);
+        if (!isMyTask) return false;
       }
       if (statusFilter !== 'all' && item.status !== statusFilter) return false;
       if (projectFilter !== 'all' && item.project !== projectFilter) return false;
       if (ownerFilter !== 'all' && item.owner !== ownerFilter) return false;
       return true;
     });
-  }, [actionItems, statusFilter, projectFilter, ownerFilter, showMyTasks, user]);
+  }, [actionItems, statusFilter, projectFilter, ownerFilter, showMyTasks, user, displayName]);
 
   // Group items by status for Kanban view
   const itemsByStatus = useMemo(() => {
