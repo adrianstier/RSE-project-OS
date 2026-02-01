@@ -20,6 +20,7 @@ interface AuthContextValue extends AuthState {
   signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<{ error: AuthError | null }>;
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
+  updateProfile: (data: Record<string, string>) => Promise<{ error: AuthError | null }>;
 }
 
 // ============================================
@@ -139,6 +140,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return { error };
   };
 
+  const updateProfile = async (data: Record<string, string>) => {
+    const { error } = await supabase.auth.updateUser({ data });
+
+    return { error };
+  };
+
   // ============================================
   // CONTEXT VALUE
   // ============================================
@@ -159,6 +166,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signUp,
     signOut,
     resetPassword,
+    updateProfile,
   };
 
   return (

@@ -179,7 +179,11 @@ export default function Layout() {
           <div className="p-4 border-t border-ocean-700/30 space-y-3">
             {/* User info */}
             {user && (
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-surface-lighter/30 border border-ocean-700/20">
+              <Link
+                to="/profile"
+                className="flex items-center gap-3 p-3 rounded-xl bg-surface-lighter/30 border border-ocean-700/20 hover:bg-surface-lighter/50 hover:border-ocean-700/30 transition-all duration-200"
+                onClick={() => setSidebarOpen(false)}
+              >
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="" className="w-8 h-8 rounded-full" referrerPolicy="no-referrer" />
                 ) : (
@@ -197,7 +201,7 @@ export default function Layout() {
                     {user.email}
                   </p>
                 </div>
-              </div>
+              </Link>
             )}
 
             {/* Sign out button */}

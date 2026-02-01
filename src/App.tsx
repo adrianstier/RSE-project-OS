@@ -12,6 +12,7 @@ const Scenarios = lazy(() => import('./pages/Scenarios'));
 const ActionItems = lazy(() => import('./pages/ActionItems'));
 const Timeline = lazy(() => import('./pages/Timeline'));
 const Login = lazy(() => import('./pages/Login'));
+const Profile = lazy(() => import('./pages/Profile'));
 
 // Loading fallback component
 function PageLoader() {
@@ -68,6 +69,7 @@ function App() {
                   <Route path="scenarios" element={<Scenarios />} />
                   <Route path="actions" element={<ActionItems />} />
                   <Route path="timeline" element={<Timeline />} />
+                  <Route path="profile" element={<Profile />} />
                 </Route>
 
                 {/* Catch all - redirect to dashboard */}
