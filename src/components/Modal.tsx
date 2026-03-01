@@ -129,12 +129,8 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
           max-h-[90vh] flex flex-col
         `}
       >
-        {/* Decorative gradient overlay */}
-        <div className="absolute -top-20 -right-20 w-40 h-40 bg-coral-400/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gold-400/5 rounded-full blur-3xl pointer-events-none" />
-
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-ocean-700/30 flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-surface-border flex-shrink-0">
           <h2
             id="modal-title"
             className="font-heading text-lg sm:text-xl font-bold text-text-primary tracking-tight pr-4"

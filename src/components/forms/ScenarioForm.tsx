@@ -147,7 +147,7 @@ export default function ScenarioForm({ scenario, onSuccess, onCancel }: Scenario
       <div>
         <div className="flex items-center justify-between mb-2">
           <label htmlFor="title" className="flex items-center gap-2 text-sm font-medium text-text-secondary">
-            Title <span className="text-red-400">*</span>
+            Title <span className="text-red-600">*</span>
             <Tooltip content="A clear, descriptive name for this restoration scenario">
               <HelpCircle className="w-3.5 h-3.5 text-text-muted cursor-help" />
             </Tooltip>
@@ -166,7 +166,7 @@ export default function ScenarioForm({ scenario, onSuccess, onCancel }: Scenario
           aria-required="true"
           aria-invalid={!!errors.title}
         />
-        {errors.title && <p id="title-error" className="mt-1 text-sm text-red-400" role="alert">{errors.title}</p>}
+        {errors.title && <p id="title-error" className="mt-1 text-sm text-red-600" role="alert">{errors.title}</p>}
       </div>
 
       {/* Description */}
@@ -190,13 +190,13 @@ export default function ScenarioForm({ scenario, onSuccess, onCancel }: Scenario
           maxLength={DESCRIPTION_MAX_LENGTH + 50}
           aria-describedby={errors.description ? 'description-error' : undefined}
         />
-        {errors.description && <p id="description-error" className="mt-1 text-sm text-red-400">{errors.description}</p>}
+        {errors.description && <p id="description-error" className="mt-1 text-sm text-red-600">{errors.description}</p>}
       </div>
 
       {/* Project */}
       <div>
         <label htmlFor="project" className="block text-sm font-medium text-text-secondary mb-2">
-          Project <span className="text-red-400">*</span>
+          Project <span className="text-red-600">*</span>
         </label>
         <select
           id="project"
@@ -212,7 +212,7 @@ export default function ScenarioForm({ scenario, onSuccess, onCancel }: Scenario
             </option>
           ))}
         </select>
-        {errors.project && <p className="mt-1 text-sm text-red-400">{errors.project}</p>}
+        {errors.project && <p className="mt-1 text-sm text-red-600">{errors.project}</p>}
       </div>
 
       {/* Status and Priority Row */}
@@ -276,7 +276,7 @@ export default function ScenarioForm({ scenario, onSuccess, onCancel }: Scenario
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3 pt-4 border-t border-ocean-700/50">
+      <div className="flex justify-end gap-3 pt-4 border-t border-surface-border">
         <button type="button" onClick={onCancel} disabled={isSubmitting} className="btn-secondary">
           Cancel
         </button>

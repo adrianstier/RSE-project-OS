@@ -28,9 +28,9 @@ import { useToast } from '../components/Toast';
 import type { TimelineEvent, TimelineEventType, Project } from '../types/database';
 
 const eventTypeConfig: Record<TimelineEventType, { icon: typeof Flag; color: string; bgColor: string }> = {
-  milestone: { icon: Flag, color: 'text-purple-400', bgColor: 'bg-purple-400' },
-  deadline: { icon: Clock, color: 'text-red-400', bgColor: 'bg-red-400' },
-  meeting: { icon: Users, color: 'text-blue-400', bgColor: 'bg-blue-400' },
+  milestone: { icon: Flag, color: 'text-purple-600', bgColor: 'bg-purple-500' },
+  deadline: { icon: Clock, color: 'text-red-600', bgColor: 'bg-red-500' },
+  meeting: { icon: Users, color: 'text-blue-600', bgColor: 'bg-blue-500' },
   deliverable: { icon: Package, color: 'text-coral-400', bgColor: 'bg-coral-400' },
 };
 
@@ -215,7 +215,7 @@ export default function Timeline() {
               id="show-past-events"
               checked={showPast}
               onChange={(e) => setShowPast(e.target.checked)}
-              className="w-4 h-4 rounded border-ocean-600 bg-surface-light text-coral-400 focus:ring-coral-400/50 focus:ring-offset-0"
+              className="w-4 h-4 rounded border-ocean-300 bg-white text-coral-400 focus:ring-coral-400/50 focus:ring-offset-0"
             />
             <span className="text-sm text-text-secondary">Show past events</span>
           </label>
@@ -262,15 +262,15 @@ export default function Timeline() {
             <div key={monthKey} className="animate-slide-up">
               {/* Month Header */}
               <div className="flex items-center gap-4 mb-6">
-                <div className="h-px flex-1 bg-gradient-to-r from-ocean-700 to-transparent" />
+                <div className="h-px flex-1 bg-gradient-to-r from-ocean-200 to-transparent" />
                 <h2 className="font-heading text-lg font-semibold text-text-primary">{monthKey}</h2>
-                <div className="h-px flex-1 bg-gradient-to-l from-ocean-700 to-transparent" />
+                <div className="h-px flex-1 bg-gradient-to-l from-ocean-200 to-transparent" />
               </div>
 
               {/* Events */}
               <div className="relative">
                 {/* Timeline Line */}
-                <div className="absolute left-[18px] top-0 bottom-0 w-0.5 bg-ocean-700/50" />
+                <div className="absolute left-[18px] top-0 bottom-0 w-0.5 bg-ocean-200" />
 
                 <div className="space-y-6">
                   {groupedEvents[monthKey].map((event) => {
@@ -292,7 +292,7 @@ export default function Timeline() {
                             className={`
                               w-9 h-9 rounded-full flex items-center justify-center
                               ${isUpcoming ? config.bgColor + '/20' : 'bg-surface-lighter'}
-                              ${isUpcoming ? 'ring-2 ring-offset-2 ring-offset-ocean-900' : ''}
+                              ${isUpcoming ? 'ring-2 ring-offset-2 ring-offset-white' : ''}
                               ${isUpcoming ? config.bgColor.replace('bg-', 'ring-') + '/50' : ''}
                             `}
                           >
@@ -306,7 +306,7 @@ export default function Timeline() {
                         <Card
                           className={`
                             flex-1 !p-4
-                            ${isUpcoming ? 'glow-coral border-coral-400/20' : ''}
+                            ${isUpcoming ? 'border-coral-400/20' : ''}
                           `}
                         >
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
@@ -341,7 +341,7 @@ export default function Timeline() {
                               </button>
                               <button
                                 onClick={() => setDeletingEvent(event)}
-                                className="p-1.5 text-text-muted hover:text-red-400 hover:bg-surface-lighter rounded-lg transition-colors"
+                                className="p-1.5 text-text-muted hover:text-red-600 hover:bg-surface-lighter rounded-lg transition-colors"
                                 aria-label="Delete event"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -358,24 +358,6 @@ export default function Timeline() {
           ))}
         </div>
       )}
-
-      {/* Legend */}
-      <Card className="!p-4">
-        <div className="flex flex-wrap items-center gap-6">
-          <span className="text-sm font-medium text-text-secondary">Event Types:</span>
-          {Object.entries(eventTypeConfig).map(([type, config]) => {
-            const Icon = config.icon;
-            return (
-              <div key={type} className="flex items-center gap-2">
-                <div className={`w-6 h-6 rounded-full ${config.bgColor}/20 flex items-center justify-center`}>
-                  <Icon className={`w-3 h-3 ${config.color}`} />
-                </div>
-                <span className="text-sm text-text-secondary capitalize">{type}</span>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
 
       {/* Create/Edit Modal */}
       <Modal

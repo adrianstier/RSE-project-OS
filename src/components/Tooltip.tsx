@@ -46,10 +46,10 @@ export default function Tooltip({
   };
 
   const arrowClasses = {
-    top: 'top-full left-1/2 -translate-x-1/2 border-t-ocean-700 border-x-transparent border-b-transparent',
-    bottom: 'bottom-full left-1/2 -translate-x-1/2 border-b-ocean-700 border-x-transparent border-t-transparent',
-    left: 'left-full top-1/2 -translate-y-1/2 border-l-ocean-700 border-y-transparent border-r-transparent',
-    right: 'right-full top-1/2 -translate-y-1/2 border-r-ocean-700 border-y-transparent border-l-transparent',
+    top: 'top-full left-1/2 -translate-x-1/2 border-t-ocean-800 border-x-transparent border-b-transparent',
+    bottom: 'bottom-full left-1/2 -translate-x-1/2 border-b-ocean-800 border-x-transparent border-t-transparent',
+    left: 'left-full top-1/2 -translate-y-1/2 border-l-ocean-800 border-y-transparent border-r-transparent',
+    right: 'right-full top-1/2 -translate-y-1/2 border-r-ocean-800 border-y-transparent border-l-transparent',
   };
 
   return (
@@ -69,7 +69,7 @@ export default function Tooltip({
           aria-hidden={!isVisible}
           className={`
             absolute z-50 px-3 py-2
-            bg-ocean-700 text-text-primary text-xs font-medium
+            bg-ocean-800 text-white text-xs font-medium
             rounded-lg shadow-lg whitespace-nowrap
             animate-fade-in
             ${positionClasses[position]}

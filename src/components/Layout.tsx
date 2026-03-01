@@ -10,7 +10,6 @@ import {
   LogOut,
   User,
   Keyboard,
-  Waves,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Breadcrumbs from './Breadcrumbs';
@@ -113,33 +112,23 @@ export default function Layout() {
           fixed lg:sticky top-0 left-0 z-50 lg:z-0
           w-72 h-screen
           bg-surface-card/95 backdrop-blur-md
-          border-r border-ocean-700/30
+          border-r border-surface-border
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
-        {/* Decorative wave pattern */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden pointer-events-none opacity-5">
-          <svg viewBox="0 0 400 100" preserveAspectRatio="none" className="w-full h-full">
-            <path d="M0 50 Q100 20, 200 50 T400 50 V100 H0 Z" fill="#4ecdc4" />
-            <path d="M0 60 Q100 30, 200 60 T400 60 V100 H0 Z" fill="#fed766" opacity="0.5" />
-          </svg>
-        </div>
-
-        <div className="flex flex-col h-full relative">
+        <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center justify-between h-20 px-5 border-b border-ocean-700/30">
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="relative p-2.5 bg-gradient-to-br from-coral-400/20 to-coral-400/5 rounded-xl border border-coral-400/20 group-hover:border-coral-400/40 transition-all duration-300">
-                <CoralIcon className="w-7 h-7 text-coral-400" />
-                {/* Glow effect on hover */}
-                <div className="absolute inset-0 rounded-xl bg-coral-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="flex items-center justify-between h-20 px-5 border-b border-surface-border">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="p-2.5 bg-coral-400/10 rounded-xl border border-coral-400/15">
+                <CoralIcon className="w-6 h-6 text-coral-400" />
               </div>
               <div>
-                <h1 className="font-heading font-extrabold text-xl text-text-primary tracking-tight">
+                <h1 className="font-heading font-bold text-lg text-text-primary tracking-tight">
                   RSE Tracker
                 </h1>
-                <p className="text-xs text-coral-400/70 font-medium tracking-wide">
+                <p className="text-xs text-text-muted font-medium">
                   Coral Conservation
                 </p>
               </div>
@@ -166,28 +155,28 @@ export default function Layout() {
                 style={{ animationDelay: `${index * 0.05}s` }}
                 aria-current={location.pathname === item.href ? 'page' : undefined}
               >
-                <item.icon className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
+                <item.icon className="w-5 h-5" aria-hidden="true" />
                 <span className="font-medium">{item.name}</span>
                 {location.pathname === item.href && (
-                  <span className="ml-auto w-2 h-2 rounded-full bg-coral-400 animate-pulse shadow-[0_0_8px_rgba(78,205,196,0.5)]" aria-hidden="true" />
+                  <span className="ml-auto w-1.5 h-1.5 rounded-full bg-coral-400" aria-hidden="true" />
                 )}
               </NavLink>
             ))}
           </nav>
 
           {/* User section */}
-          <div className="p-4 border-t border-ocean-700/30 space-y-3">
+          <div className="p-4 border-t border-surface-border space-y-3">
             {/* User info */}
             {user && (
               <Link
                 to="/profile"
-                className="flex items-center gap-3 p-3 rounded-xl bg-surface-lighter/30 border border-ocean-700/20 hover:bg-surface-lighter/50 hover:border-ocean-700/30 transition-all duration-200"
+                className="flex items-center gap-3 p-3 rounded-xl bg-surface-lighter/50 border border-surface-border hover:bg-surface-hover hover:border-ocean-300 transition-all duration-200"
                 onClick={() => setSidebarOpen(false)}
               >
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="" className="w-8 h-8 rounded-full" referrerPolicy="no-referrer" />
                 ) : (
-                  <div className="p-2 bg-gradient-to-br from-coral-400/20 to-gold-400/10 rounded-full">
+                  <div className="p-2 bg-coral-400/10 rounded-full">
                     <User className="w-4 h-4 text-coral-400" />
                   </div>
                 )}
@@ -226,7 +215,7 @@ export default function Layout() {
               >
                 <Keyboard className="w-4 h-4" />
                 <span>Keyboard shortcuts</span>
-                <kbd className="ml-auto px-2 py-0.5 bg-ocean-700/50 rounded-lg text-[10px] font-mono text-coral-400 border border-ocean-600/50">?</kbd>
+                <kbd className="ml-auto px-1.5 py-0.5 bg-ocean-100 rounded text-[10px] font-mono text-text-muted border border-ocean-200">?</kbd>
               </button>
             </Tooltip>
           </div>
@@ -236,7 +225,7 @@ export default function Layout() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="sticky top-0 z-30 h-16 bg-surface-card/80 backdrop-blur-md border-b border-ocean-700/30" role="banner">
+        <header className="sticky top-0 z-30 h-16 bg-surface-card/80 backdrop-blur-md border-b border-surface-border" role="banner">
           <div className="flex items-center justify-between h-full px-4 lg:px-8">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -252,18 +241,12 @@ export default function Layout() {
               <GlobalSearch />
             </div>
 
-            {/* Project badges */}
-            <div className="flex items-center gap-3">
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-surface-lighter/50 rounded-full border border-ocean-700/20">
-                <Waves className="w-4 h-4 text-coral-400/60" />
-                <span className="text-xs text-text-muted font-medium">Conservation Projects</span>
-              </div>
-              <span className="hidden sm:inline-flex px-3 py-1.5 text-xs font-semibold rounded-full project-mote border backdrop-blur-sm">
-                <span className="w-3 h-3 inline-flex items-center justify-center bg-current/20 rounded text-[8px] mr-1.5 font-bold">M</span>
+            {/* Project indicators */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md project-mote border">
                 Mote
               </span>
-              <span className="hidden sm:inline-flex px-3 py-1.5 text-xs font-semibold rounded-full project-fundemar border backdrop-blur-sm">
-                <span className="w-3 h-3 inline-flex items-center justify-center bg-current/20 rounded text-[8px] mr-1.5 font-bold">F</span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md project-fundemar border">
                 Fundemar
               </span>
             </div>

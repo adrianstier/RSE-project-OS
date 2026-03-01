@@ -598,9 +598,9 @@ export default function ActionItems() {
                           <span
                             className={`flex items-center gap-1 text-sm ${
                               dueDateStatus?.type === 'overdue'
-                                ? 'text-red-400'
+                                ? 'text-red-600'
                                 : dueDateStatus?.type === 'today'
-                                ? 'text-amber-400'
+                                ? 'text-amber-600'
                                 : 'text-text-secondary'
                             }`}
                           >
@@ -637,7 +637,7 @@ export default function ActionItems() {
                           </button>
                           <button
                             onClick={() => setDeletingItem(item)}
-                            className="p-1.5 text-text-muted hover:text-red-400 hover:bg-surface-hover rounded-lg transition-colors"
+                            className="p-1.5 text-text-muted hover:text-red-600 hover:bg-surface-hover rounded-lg transition-colors"
                             aria-label="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -900,10 +900,10 @@ function KanbanColumn({
               status === 'todo'
                 ? 'text-slate-400'
                 : status === 'in_progress'
-                ? 'text-blue-400'
+                ? 'text-blue-600'
                 : status === 'done'
-                ? 'text-emerald-400'
-                : 'text-red-400'
+                ? 'text-emerald-600'
+                : 'text-red-600'
             }`}
           />
           <span className="text-sm font-medium text-text-primary">{label}</span>
@@ -1009,7 +1009,7 @@ function DraggableCard({
             onClick={(e) => { e.stopPropagation(); onQuickToggleDone(item); }}
             className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-150 ${
               isDone
-                ? 'bg-emerald-400/20 border-emerald-400 text-emerald-400'
+                ? 'bg-emerald-50 border-emerald-500 text-emerald-600'
                 : 'border-text-muted/40 hover:border-coral-400 text-transparent hover:text-coral-400/50'
             }`}
             aria-label={isDone ? 'Mark as not done' : 'Mark as done'}
@@ -1044,7 +1044,7 @@ function DraggableCard({
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onDelete(item); }}
-              className="p-1.5 text-text-muted hover:text-red-400 hover:bg-surface-hover rounded-lg transition-colors"
+              className="p-1.5 text-text-muted hover:text-red-600 hover:bg-surface-hover rounded-lg transition-colors"
               aria-label="Delete"
             >
               <Trash2 className="w-4 h-4" />
@@ -1065,9 +1065,9 @@ function DraggableCard({
             <span
               className={`flex items-center gap-1 text-xs ${
                 dueDateStatus?.type === 'overdue'
-                  ? 'text-red-400'
+                  ? 'text-red-600'
                   : dueDateStatus?.type === 'today'
-                  ? 'text-amber-400'
+                  ? 'text-amber-600'
                   : 'text-text-muted'
               }`}
             >
@@ -1143,9 +1143,9 @@ function DragOverlayCard({ item, getDueDateStatus }: DragOverlayCardProps) {
             <span
               className={`flex items-center gap-1 text-xs ${
                 dueDateStatus?.type === 'overdue'
-                  ? 'text-red-400'
+                  ? 'text-red-600'
                   : dueDateStatus?.type === 'today'
-                  ? 'text-amber-400'
+                  ? 'text-amber-600'
                   : 'text-text-muted'
               }`}
             >
@@ -1191,7 +1191,7 @@ function ActionItemDetail({ item, scenario, getDueDateStatus, onEdit, onDelete }
       </div>
 
       {/* Metadata */}
-      <div className="border-t border-ocean-700/30 pt-4">
+      <div className="border-t border-surface-border pt-4">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center gap-2 text-text-secondary">
             <User className="w-4 h-4" />
@@ -1206,8 +1206,8 @@ function ActionItemDetail({ item, scenario, getDueDateStatus, onEdit, onDelete }
             <span>Due Date</span>
           </div>
           <div className={`flex items-center gap-2 ${
-            dueDateStatus?.type === 'overdue' ? 'text-red-400' :
-            dueDateStatus?.type === 'today' ? 'text-amber-400' :
+            dueDateStatus?.type === 'overdue' ? 'text-red-600' :
+            dueDateStatus?.type === 'today' ? 'text-amber-600' :
             'text-text-primary'
           }`}>
             {item.due_date ? (
@@ -1242,7 +1242,7 @@ function ActionItemDetail({ item, scenario, getDueDateStatus, onEdit, onDelete }
       </div>
 
       {/* Linked Scenario */}
-      <div className="border-t border-ocean-700/30 pt-4">
+      <div className="border-t border-surface-border pt-4">
         <h4 className="flex items-center gap-2 text-sm font-medium text-text-primary mb-3">
           <Layers className="w-4 h-4 text-coral-400" />
           Linked Scenario
@@ -1264,8 +1264,8 @@ function ActionItemDetail({ item, scenario, getDueDateStatus, onEdit, onDelete }
       </div>
 
       {/* Action buttons */}
-      <div className="border-t border-ocean-700/30 pt-4 flex gap-3 justify-end">
-        <button onClick={onDelete} className="btn-secondary flex items-center gap-2 text-red-400 hover:text-red-300">
+      <div className="border-t border-surface-border pt-4 flex gap-3 justify-end">
+        <button onClick={onDelete} className="btn-secondary flex items-center gap-2 text-red-600 hover:text-red-700">
           <Trash2 className="w-4 h-4" />
           Delete
         </button>

@@ -28,7 +28,7 @@ export default function ProgressIndicator({ steps, className = '' }: ProgressInd
           aria-label={`${completedCount} of ${steps.length} steps completed`}
         >
           <div
-            className="h-full bg-gradient-to-r from-coral-400 to-coral-300 rounded-full transition-all duration-500"
+            className="h-full bg-coral-400 rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -53,7 +53,7 @@ export default function ProgressIndicator({ steps, className = '' }: ProgressInd
               aria-current={isActive ? 'step' : undefined}
             >
               {isCompleted ? (
-                <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" aria-hidden="true" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" aria-hidden="true" />
               ) : isActive ? (
                 <Loader2 className="w-5 h-5 text-coral-400 flex-shrink-0 animate-spin" aria-hidden="true" />
               ) : (
@@ -62,7 +62,7 @@ export default function ProgressIndicator({ steps, className = '' }: ProgressInd
               <span
                 className={`text-sm ${
                   isCompleted
-                    ? 'text-emerald-400'
+                    ? 'text-emerald-600'
                     : isActive
                     ? 'text-coral-400 font-medium'
                     : 'text-text-muted'

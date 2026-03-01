@@ -41,16 +41,16 @@ export default function Login() {
   return (
     <div className="min-h-screen flex bg-surface">
       {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden bg-ocean-950">
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden bg-ocean-950 text-white">
         {/* Logo */}
         <div className="relative">
           <Link to="/" className="flex items-center gap-4 group">
-            <div className="p-3.5 bg-coral-400/10 rounded-xl border border-coral-400/20 group-hover:border-coral-400/30 transition-colors">
-              <CoralBrandIcon className="w-10 h-10 text-coral-400" />
+            <div className="p-3.5 bg-white/10 rounded-xl border border-white/20 group-hover:border-white/30 transition-colors">
+              <CoralBrandIcon className="w-10 h-10 text-ocean-300" />
             </div>
             <div>
-              <h1 className="font-heading font-semibold text-2xl text-text-primary tracking-tight">RSE Tracker</h1>
-              <p className="text-sm text-text-muted">Coral Conservation</p>
+              <h1 className="font-heading font-semibold text-2xl text-white tracking-tight">RSE Tracker</h1>
+              <p className="text-sm text-white/60">Coral Conservation</p>
             </div>
           </Link>
         </div>
@@ -58,12 +58,12 @@ export default function Login() {
         {/* Content */}
         <div className="relative space-y-8">
           <div className="space-y-4">
-            <h2 className="font-heading text-4xl font-semibold text-text-primary leading-tight tracking-tight">
+            <h2 className="font-heading text-4xl font-semibold text-white leading-tight tracking-tight">
               Restoration Strategy
               <br />
-              <span className="text-coral-400">Evaluation Tool</span>
+              <span className="text-ocean-300">Evaluation Tool</span>
             </h2>
-            <p className="text-lg text-text-secondary max-w-md leading-relaxed">
+            <p className="text-lg text-white/70 max-w-md leading-relaxed">
               Track scenarios, manage action items, and coordinate coral restoration efforts across Mote and Fundemar projects.
             </p>
           </div>
@@ -74,8 +74,8 @@ export default function Login() {
               'Scenario planning and tracking',
               'Timeline management for key milestones',
             ].map((feature, i) => (
-              <div key={i} className="flex items-center gap-3 text-text-secondary">
-                <div className="w-2 h-2 rounded-full bg-coral-400" />
+              <div key={i} className="flex items-center gap-3 text-white/70">
+                <div className="w-2 h-2 rounded-full bg-ocean-300" />
                 <span>{feature}</span>
               </div>
             ))}
@@ -92,8 +92,8 @@ export default function Login() {
         </div>
 
         {/* Footer */}
-        <div className="relative flex items-center gap-3 text-sm text-text-muted">
-          <Waves className="w-5 h-5 text-coral-400/50" />
+        <div className="relative flex items-center gap-3 text-sm text-white/50">
+          <Waves className="w-5 h-5 text-ocean-300/50" />
           <p>Protecting coral reefs for future generations</p>
         </div>
       </div>
@@ -127,9 +127,9 @@ export default function Login() {
 
             {/* Error message */}
             {error && (
-              <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/20 flex items-start gap-3" role="alert">
-                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-400">{error}</p>
+              <div className="mb-6 p-3 rounded-lg bg-red-50 border border-red-200 flex items-start gap-3" role="alert">
+                <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
 

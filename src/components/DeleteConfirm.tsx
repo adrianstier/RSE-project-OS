@@ -25,8 +25,8 @@ export default function DeleteConfirm({
       <div className="space-y-6" role="alertdialog" aria-describedby="delete-description">
         {/* Warning Icon */}
         <div className="flex justify-center">
-          <div className="p-4 bg-red-500/10 rounded-full" aria-hidden="true">
-            <AlertTriangle className="w-8 h-8 text-red-400" />
+          <div className="p-4 bg-red-50 rounded-full" aria-hidden="true">
+            <AlertTriangle className="w-8 h-8 text-red-600" />
           </div>
         </div>
 
@@ -56,7 +56,7 @@ export default function DeleteConfirm({
             className="px-4 py-2 bg-red-500 text-white font-medium rounded-lg
                      hover:bg-red-400 active:bg-red-600
                      transition-all duration-200
-                     focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-2 focus:ring-offset-ocean-900
+                     focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-2 focus:ring-offset-white
                      disabled:opacity-50 disabled:cursor-not-allowed
                      min-w-[100px] flex items-center justify-center gap-2"
             aria-label={isDeleting ? 'Deleting item' : `Delete ${itemName || 'item'}`}

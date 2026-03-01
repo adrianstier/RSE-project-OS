@@ -32,8 +32,8 @@ export default function SuccessAnimation({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
       <div className="flex flex-col items-center gap-4 animate-scale-in">
-        <div className="p-4 bg-emerald-500/20 rounded-full animate-bounce-once">
-          <CheckCircle2 className="w-16 h-16 text-emerald-400" />
+        <div className="p-4 bg-emerald-50 rounded-full animate-bounce-once">
+          <CheckCircle2 className="w-16 h-16 text-emerald-600" />
         </div>
         <p className="text-lg font-medium text-text-primary">{message}</p>
       </div>

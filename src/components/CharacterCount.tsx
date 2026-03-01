@@ -14,16 +14,16 @@ export default function CharacterCount({ current, max, className = '' }: Charact
       <span
         className={`text-xs ${
           isOver
-            ? 'text-red-400'
+            ? 'text-red-600'
             : isWarning
-            ? 'text-amber-400'
+            ? 'text-amber-600'
             : 'text-text-muted'
         }`}
       >
         {current}/{max}
       </span>
       {isOver && (
-        <span className="text-xs text-red-400">
+        <span className="text-xs text-red-600">
           ({current - max} over limit)
         </span>
       )}

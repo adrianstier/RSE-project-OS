@@ -21,14 +21,14 @@ interface ProtectedRouteProps {
 
 function DefaultLoadingComponent() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-ocean-950 via-ocean-900 to-ocean-950">
+    <div className="min-h-screen flex items-center justify-center bg-surface">
       <div className="text-center">
         {/* Animated logo */}
         <div className="relative mb-8">
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-24 h-24 rounded-full bg-coral-400/10 animate-ping" />
           </div>
-          <div className="relative p-4 bg-surface-card rounded-full border border-ocean-700/50">
+          <div className="relative p-4 bg-surface-card rounded-full border border-surface-border shadow-sm">
             <Shell className="w-12 h-12 text-coral-400" />
           </div>
         </div>

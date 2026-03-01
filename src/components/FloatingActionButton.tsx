@@ -139,10 +139,10 @@ export default function FloatingActionButton({
           w-14 h-14 rounded-full shadow-lg
           flex items-center justify-center
           ${isSingleAction ? actions[0].color : 'bg-coral-400'}
-          text-ocean-900
+          text-white
           hover:scale-110 active:scale-95
           transition-all duration-200
-          focus:outline-none focus:ring-2 focus:ring-coral-400/50 focus:ring-offset-2 focus:ring-offset-ocean-900
+          focus:outline-none focus:ring-2 focus:ring-coral-400/50 focus:ring-offset-2 focus:ring-offset-white
         `}
       >
         {isSingleAction ? (

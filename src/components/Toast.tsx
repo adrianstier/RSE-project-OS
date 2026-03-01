@@ -168,10 +168,10 @@ interface ToastItemProps {
 }
 
 const iconConfig: Record<ToastType, { icon: typeof CheckCircle2; className: string; bgClass: string; borderClass: string }> = {
-  success: { icon: CheckCircle2, className: 'text-emerald-400', bgClass: 'bg-emerald-500/10', borderClass: 'border-l-emerald-400' },
-  error: { icon: XCircle, className: 'text-red-400', bgClass: 'bg-red-500/10', borderClass: 'border-l-red-400' },
-  warning: { icon: AlertCircle, className: 'text-amber-400', bgClass: 'bg-amber-500/10', borderClass: 'border-l-amber-400' },
-  info: { icon: Info, className: 'text-blue-400', bgClass: 'bg-blue-500/10', borderClass: 'border-l-blue-400' },
+  success: { icon: CheckCircle2, className: 'text-emerald-600', bgClass: 'bg-emerald-50', borderClass: 'border-l-emerald-500' },
+  error: { icon: XCircle, className: 'text-red-600', bgClass: 'bg-red-50', borderClass: 'border-l-red-500' },
+  warning: { icon: AlertCircle, className: 'text-amber-600', bgClass: 'bg-amber-50', borderClass: 'border-l-amber-500' },
+  info: { icon: Info, className: 'text-blue-600', bgClass: 'bg-blue-50', borderClass: 'border-l-blue-500' },
 };
 
 function ToastItem({ toast, onDismiss, index }: ToastItemProps) {
@@ -183,7 +183,7 @@ function ToastItem({ toast, onDismiss, index }: ToastItemProps) {
       className={`
         flex items-start gap-3 p-4
         bg-surface-card/95 backdrop-blur-md
-        border border-ocean-700/50 border-l-4 ${config.borderClass}
+        border border-surface-border border-l-4 ${config.borderClass}
         rounded-xl shadow-lg
         pointer-events-auto
         animate-slide-in-right

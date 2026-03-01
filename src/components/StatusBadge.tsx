@@ -58,19 +58,19 @@ const projectConfig: Record<Project, { label: string; className: string; icon: s
 function getConfig(variant: BadgeVariant, value: string) {
   switch (variant) {
     case 'status':
-      return statusConfig[value as ScenarioStatus] ?? { label: value, className: 'bg-slate-500/15 text-slate-400 border-slate-500/25' };
+      return statusConfig[value as ScenarioStatus] ?? { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200' };
     case 'priority':
-      return priorityConfig[value as ScenarioPriority] ?? { label: value, className: 'bg-slate-500/15 text-slate-400 border-slate-500/25' };
+      return priorityConfig[value as ScenarioPriority] ?? { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200' };
     case 'data':
-      return dataStatusConfig[value as DataStatus] ?? { label: value, className: 'bg-slate-500/15 text-slate-400 border-slate-500/25' };
+      return dataStatusConfig[value as DataStatus] ?? { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200' };
     case 'action':
-      return actionStatusConfig[value as ActionItemStatus] ?? { label: value, className: 'bg-slate-500/15 text-slate-400 border-slate-500/25' };
+      return actionStatusConfig[value as ActionItemStatus] ?? { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200' };
     case 'event':
-      return eventTypeConfig[value as TimelineEventType] ?? { label: value, className: 'bg-slate-500/15 text-slate-400 border-slate-500/25' };
+      return eventTypeConfig[value as TimelineEventType] ?? { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200' };
     case 'project':
-      return projectConfig[value as Project] ?? { label: value, className: 'bg-slate-500/15 text-slate-400 border-slate-500/25', icon: '?' };
+      return projectConfig[value as Project] ?? { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200', icon: '?' };
     default:
-      return { label: value, className: 'bg-slate-500/15 text-slate-400 border-slate-500/25' };
+      return { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200' };
   }
 }
 
@@ -114,12 +114,9 @@ export default function StatusBadge({ variant, value, size = 'sm', showDot = fal
   return (
     <span
       className={`
-        inline-flex items-center gap-1.5 font-semibold rounded-full border
+        inline-flex items-center gap-1.5 font-medium rounded-full border
         ${config.className}
         ${sizeClasses[size]}
-        transition-all duration-200 hover:scale-[1.02]
-        backdrop-blur-sm
-        shadow-sm
       `}
       role="status"
       aria-label={getAriaLabel()}
@@ -127,11 +124,7 @@ export default function StatusBadge({ variant, value, size = 'sm', showDot = fal
       {/* Status dot for priority, status, and action variants */}
       {shouldShowDot && !isProject && (
         <span
-          className={`
-            w-2 h-2 rounded-full bg-current
-            ${value === 'critical' || value === 'blocked' ? 'animate-pulse' : ''}
-          `}
-          style={{ boxShadow: '0 0 4px currentColor' }}
+          className="w-1.5 h-1.5 rounded-full bg-current"
           aria-hidden="true"
         />
       )}
@@ -163,9 +156,7 @@ export function ProjectBadgeLarge({ project, className = '', showFullName = fals
       className={`
         inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl
         ${config.className}
-        border backdrop-blur-sm
-        transition-all duration-200 hover:scale-[1.02]
-        shadow-sm
+        border
         ${className}
       `}
     >
@@ -186,15 +177,15 @@ interface HealthBadgeProps {
 
 export function HealthBadge({ status, label, size = 'sm' }: HealthBadgeProps) {
   const statusClasses = {
-    healthy: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-    warning: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
-    critical: 'bg-red-500/15 text-red-400 border-red-500/25',
+    healthy: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    warning: 'bg-amber-50 text-amber-700 border-amber-200',
+    critical: 'bg-red-50 text-red-700 border-red-200',
   };
 
   const dotClasses = {
-    healthy: 'bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]',
-    warning: 'bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]',
-    critical: 'bg-red-400 shadow-[0_0_8px_rgba(239,68,68,0.5)] animate-pulse',
+    healthy: 'bg-emerald-500',
+    warning: 'bg-amber-500',
+    critical: 'bg-red-500',
   };
 
   const sizeClasses = {
@@ -214,7 +205,6 @@ export function HealthBadge({ status, label, size = 'sm' }: HealthBadgeProps) {
         inline-flex items-center gap-2 font-medium rounded-full border
         ${statusClasses[status]}
         ${sizeClasses[size]}
-        backdrop-blur-sm
       `}
     >
       <span className={`w-2 h-2 rounded-full ${dotClasses[status]}`} />

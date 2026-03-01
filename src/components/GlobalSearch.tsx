@@ -157,9 +157,9 @@ export default function GlobalSearch() {
       case 'scenario':
         return <Layers className="w-4 h-4 text-coral-400" />;
       case 'action_item':
-        return <CheckSquare className="w-4 h-4 text-blue-400" />;
+        return <CheckSquare className="w-4 h-4 text-blue-600" />;
       case 'timeline_event':
-        return <Calendar className="w-4 h-4 text-purple-400" />;
+        return <Calendar className="w-4 h-4 text-purple-600" />;
     }
   };
 
@@ -196,7 +196,7 @@ export default function GlobalSearch() {
       >
         <Search className="w-4 h-4" />
         <span className="hidden md:inline">Search...</span>
-        <kbd className="hidden md:inline-flex items-center gap-0.5 ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-ocean-700/50 rounded border border-ocean-600/50 text-text-muted">
+        <kbd className="hidden md:inline-flex items-center gap-0.5 ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-ocean-100 rounded border border-ocean-200 text-text-muted">
           <span className="text-xs">&#8984;</span>K
         </kbd>
       </button>
@@ -214,13 +214,13 @@ export default function GlobalSearch() {
 
       {/* Search dialog */}
       <div
-        className="relative w-full max-w-lg mx-4 bg-surface-card/95 backdrop-blur-md border border-ocean-700/50 rounded-2xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-lg mx-4 bg-surface-card/95 backdrop-blur-md border border-surface-border rounded-2xl shadow-2xl overflow-hidden"
         role="dialog"
         aria-modal="true"
         aria-label="Search"
       >
         {/* Input */}
-        <div className="flex items-center gap-3 px-4 border-b border-ocean-700/50">
+        <div className="flex items-center gap-3 px-4 border-b border-surface-border">
           <Search className="w-5 h-5 text-text-muted flex-shrink-0" />
           <input
             ref={inputRef}
@@ -288,17 +288,17 @@ export default function GlobalSearch() {
 
         {/* Footer hint */}
         {results.length > 0 && (
-          <div className="px-4 py-2 border-t border-ocean-700/50 flex items-center gap-4 text-xs text-text-muted">
+          <div className="px-4 py-2 border-t border-surface-border flex items-center gap-4 text-xs text-text-muted">
             <span className="flex items-center gap-1">
-              <kbd className="px-1 py-0.5 bg-ocean-700/50 rounded font-mono border border-ocean-600/50">&#8593;&#8595;</kbd>
+              <kbd className="px-1 py-0.5 bg-ocean-100 rounded font-mono border border-ocean-200">&#8593;&#8595;</kbd>
               navigate
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1 py-0.5 bg-ocean-700/50 rounded font-mono border border-ocean-600/50">&#8629;</kbd>
+              <kbd className="px-1 py-0.5 bg-ocean-100 rounded font-mono border border-ocean-200">&#8629;</kbd>
               select
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1 py-0.5 bg-ocean-700/50 rounded font-mono border border-ocean-600/50">esc</kbd>
+              <kbd className="px-1 py-0.5 bg-ocean-100 rounded font-mono border border-ocean-200">esc</kbd>
               close
             </span>
           </div>

@@ -116,8 +116,8 @@ export default function KeyboardShortcuts({ onNewItem }: KeyboardShortcutsProps)
       <>
         {/* Chord indicator */}
         {pendingChord && (
-          <div className="fixed bottom-20 right-6 z-50 px-4 py-2 bg-ocean-700 rounded-lg shadow-lg animate-fade-in">
-            <span className="text-sm text-text-primary font-mono">
+          <div className="fixed bottom-20 right-6 z-50 px-4 py-2 bg-ocean-800 rounded-lg shadow-lg animate-fade-in">
+            <span className="text-sm text-white font-mono">
               <span className="text-coral-400">{pendingChord}</span> + ...
             </span>
           </div>
@@ -141,9 +141,9 @@ export default function KeyboardShortcuts({ onNewItem }: KeyboardShortcutsProps)
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg bg-surface-card/95 backdrop-blur-md border border-ocean-700/50 rounded-2xl shadow-2xl animate-slide-up">
+      <div className="relative w-full max-w-lg bg-surface-card/95 backdrop-blur-md border border-surface-border rounded-2xl shadow-2xl animate-slide-up">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-ocean-700/50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-coral-400/10 rounded-lg">
               <Keyboard className="w-5 h-5 text-coral-400" />
@@ -178,7 +178,7 @@ export default function KeyboardShortcuts({ onNewItem }: KeyboardShortcutsProps)
                         {shortcut.keys.map((key, keyIndex) => (
                           <span key={keyIndex} className="flex items-center gap-1">
                             {keyIndex > 0 && <span className="text-text-muted text-xs">then</span>}
-                            <kbd className="px-2 py-1 text-xs font-mono bg-ocean-700 text-text-primary rounded border border-ocean-600">
+                            <kbd className="px-2 py-1 text-xs font-mono bg-ocean-100 text-text-primary rounded border border-ocean-200">
                               {key}
                             </kbd>
                           </span>
@@ -193,9 +193,9 @@ export default function KeyboardShortcuts({ onNewItem }: KeyboardShortcutsProps)
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-ocean-700/50">
+        <div className="px-6 py-4 border-t border-surface-border">
           <p className="text-xs text-text-muted text-center">
-            Press <kbd className="px-1.5 py-0.5 bg-ocean-700 rounded text-text-secondary font-mono">?</kbd> anytime to show this help
+            Press <kbd className="px-1.5 py-0.5 bg-ocean-100 rounded text-text-secondary font-mono border border-ocean-200">?</kbd> anytime to show this help
           </p>
         </div>
       </div>

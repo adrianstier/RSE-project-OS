@@ -145,7 +145,7 @@ export default function Scenarios() {
               ${
                 activeTab === tab.value
                   ? 'bg-coral-400/20 text-coral-400 border border-coral-400/40'
-                  : 'bg-surface-lighter text-text-secondary hover:text-text-primary hover:bg-ocean-700 border border-transparent'
+                  : 'bg-surface-lighter text-text-secondary hover:text-text-primary hover:bg-ocean-100 border border-transparent'
               }
             `}
           >
@@ -286,7 +286,7 @@ function ScenarioCard({ scenario, actions, isExpanded, onToggleExpand, onEdit, o
               e.stopPropagation();
               onDelete();
             }}
-            className="p-1.5 text-text-muted hover:text-red-400 hover:bg-surface-lighter rounded-lg transition-colors"
+            className="p-1.5 text-text-muted hover:text-red-600 hover:bg-surface-lighter rounded-lg transition-colors"
             aria-label="Delete scenario"
           >
             <Trash2 className="w-4 h-4" />
@@ -308,7 +308,7 @@ function ScenarioCard({ scenario, actions, isExpanded, onToggleExpand, onEdit, o
 
         {/* Expanded Content */}
         {isExpanded && (
-          <div className="mt-6 pt-4 border-t border-ocean-700/50 space-y-4 animate-fade-in">
+          <div className="mt-6 pt-4 border-t border-surface-border space-y-4 animate-fade-in">
             {/* Metadata */}
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="flex items-center gap-2 text-text-secondary">
@@ -453,7 +453,7 @@ function ScenarioDetail({ scenario, actions, onEdit, onDelete }: ScenarioDetailP
       <div>{renderDescription(scenario.description)}</div>
 
       {/* Metadata */}
-      <div className="border-t border-ocean-700/30 pt-4">
+      <div className="border-t border-surface-border pt-4">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center gap-2 text-text-secondary">
             <Calendar className="w-4 h-4" />
@@ -474,7 +474,7 @@ function ScenarioDetail({ scenario, actions, onEdit, onDelete }: ScenarioDetailP
       </div>
 
       {/* Linked Action Items */}
-      <div className="border-t border-ocean-700/30 pt-4">
+      <div className="border-t border-surface-border pt-4">
         <h4 className="flex items-center gap-2 text-sm font-medium text-text-primary mb-3">
           <CheckSquare className="w-4 h-4 text-coral-400" />
           Linked Action Items ({actions.length})
@@ -499,8 +499,8 @@ function ScenarioDetail({ scenario, actions, onEdit, onDelete }: ScenarioDetailP
       </div>
 
       {/* Action buttons */}
-      <div className="border-t border-ocean-700/30 pt-4 flex gap-3 justify-end">
-        <button onClick={onDelete} className="btn-secondary flex items-center gap-2 text-red-400 hover:text-red-300">
+      <div className="border-t border-surface-border pt-4 flex gap-3 justify-end">
+        <button onClick={onDelete} className="btn-secondary flex items-center gap-2 text-red-600 hover:text-red-700">
           <Trash2 className="w-4 h-4" />
           Delete
         </button>

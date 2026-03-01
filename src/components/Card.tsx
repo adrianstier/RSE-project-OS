@@ -1,4 +1,4 @@
-import { ReactNode, useRef, MouseEvent } from 'react';
+import { ReactNode } from 'react';
 
 interface CardProps {
   children: ReactNode;
@@ -12,41 +12,26 @@ interface CardProps {
 }
 
 export default function Card({ children, className = '', hover = false, compact = false, onClick, variant = 'default', role: customRole, 'aria-label': ariaLabel }: CardProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  // Track mouse position for glow effect
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    cardRef.current.style.setProperty('--mouse-x', `${x}%`);
-    cardRef.current.style.setProperty('--mouse-y', `${y}%`);
-  };
-
   const variantClasses = {
     default: '',
-    mote: 'border-mote-400/25 hover:border-mote-400/35',
-    fundemar: 'border-fundemar-400/25 hover:border-fundemar-400/35',
-    highlight: 'border-coral-400/35 glow-coral',
+    mote: 'border-mote-400/20',
+    fundemar: 'border-fundemar-400/20',
+    highlight: 'border-coral-400/30',
   };
 
-  // Determine the role - custom role takes precedence, then button if clickable
   const computedRole = customRole || (onClick ? 'button' : undefined);
 
   return (
     <div
-      ref={cardRef}
       onClick={onClick}
-      onMouseMove={handleMouseMove}
       role={computedRole}
       aria-label={ariaLabel}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
       className={`
         glass-card ${compact ? 'p-4' : 'p-5 lg:p-6'}
-        transition-all duration-300 ease-out
-        ${hover ? 'hover-lift cursor-pointer' : ''}
+        transition-colors duration-150
+        ${hover ? 'hover:border-ocean-300 cursor-pointer' : ''}
         ${variantClasses[variant]}
         ${className}
       `}
@@ -114,7 +99,7 @@ interface CardFooterProps {
 
 export function CardFooter({ children, className = '' }: CardFooterProps) {
   return (
-    <div className={`mt-5 pt-4 border-t border-ocean-700/30 ${className}`}>
+    <div className={`mt-5 pt-4 border-t border-surface-border ${className}`}>
       {children}
     </div>
   );
@@ -149,7 +134,7 @@ export function StatCard({ label, value, icon, trend, variant = 'default', class
             {value}
           </p>
           {trend && (
-            <div className={`flex items-center gap-1 text-xs ${trend.value >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+            <div className={`flex items-center gap-1 text-xs ${trend.value >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               <svg
                 className={`w-3 h-3 ${trend.value < 0 ? 'rotate-180' : ''}`}
                 fill="none"
@@ -163,13 +148,11 @@ export function StatCard({ label, value, icon, trend, variant = 'default', class
           )}
         </div>
         {icon && (
-          <div className={`p-3 rounded-xl ${accentColors[variant]} transition-transform duration-300 group-hover:scale-110`}>
+          <div className={`p-3 rounded-xl ${accentColors[variant]}`}>
             {icon}
           </div>
         )}
       </div>
-      {/* Decorative gradient */}
-      <div className="absolute -bottom-4 -right-4 w-24 h-24 opacity-10 rounded-full bg-gradient-to-br from-coral-400 to-transparent blur-xl" />
     </Card>
   );
 }

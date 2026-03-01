@@ -45,7 +45,7 @@ export function CardSkeleton() {
       </div>
 
       {/* Footer */}
-      <div className="pt-4 border-t border-ocean-700/30 flex justify-center">
+      <div className="pt-4 border-t border-surface-border flex justify-center">
         <Skeleton className="h-4 w-24 rounded" />
       </div>
     </div>
@@ -69,7 +69,7 @@ export function StatCardSkeleton() {
 
 export function ListItemSkeleton() {
   return (
-    <div className="flex items-center gap-4 p-4 border-b border-ocean-700/30 last:border-0">
+    <div className="flex items-center gap-4 p-4 border-b border-surface-border last:border-0">
       <Skeleton className="h-10 w-10 rounded-full" variant="circular" />
       <div className="flex-1 space-y-2">
         <Skeleton className="h-4 w-3/4 rounded" />
@@ -88,9 +88,9 @@ export function TimelineSkeleton() {
     <div className="space-y-8">
       {/* Month header */}
       <div className="flex items-center gap-4 mb-6">
-        <div className="h-px flex-1 bg-ocean-700/50" />
+        <div className="h-px flex-1 bg-ocean-200" />
         <Skeleton className="h-6 w-32 rounded-lg" />
-        <div className="h-px flex-1 bg-ocean-700/50" />
+        <div className="h-px flex-1 bg-ocean-200" />
       </div>
 
       {/* Timeline items */}

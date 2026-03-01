@@ -59,11 +59,11 @@ export default function Profile() {
                 <img
                   src={avatarUrl}
                   alt="Profile avatar"
-                  className="w-16 h-16 rounded-full border-2 border-ocean-700/30"
+                  className="w-16 h-16 rounded-full border-2 border-surface-border"
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-coral-400/20 to-gold-400/10 border-2 border-ocean-700/30 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-coral-400/20 to-gold-400/10 border-2 border-surface-border flex items-center justify-center">
                   <User className="w-7 h-7 text-coral-400" />
                 </div>
               )}
