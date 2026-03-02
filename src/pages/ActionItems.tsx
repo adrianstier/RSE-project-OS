@@ -364,37 +364,7 @@ export default function ActionItems() {
             Track and manage project tasks and deliverables
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 flex-shrink-0">
-          {/* Feature 1: My Tasks / All Tasks toggle */}
-          {user && (
-            <div className="flex items-center gap-1.5 bg-surface-hover p-1 rounded-lg">
-              <button
-                onClick={() => setShowMyTasks(true)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                  showMyTasks
-                    ? 'bg-coral-400/20 text-coral-400'
-                    : 'text-text-secondary hover:text-text-primary'
-                }`}
-                aria-pressed={showMyTasks}
-              >
-                <UserCheck className="w-4 h-4" />
-                <span className="hidden sm:inline">My Tasks</span>
-              </button>
-              <button
-                onClick={() => setShowMyTasks(false)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                  !showMyTasks
-                    ? 'bg-coral-400/20 text-coral-400'
-                    : 'text-text-secondary hover:text-text-primary'
-                }`}
-                aria-pressed={!showMyTasks}
-              >
-                <Users className="w-4 h-4" />
-                <span className="hidden sm:inline">All Tasks</span>
-              </button>
-            </div>
-          )}
-
+        <div className="flex items-center gap-3 flex-shrink-0">
           <div className="flex items-center gap-1.5 bg-surface-hover p-1 rounded-lg">
             <button
               onClick={() => setViewMode('kanban')}
@@ -435,6 +405,36 @@ export default function ActionItems() {
             <Filter className="w-4 h-4" />
             <span className="text-sm font-medium">Filters:</span>
           </div>
+
+          {/* My Tasks / All Tasks toggle */}
+          {user && (
+            <div className="flex items-center gap-1.5 bg-surface-hover p-0.5 rounded-lg">
+              <button
+                onClick={() => setShowMyTasks(true)}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium rounded-md transition-all ${
+                  showMyTasks
+                    ? 'bg-coral-400/20 text-coral-400'
+                    : 'text-text-secondary hover:text-text-primary'
+                }`}
+                aria-pressed={showMyTasks}
+              >
+                <UserCheck className="w-3.5 h-3.5" />
+                Mine
+              </button>
+              <button
+                onClick={() => setShowMyTasks(false)}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium rounded-md transition-all ${
+                  !showMyTasks
+                    ? 'bg-coral-400/20 text-coral-400'
+                    : 'text-text-secondary hover:text-text-primary'
+                }`}
+                aria-pressed={!showMyTasks}
+              >
+                <Users className="w-3.5 h-3.5" />
+                All
+              </button>
+            </div>
+          )}
 
           {/* Status Filter */}
           <div className="relative">
@@ -630,14 +630,14 @@ export default function ActionItems() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleEdit(item)}
-                            className="p-1.5 text-text-muted hover:text-coral-400 hover:bg-surface-hover rounded-lg transition-colors"
+                            className="p-1.5 text-text-muted hover:text-coral-400 hover:bg-surface-lighter rounded-lg transition-colors"
                             aria-label="Edit"
                           >
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => setDeletingItem(item)}
-                            className="p-1.5 text-text-muted hover:text-red-600 hover:bg-surface-hover rounded-lg transition-colors"
+                            className="p-1.5 text-text-muted hover:text-red-600 hover:bg-surface-lighter rounded-lg transition-colors"
                             aria-label="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1037,14 +1037,14 @@ function DraggableCard({
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); onEdit(item); }}
-              className="p-1.5 text-text-muted hover:text-coral-400 hover:bg-surface-hover rounded-lg transition-colors"
+              className="p-1.5 text-text-muted hover:text-coral-400 hover:bg-surface-lighter rounded-lg transition-colors"
               aria-label="Edit"
             >
               <Pencil className="w-4 h-4" />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onDelete(item); }}
-              className="p-1.5 text-text-muted hover:text-red-600 hover:bg-surface-hover rounded-lg transition-colors"
+              className="p-1.5 text-text-muted hover:text-red-600 hover:bg-surface-lighter rounded-lg transition-colors"
               aria-label="Delete"
             >
               <Trash2 className="w-4 h-4" />

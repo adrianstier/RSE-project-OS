@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { format, isAfter, isBefore, addDays } from 'date-fns';
 import {
@@ -9,8 +9,6 @@ import {
   TrendingUp,
   Clock,
   ArrowRight,
-  Activity,
-  Target,
   Waves,
 } from 'lucide-react';
 import { useScenarios, useActionItems, useTimelineEvents, useRealtimeAll } from '../hooks/useSupabase';
@@ -81,24 +79,8 @@ export default function Dashboard() {
   const { data: actionItems, isLoading: actionsLoading } = useActionItems();
   const { data: timelineEvents, isLoading: eventsLoading } = useTimelineEvents();
 
-  // Check if this is a first-time user (no data)
-  const [showWelcomeTip, setShowWelcomeTip] = useState(true);
-
   // Enable realtime updates for all data
   useRealtimeAll();
-
-  // Check localStorage for first visit
-  useEffect(() => {
-    const hasSeenTip = localStorage.getItem('rse-dashboard-tip-seen');
-    if (hasSeenTip) {
-      setShowWelcomeTip(false);
-    }
-  }, []);
-
-  const dismissWelcomeTip = () => {
-    localStorage.setItem('rse-dashboard-tip-seen', 'true');
-    setShowWelcomeTip(false);
-  };
 
   const isFirstTimeUser = !scenariosLoading && !actionsLoading && !eventsLoading &&
     (!scenarios || scenarios.length === 0) &&
@@ -176,7 +158,7 @@ export default function Dashboard() {
       </div>
 
       {/* Welcome Header */}
-      <WelcomeHeader showTip={showWelcomeTip && !isFirstTimeUser} onDismissTip={dismissWelcomeTip} />
+      <WelcomeHeader />
 
       {/* First-time user empty state */}
       {isFirstTimeUser && (
@@ -188,31 +170,7 @@ export default function Dashboard() {
         </Card>
       )}
 
-      {/* Quick Stats Summary - Enhanced with better visual treatment */}
-      {!isFirstTimeUser && stats && (
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-card rounded-lg border border-surface-border">
-            <Activity className="w-3.5 h-3.5 text-coral-400" />
-            <span className="text-text-secondary">
-              <span className="font-medium text-text-primary">{stats.activeCount}</span> active
-            </span>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-card rounded-lg border border-surface-border">
-            <Target className="w-3.5 h-3.5 text-blue-600" />
-            <span className="text-text-secondary">
-              <span className="font-medium text-text-primary">{stats.pendingActions}</span> pending
-            </span>
-          </div>
-          {stats.overdueCount > 0 && (
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 rounded-lg border border-red-200">
-              <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
-              <span className="text-red-600 font-medium">{stats.overdueCount} overdue</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Stats Grid - With staggered animation */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         {isLoading ? (
           <>
@@ -272,111 +230,56 @@ export default function Dashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex items-center gap-8">
               {/* Donut chart */}
-              <div className="flex flex-col items-center gap-3">
+              <div className="flex-shrink-0">
                 <div className="relative">
-                  <svg width="96" height="96" viewBox="0 0 96 96" className="transform -rotate-90">
+                  <svg width="80" height="80" viewBox="0 0 80 80" className="transform -rotate-90">
                     <circle
-                      cx="48"
-                      cy="48"
-                      r="40"
+                      cx="40"
+                      cy="40"
+                      r="32"
                       fill="none"
                       stroke="currentColor"
-                      strokeWidth="8"
+                      strokeWidth="7"
                       className="text-surface-hover"
                     />
                     <circle
-                      cx="48"
-                      cy="48"
-                      r="40"
+                      cx="40"
+                      cy="40"
+                      r="32"
                       fill="none"
                       stroke={THEME_COLORS.emerald}
-                      strokeWidth="8"
+                      strokeWidth="7"
                       strokeLinecap="round"
-                      strokeDasharray={`${2 * Math.PI * 40}`}
-                      strokeDashoffset={`${2 * Math.PI * 40 * (1 - stats.completionPercent / 100)}`}
+                      strokeDasharray={`${2 * Math.PI * 32}`}
+                      strokeDashoffset={`${2 * Math.PI * 32 * (1 - stats.completionPercent / 100)}`}
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xl font-bold text-text-primary">{stats.completionPercent}%</span>
-                    <span className="text-xs text-text-muted">done</span>
-                  </div>
-                </div>
-                <p className="text-sm text-text-secondary">
-                  {stats.doneCount} of {stats.totalItems} items done
-                </p>
-              </div>
-
-              {/* Status breakdown bar */}
-              <div className="flex flex-col justify-center gap-4">
-                <p className="text-sm font-medium text-text-secondary">Status Breakdown</p>
-                {/* Stacked bar */}
-                <div className="h-2 rounded-full overflow-hidden flex bg-surface-hover">
-                  {stats.todoCount > 0 && (
-                    <div
-                      className="bg-slate-400 transition-all duration-500"
-                      style={{ width: `${(stats.todoCount / stats.totalItems) * 100}%` }}
-                      title={`To Do: ${stats.todoCount}`}
-                    />
-                  )}
-                  {stats.inProgressCount > 0 && (
-                    <div
-                      className="bg-blue-400 transition-all duration-500"
-                      style={{ width: `${(stats.inProgressCount / stats.totalItems) * 100}%` }}
-                      title={`In Progress: ${stats.inProgressCount}`}
-                    />
-                  )}
-                  {stats.doneCount > 0 && (
-                    <div
-                      className="bg-emerald-400 transition-all duration-500"
-                      style={{ width: `${(stats.doneCount / stats.totalItems) * 100}%` }}
-                      title={`Done: ${stats.doneCount}`}
-                    />
-                  )}
-                  {stats.blockedCount > 0 && (
-                    <div
-                      className="bg-red-400 transition-all duration-500"
-                      style={{ width: `${(stats.blockedCount / stats.totalItems) * 100}%` }}
-                      title={`Blocked: ${stats.blockedCount}`}
-                    />
-                  )}
-                </div>
-                {/* Legend */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-sm bg-slate-400 flex-shrink-0" />
-                    <span className="text-xs text-text-secondary">To Do ({stats.todoCount})</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-sm bg-blue-400 flex-shrink-0" />
-                    <span className="text-xs text-text-secondary">In Progress ({stats.inProgressCount})</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-sm bg-emerald-400 flex-shrink-0" />
-                    <span className="text-xs text-text-secondary">Done ({stats.doneCount})</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-sm bg-red-400 flex-shrink-0" />
-                    <span className="text-xs text-text-secondary">Blocked ({stats.blockedCount})</span>
+                    <span className="text-lg font-bold text-text-primary">{stats.completionPercent}%</span>
                   </div>
                 </div>
               </div>
 
-              {/* Overdue indicator */}
-              <div className="flex flex-col items-center justify-center gap-2">
-                {stats.overdueCount > 0 ? (
-                  <>
-                    <AlertTriangle className="w-6 h-6 text-red-600" />
-                    <p className="text-2xl font-bold text-red-600">{stats.overdueCount}</p>
-                    <p className="text-xs text-text-muted">overdue</p>
-                  </>
-                ) : (
-                  <>
-                    <CheckSquare className="w-6 h-6 text-emerald-600" />
-                    <p className="text-sm font-medium text-emerald-600">All on track</p>
-                  </>
-                )}
+              {/* Legend */}
+              <div className="flex flex-wrap gap-x-6 gap-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-sm bg-slate-400 flex-shrink-0" />
+                  <span className="text-sm text-text-secondary">To Do <span className="font-medium text-text-primary">{stats.todoCount}</span></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-sm bg-blue-400 flex-shrink-0" />
+                  <span className="text-sm text-text-secondary">In Progress <span className="font-medium text-text-primary">{stats.inProgressCount}</span></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-sm bg-emerald-400 flex-shrink-0" />
+                  <span className="text-sm text-text-secondary">Done <span className="font-medium text-text-primary">{stats.doneCount}</span></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-sm bg-red-400 flex-shrink-0" />
+                  <span className="text-sm text-text-secondary">Blocked <span className="font-medium text-text-primary">{stats.blockedCount}</span></span>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -384,7 +287,7 @@ export default function Dashboard() {
       )}
 
       {/* Project Breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Card variant="mote">
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -481,7 +384,7 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Actions and Upcoming Events */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Recent Action Items */}
         <Card>
           <CardHeader>
