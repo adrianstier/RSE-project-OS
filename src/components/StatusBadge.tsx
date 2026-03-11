@@ -1,214 +1,89 @@
-import type {
-  ScenarioStatus,
-  ScenarioPriority,
-  DataStatus,
-  ActionItemStatus,
-  TimelineEventType,
-  Project,
-} from '../types/database';
+import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
 
-type BadgeVariant = 'status' | 'priority' | 'data' | 'action' | 'event' | 'project';
+const scenarioStatusStyles: Record<string, string> = {
+  planning: "bg-neutral-100 text-neutral-600 border-transparent",
+  active: "bg-blue-50 text-blue-700 border-transparent",
+  completed: "bg-emerald-50 text-emerald-700 border-transparent",
+  on_hold: "bg-amber-50 text-amber-700 border-transparent",
+}
+
+const actionItemStatusStyles: Record<string, string> = {
+  todo: "bg-neutral-100 text-neutral-600 border-transparent",
+  in_progress: "bg-blue-50 text-blue-700 border-transparent",
+  done: "bg-emerald-50 text-emerald-700 border-transparent",
+  blocked: "bg-red-50 text-red-700 border-transparent",
+}
+
+const priorityStyles: Record<string, string> = {
+  low: "bg-neutral-100 text-neutral-600 border-transparent",
+  medium: "bg-amber-50 text-amber-700 border-transparent",
+  high: "bg-orange-50 text-orange-700 border-transparent",
+  critical: "bg-red-50 text-red-700 border-transparent",
+}
+
+const dataStatusStyles: Record<string, string> = {
+  "data-ready": "bg-emerald-50 text-emerald-700 border-transparent",
+  "data-partial": "bg-amber-50 text-amber-700 border-transparent",
+  "data-pending": "bg-neutral-100 text-neutral-600 border-transparent",
+}
+
+const eventTypeStyles: Record<string, string> = {
+  milestone: "bg-purple-50 text-purple-700 border-transparent",
+  deadline: "bg-red-50 text-red-700 border-transparent",
+  meeting: "bg-blue-50 text-blue-700 border-transparent",
+  deliverable: "bg-amber-50 text-amber-700 border-transparent",
+}
+
+const projectStyles: Record<string, string> = {
+  mote: "bg-mote-50 text-mote-400 border-transparent",
+  fundemar: "bg-fundemar-50 text-fundemar-400 border-transparent",
+}
+
+const formatLabel = (value: string): string =>
+  value.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()).replace(/^Data /, "")
+
+const projectLabels: Record<string, string> = { mote: "Mote", fundemar: "Fundemar" }
+
+type BadgeType = "scenario-status" | "action-status" | "priority" | "data-status" | "event-type" | "project"
+
+const styleMap: Record<BadgeType, Record<string, string>> = {
+  "scenario-status": scenarioStatusStyles,
+  "action-status": actionItemStatusStyles,
+  priority: priorityStyles,
+  "data-status": dataStatusStyles,
+  "event-type": eventTypeStyles,
+  project: projectStyles,
+}
 
 interface StatusBadgeProps {
-  variant: BadgeVariant;
-  value: string;
-  size?: 'sm' | 'md' | 'lg';
-  showDot?: boolean;
+  type: BadgeType
+  value: string
+  className?: string
 }
 
-const statusConfig: Record<ScenarioStatus, { label: string; className: string }> = {
-  planning: { label: 'Planning', className: 'status-planning' },
-  active: { label: 'Active', className: 'status-active' },
-  completed: { label: 'Completed', className: 'status-completed' },
-  on_hold: { label: 'On Hold', className: 'status-on_hold' },
-};
-
-const priorityConfig: Record<ScenarioPriority, { label: string; className: string }> = {
-  low: { label: 'Low', className: 'priority-low' },
-  medium: { label: 'Medium', className: 'priority-medium' },
-  high: { label: 'High', className: 'priority-high' },
-  critical: { label: 'Critical', className: 'priority-critical' },
-};
-
-const dataStatusConfig: Record<DataStatus, { label: string; className: string }> = {
-  'data-ready': { label: 'Data Ready', className: 'data-ready' },
-  'data-partial': { label: 'Partial Data', className: 'data-partial' },
-  'data-pending': { label: 'Pending', className: 'data-pending' },
-};
-
-const actionStatusConfig: Record<ActionItemStatus, { label: string; className: string }> = {
-  todo: { label: 'To Do', className: 'action-todo' },
-  in_progress: { label: 'In Progress', className: 'action-in_progress' },
-  done: { label: 'Done', className: 'action-done' },
-  blocked: { label: 'Blocked', className: 'action-blocked' },
-};
-
-const eventTypeConfig: Record<TimelineEventType, { label: string; className: string }> = {
-  milestone: { label: 'Milestone', className: 'event-milestone' },
-  deadline: { label: 'Deadline', className: 'event-deadline' },
-  meeting: { label: 'Meeting', className: 'event-meeting' },
-  deliverable: { label: 'Deliverable', className: 'event-deliverable' },
-};
-
-const projectConfig: Record<Project, { label: string; className: string; icon: string; fullName: string }> = {
-  mote: { label: 'Mote', className: 'project-mote', icon: 'M', fullName: 'Mote Marine' },
-  fundemar: { label: 'Fundemar', className: 'project-fundemar', icon: 'F', fullName: 'Fundemar' },
-};
-
-function getConfig(variant: BadgeVariant, value: string) {
-  switch (variant) {
-    case 'status':
-      return statusConfig[value as ScenarioStatus] ?? { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200' };
-    case 'priority':
-      return priorityConfig[value as ScenarioPriority] ?? { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200' };
-    case 'data':
-      return dataStatusConfig[value as DataStatus] ?? { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200' };
-    case 'action':
-      return actionStatusConfig[value as ActionItemStatus] ?? { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200' };
-    case 'event':
-      return eventTypeConfig[value as TimelineEventType] ?? { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200' };
-    case 'project':
-      return projectConfig[value as Project] ?? { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200', icon: '?' };
-    default:
-      return { label: value, className: 'bg-slate-50 text-slate-600 border-slate-200' };
-  }
-}
-
-export default function StatusBadge({ variant, value, size = 'sm', showDot = false }: StatusBadgeProps) {
-  const config = getConfig(variant, value);
-  const isProject = variant === 'project';
-  const projectConf = isProject ? projectConfig[value as Project] : null;
-  const isPriority = variant === 'priority';
-  const isStatus = variant === 'status';
-  const isAction = variant === 'action';
-
-  const sizeClasses = {
-    sm: 'px-2.5 py-1 text-xs',
-    md: 'px-3 py-1.5 text-sm',
-    lg: 'px-4 py-2 text-sm',
-  };
-
-  // Enhanced status icons
-  const shouldShowDot = showDot || isPriority || isStatus || isAction;
-
-  // Generate accessible label based on variant
-  const getAriaLabel = () => {
-    switch (variant) {
-      case 'status':
-        return `Status: ${config.label}`;
-      case 'priority':
-        return `Priority: ${config.label}`;
-      case 'data':
-        return `Data status: ${config.label}`;
-      case 'action':
-        return `Action status: ${config.label}`;
-      case 'event':
-        return `Event type: ${config.label}`;
-      case 'project':
-        return `Project: ${config.label}`;
-      default:
-        return config.label;
-    }
-  };
-
+export function StatusBadge({ type, value, className }: StatusBadgeProps) {
+  const styles = styleMap[type]?.[value] ?? "bg-neutral-100 text-neutral-600 border-transparent"
+  const label = type === "project" ? (projectLabels[value] ?? value) : formatLabel(value)
   return (
-    <span
-      className={`
-        inline-flex items-center gap-1.5 font-medium rounded-full border
-        ${config.className}
-        ${sizeClasses[size]}
-      `}
-      role="status"
-      aria-label={getAriaLabel()}
-    >
-      {/* Status dot for priority, status, and action variants */}
-      {shouldShowDot && !isProject && (
-        <span
-          className="w-1.5 h-1.5 rounded-full bg-current"
-          aria-hidden="true"
-        />
-      )}
+    <Badge variant="outline" className={cn("text-xs font-medium", styles, className)}>
+      {label}
+    </Badge>
+  )
+}
 
-      {/* Project icon for project badges */}
-      {isProject && projectConf && (
-        <span className="w-4 h-4 rounded bg-current/25 flex items-center justify-center text-[10px] font-bold shadow-inner" aria-hidden="true">
-          {projectConf.icon}
-        </span>
-      )}
+interface ProjectDotProps {
+  project: string
+  className?: string
+}
 
-      {config.label}
+export function ProjectDot({ project, className }: ProjectDotProps) {
+  const dotColor = project === "mote" ? "bg-mote-400" : "bg-fundemar-400"
+  const label = projectLabels[project] ?? project
+  return (
+    <span className={cn("inline-flex items-center gap-1.5 text-xs text-muted-foreground", className)}>
+      <span className={cn("h-1.5 w-1.5 rounded-full", dotColor)} />
+      {label}
     </span>
-  );
-}
-
-// Larger project badge with more visual emphasis
-interface ProjectBadgeLargeProps {
-  project: Project;
-  className?: string;
-  showFullName?: boolean;
-}
-
-export function ProjectBadgeLarge({ project, className = '', showFullName = false }: ProjectBadgeLargeProps) {
-  const config = projectConfig[project];
-
-  return (
-    <div
-      className={`
-        inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl
-        ${config.className}
-        border
-        ${className}
-      `}
-    >
-      <span className="w-7 h-7 rounded-lg bg-current/25 flex items-center justify-center text-sm font-bold shadow-inner">
-        {config.icon}
-      </span>
-      <span className="font-semibold tracking-tight">{showFullName ? config.fullName : config.label}</span>
-    </div>
-  );
-}
-
-// Health indicator badge
-interface HealthBadgeProps {
-  status: 'healthy' | 'warning' | 'critical';
-  label?: string;
-  size?: 'sm' | 'md';
-}
-
-export function HealthBadge({ status, label, size = 'sm' }: HealthBadgeProps) {
-  const statusClasses = {
-    healthy: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    warning: 'bg-amber-50 text-amber-700 border-amber-200',
-    critical: 'bg-red-50 text-red-700 border-red-200',
-  };
-
-  const dotClasses = {
-    healthy: 'bg-emerald-500',
-    warning: 'bg-amber-500',
-    critical: 'bg-red-500',
-  };
-
-  const sizeClasses = {
-    sm: 'px-2.5 py-0.5 text-xs',
-    md: 'px-3 py-1 text-sm',
-  };
-
-  const defaultLabels = {
-    healthy: 'Healthy',
-    warning: 'Warning',
-    critical: 'Critical',
-  };
-
-  return (
-    <span
-      className={`
-        inline-flex items-center gap-2 font-medium rounded-full border
-        ${statusClasses[status]}
-        ${sizeClasses[size]}
-      `}
-    >
-      <span className={`w-2 h-2 rounded-full ${dotClasses[status]}`} />
-      {label ?? defaultLabels[status]}
-    </span>
-  );
+  )
 }

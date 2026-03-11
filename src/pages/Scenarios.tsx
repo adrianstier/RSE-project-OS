@@ -18,8 +18,8 @@ import {
   useRealtimeScenarios,
 } from '../hooks/useSupabase';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/Card';
-import StatusBadge from '../components/StatusBadge';
-import EmptyState from '../components/EmptyState';
+import { StatusBadge } from '../components/StatusBadge';
+import { EmptyState } from '../components/EmptyState';
 import { CardSkeleton } from '../components/Skeleton';
 import Modal from '../components/Modal';
 import DeleteConfirm from '../components/DeleteConfirm';
@@ -270,7 +270,7 @@ function ScenarioCard({ scenario, actions, isExpanded, onToggleExpand, onEdit, o
           <CardTitle className="line-clamp-2">{scenario.title}</CardTitle>
         </div>
         <div className="flex items-center gap-2">
-          <StatusBadge variant="project" value={scenario.project} />
+          <StatusBadge type="project" value={scenario.project} />
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -301,9 +301,9 @@ function ScenarioCard({ scenario, actions, isExpanded, onToggleExpand, onEdit, o
 
         {/* Badges */}
         <div className="flex flex-wrap gap-2 mt-4">
-          <StatusBadge variant="status" value={scenario.status} />
-          <StatusBadge variant="priority" value={scenario.priority} />
-          <StatusBadge variant="data" value={scenario.data_status} />
+          <StatusBadge type="scenario-status" value={scenario.status} />
+          <StatusBadge type="priority" value={scenario.priority} />
+          <StatusBadge type="data-status" value={scenario.data_status} />
         </div>
 
         {/* Expanded Content */}
@@ -344,7 +344,7 @@ function ScenarioCard({ scenario, actions, isExpanded, onToggleExpand, onEdit, o
                       <span className="text-sm text-text-secondary truncate flex-1 mr-2">
                         {action.title}
                       </span>
-                      <StatusBadge variant="action" value={action.status} />
+                      <StatusBadge type="action-status" value={action.status} />
                     </div>
                   ))}
                   {actions.length > 5 && (
@@ -443,10 +443,10 @@ function ScenarioDetail({ scenario, actions, onEdit, onDelete }: ScenarioDetailP
     <div className="space-y-6">
       {/* Badges row */}
       <div className="flex flex-wrap gap-2">
-        <StatusBadge variant="project" value={scenario.project} />
-        <StatusBadge variant="status" value={scenario.status} />
-        <StatusBadge variant="data" value={scenario.data_status} />
-        <StatusBadge variant="priority" value={scenario.priority} />
+        <StatusBadge type="project" value={scenario.project} />
+        <StatusBadge type="scenario-status" value={scenario.status} />
+        <StatusBadge type="data-status" value={scenario.data_status} />
+        <StatusBadge type="priority" value={scenario.priority} />
       </div>
 
       {/* Description */}
@@ -489,7 +489,7 @@ function ScenarioDetail({ scenario, actions, onEdit, onDelete }: ScenarioDetailP
                 <span className="text-sm text-text-secondary truncate flex-1 mr-2">
                   {action.title}
                 </span>
-                <StatusBadge variant="action" value={action.status} />
+                <StatusBadge type="action-status" value={action.status} />
               </div>
             ))}
           </div>

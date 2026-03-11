@@ -47,8 +47,8 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import Card from '../components/Card';
-import StatusBadge from '../components/StatusBadge';
-import EmptyState from '../components/EmptyState';
+import { StatusBadge } from '../components/StatusBadge';
+import { EmptyState } from '../components/EmptyState';
 import { ListItemSkeleton } from '../components/Skeleton';
 import Modal from '../components/Modal';
 import DeleteConfirm from '../components/DeleteConfirm';
@@ -588,7 +588,7 @@ export default function ActionItems() {
                       </td>
                       <td className="py-3 px-4">
                         {item.project ? (
-                          <StatusBadge variant="project" value={item.project} />
+                          <StatusBadge type="project" value={item.project} />
                         ) : (
                           <span className="text-sm text-text-muted">-</span>
                         )}
@@ -1059,7 +1059,7 @@ function DraggableCard({
         )}
 
         <div className="flex flex-wrap items-center gap-2">
-          {item.project && <StatusBadge variant="project" value={item.project} />}
+          {item.project && <StatusBadge type="project" value={item.project} />}
 
           {item.due_date && (
             <span
@@ -1137,7 +1137,7 @@ function DragOverlayCard({ item, getDueDateStatus }: DragOverlayCardProps) {
         )}
 
         <div className="flex flex-wrap items-center gap-2">
-          {item.project && <StatusBadge variant="project" value={item.project} />}
+          {item.project && <StatusBadge type="project" value={item.project} />}
 
           {item.due_date && (
             <span
@@ -1175,8 +1175,8 @@ function ActionItemDetail({ item, scenario, getDueDateStatus, onEdit, onDelete }
     <div className="space-y-6">
       {/* Badges row */}
       <div className="flex flex-wrap gap-2">
-        <StatusBadge variant="action" value={item.status} />
-        {item.project && <StatusBadge variant="project" value={item.project} />}
+        <StatusBadge type="action-status" value={item.status} />
+        {item.project && <StatusBadge type="project" value={item.project} />}
       </div>
 
       {/* Description */}
@@ -1254,8 +1254,8 @@ function ActionItemDetail({ item, scenario, getDueDateStatus, onEdit, onDelete }
               <span className="text-sm text-text-primary truncate">{scenario.title}</span>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <StatusBadge variant="project" value={scenario.project} />
-              <StatusBadge variant="status" value={scenario.status} />
+              <StatusBadge type="project" value={scenario.project} />
+              <StatusBadge type="scenario-status" value={scenario.status} />
             </div>
           </div>
         ) : (

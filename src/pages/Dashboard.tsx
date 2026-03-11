@@ -13,8 +13,8 @@ import {
 } from 'lucide-react';
 import { useScenarios, useActionItems, useTimelineEvents, useRealtimeAll } from '../hooks/useSupabase';
 import Card, { CardHeader, CardTitle, CardContent } from '../components/Card';
-import StatusBadge from '../components/StatusBadge';
-import EmptyState from '../components/EmptyState';
+import { StatusBadge } from '../components/StatusBadge';
+import { EmptyState } from '../components/EmptyState';
 import { StatCardSkeleton, ListItemSkeleton } from '../components/Skeleton';
 import WelcomeHeader from '../components/WelcomeHeader';
 
@@ -299,7 +299,7 @@ export default function Dashboard() {
                 <p className="text-xs text-text-muted mt-0.5">Florida, USA</p>
               </div>
             </div>
-            <StatusBadge variant="project" value="mote" size="md" />
+            <StatusBadge type="project" value="mote" />
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -346,7 +346,7 @@ export default function Dashboard() {
                 <p className="text-xs text-text-muted mt-0.5">Dominican Republic</p>
               </div>
             </div>
-            <StatusBadge variant="project" value="fundemar" size="md" />
+            <StatusBadge type="project" value="fundemar" />
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -442,11 +442,11 @@ export default function Dashboard() {
                           </span>
                         )}
                         {action.project && (
-                          <StatusBadge variant="project" value={action.project} />
+                          <StatusBadge type="project" value={action.project} />
                         )}
                       </div>
                     </div>
-                    <StatusBadge variant="action" value={action.status} />
+                    <StatusBadge type="action-status" value={action.status} />
                   </div>
                 ))}
               </div>
@@ -498,10 +498,10 @@ export default function Dashboard() {
                       </p>
                       <div className="flex items-center gap-2 mt-0.5">
                         {event.event_type && (
-                          <StatusBadge variant="event" value={event.event_type} />
+                          <StatusBadge type="event-type" value={event.event_type} />
                         )}
                         {event.project && (
-                          <StatusBadge variant="project" value={event.project} />
+                          <StatusBadge type="project" value={event.project} />
                         )}
                       </div>
                     </div>

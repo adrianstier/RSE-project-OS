@@ -18,8 +18,8 @@ import {
   useRealtimeTimeline,
 } from '../hooks/useSupabase';
 import Card, { CardContent } from '../components/Card';
-import StatusBadge from '../components/StatusBadge';
-import EmptyState from '../components/EmptyState';
+import { StatusBadge } from '../components/StatusBadge';
+import { EmptyState } from '../components/EmptyState';
 import { TimelineSkeleton } from '../components/Skeleton';
 import Modal from '../components/Modal';
 import DeleteConfirm from '../components/DeleteConfirm';
@@ -309,10 +309,10 @@ export default function Timeline() {
 
                             <div className="flex flex-wrap items-center gap-2">
                               {event.event_type && (
-                                <StatusBadge variant="event" value={event.event_type} />
+                                <StatusBadge type="event-type" value={event.event_type} />
                               )}
                               {event.project && (
-                                <StatusBadge variant="project" value={event.project} />
+                                <StatusBadge type="project" value={event.project} />
                               )}
                               <button
                                 onClick={() => handleEdit(event)}
