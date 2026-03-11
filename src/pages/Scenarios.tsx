@@ -195,6 +195,7 @@ export default function Scenarios() {
                   ? undefined
                   : `There are no scenarios for the ${activeTab === 'mote' ? 'Mote Marine Laboratory' : 'Fundemar'} project yet.`
               }
+              actionLabel={activeTab === 'all' ? 'Create First Scenario' : undefined}
               onAction={activeTab === 'all' ? openNewForm : undefined}
             />
           </Card>

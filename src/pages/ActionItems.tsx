@@ -514,6 +514,7 @@ export default function ActionItems() {
         <Card>
           <EmptyState
             variant={statusFilter !== 'all' || projectFilter !== 'all' || ownerFilter !== 'all' || showMyTasks ? 'filter' : 'actions'}
+            actionLabel={statusFilter === 'all' && projectFilter === 'all' && ownerFilter === 'all' && !showMyTasks ? 'Create Action Item' : undefined}
             onAction={statusFilter === 'all' && projectFilter === 'all' && ownerFilter === 'all' && !showMyTasks ? openNewForm : undefined}
           />
         </Card>

@@ -164,7 +164,10 @@ export default function Dashboard() {
       {isFirstTimeUser && (
         <Card className="!p-8">
           <EmptyState
-            variant="welcome"
+            variant="default"
+            title="Welcome to RSE Tracker"
+            description="Get started by creating your first scenario."
+            actionLabel="Get Started"
             onAction={() => navigate('/scenarios')}
           />
         </Card>

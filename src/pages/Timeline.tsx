@@ -235,6 +235,7 @@ export default function Timeline() {
             variant={
               eventTypeFilter !== 'all' || projectFilter !== 'all' || !showPast ? 'filter' : 'timeline'
             }
+            actionLabel={eventTypeFilter === 'all' && projectFilter === 'all' && showPast ? 'Add First Event' : undefined}
             onAction={eventTypeFilter === 'all' && projectFilter === 'all' && showPast ? openNewForm : undefined}
           />
         </Card>
