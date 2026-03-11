@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './components/Toast';
+import { Toaster } from 'sonner';
 import ProtectedRoute, { PublicRoute } from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
@@ -19,8 +20,8 @@ function PageLoader() {
   return (
     <div className="flex items-center justify-center min-h-[50vh]">
       <div className="flex flex-col items-center gap-4">
-        <div className="loading-spinner" />
-        <p className="text-text-secondary text-sm">Loading...</p>
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted-foreground border-t-primary" />
+        <p className="text-muted-foreground text-sm">Loading...</p>
       </div>
     </div>
   );
@@ -43,6 +44,7 @@ function App() {
       <AuthProvider>
         <ToastProvider>
           <BrowserRouter>
+            <Toaster />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Public routes */}
