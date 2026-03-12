@@ -17,7 +17,7 @@ export default function CharacterCount({ current, max, className = '' }: Charact
             ? 'text-red-600'
             : isWarning
             ? 'text-amber-600'
-            : 'text-text-muted'
+            : 'text-muted-foreground'
         }`}
       >
         {current}/{max}

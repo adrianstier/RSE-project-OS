@@ -1,9 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Loader2, HelpCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useCreateScenario, useUpdateScenario } from '../../hooks/useSupabase';
-import { useToast } from '../Toast';
+import { Input } from '../ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import { Label } from '../ui/label';
+import { Button } from '../ui/button';
 import CharacterCount from '../CharacterCount';
-import Tooltip from '../Tooltip';
 import type {
   Scenario,
   ScenarioInsert,
@@ -50,7 +59,6 @@ const dataStatusOptions: { value: DataStatus; label: string }[] = [
 
 export default function ScenarioForm({ scenario, onSuccess, onCancel }: ScenarioFormProps) {
   const isEditing = !!scenario;
-  const { success, error: showError } = useToast();
 
   const createScenario = useCreateScenario();
   const updateScenario = useUpdateScenario();
@@ -118,7 +126,7 @@ export default function ScenarioForm({ scenario, onSuccess, onCancel }: Scenario
         };
 
         await updateScenario.mutateAsync({ id: scenario.id, updates });
-        success('Scenario updated successfully');
+        toast.success('Scenario updated successfully');
       } else {
         const newScenario: ScenarioInsert = {
           title: formData.title,
@@ -130,12 +138,12 @@ export default function ScenarioForm({ scenario, onSuccess, onCancel }: Scenario
         };
 
         await createScenario.mutateAsync(newScenario);
-        success('Scenario created successfully');
+        toast.success('Scenario created successfully');
       }
 
       onSuccess();
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to save scenario');
+      toast.error(err instanceof Error ? err.message : 'Failed to save scenario');
     }
   };
 
@@ -146,20 +154,17 @@ export default function ScenarioForm({ scenario, onSuccess, onCancel }: Scenario
       {/* Title */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label htmlFor="title" className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+          <Label htmlFor="title" className="flex items-center gap-2">
             Title <span className="text-red-600">*</span>
-            <Tooltip content="A clear, descriptive name for this restoration scenario">
-              <HelpCircle className="w-3.5 h-3.5 text-text-muted cursor-help" />
-            </Tooltip>
-          </label>
+          </Label>
           <CharacterCount current={formData.title.length} max={TITLE_MAX_LENGTH} />
         </div>
-        <input
+        <Input
           type="text"
           id="title"
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          className={`input-field ${errors.title ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''}`}
+          className={errors.title ? 'border-red-500 focus:border-red-500 focus-visible:ring-red-500/50' : ''}
           placeholder="e.g., Staghorn Coral Outplanting - Summer 2024"
           maxLength={TITLE_MAX_LENGTH + 10}
           aria-describedby={errors.title ? 'title-error' : undefined}
@@ -172,12 +177,9 @@ export default function ScenarioForm({ scenario, onSuccess, onCancel }: Scenario
       {/* Description */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label htmlFor="description" className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+          <Label htmlFor="description" className="flex items-center gap-2">
             Description
-            <Tooltip content="Provide details about the restoration strategy, goals, and expected outcomes">
-              <HelpCircle className="w-3.5 h-3.5 text-text-muted cursor-help" />
-            </Tooltip>
-          </label>
+          </Label>
           <CharacterCount current={formData.description.length} max={DESCRIPTION_MAX_LENGTH} />
         </div>
         <textarea
@@ -185,7 +187,17 @@ export default function ScenarioForm({ scenario, onSuccess, onCancel }: Scenario
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           rows={4}
-          className={`input-field resize-none ${errors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''}`}
+          className={`
+            w-full px-3 py-2 rounded-lg
+            bg-white border border-border
+            text-foreground placeholder-text-muted text-sm
+            transition-colors duration-150
+            hover:border-ocean-400
+            focus:outline-none focus-visible:ring-2 focus-visible:ring-coral-400/50
+            focus-visible:ring-offset-2 focus-visible:ring-offset-white focus:border-coral-400/50
+            resize-none
+            ${errors.description ? 'border-red-500 focus:border-red-500 focus-visible:ring-red-500/50' : ''}
+          `}
           placeholder="Describe the restoration scenario, including target species, location, methodology, and expected outcomes..."
           maxLength={DESCRIPTION_MAX_LENGTH + 50}
           aria-describedby={errors.description ? 'description-error' : undefined}
@@ -195,23 +207,29 @@ export default function ScenarioForm({ scenario, onSuccess, onCancel }: Scenario
 
       {/* Project */}
       <div>
-        <label htmlFor="project" className="block text-sm font-medium text-text-secondary mb-2">
+        <Label htmlFor="project-trigger" className="block mb-2">
           Project <span className="text-red-600">*</span>
-        </label>
-        <select
-          id="project"
+        </Label>
+        <Select
           value={formData.project}
-          onChange={(e) => setFormData({ ...formData, project: e.target.value as Project })}
-          className={`select-field ${errors.project ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''}`}
-          aria-required="true"
-          aria-invalid={!!errors.project}
+          onValueChange={(v) => setFormData({ ...formData, project: v as Project })}
         >
-          {projectOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger
+            id="project-trigger"
+            className={errors.project ? 'border-red-500 focus:border-red-500 focus-visible:ring-red-500/50' : ''}
+            aria-required="true"
+            aria-invalid={!!errors.project}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {projectOptions.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {errors.project && <p className="mt-1 text-sm text-red-600">{errors.project}</p>}
       </div>
 
@@ -219,68 +237,77 @@ export default function ScenarioForm({ scenario, onSuccess, onCancel }: Scenario
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Status */}
         <div>
-          <label htmlFor="status" className="block text-sm font-medium text-text-secondary mb-2">
+          <Label htmlFor="status-trigger" className="block mb-2">
             Status
-          </label>
-          <select
-            id="status"
+          </Label>
+          <Select
             value={formData.status}
-            onChange={(e) => setFormData({ ...formData, status: e.target.value as ScenarioStatus })}
-            className="select-field"
+            onValueChange={(v) => setFormData({ ...formData, status: v as ScenarioStatus })}
           >
-            {statusOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger id="status-trigger">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {statusOptions.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Priority */}
         <div>
-          <label htmlFor="priority" className="block text-sm font-medium text-text-secondary mb-2">
+          <Label htmlFor="priority-trigger" className="block mb-2">
             Priority
-          </label>
-          <select
-            id="priority"
+          </Label>
+          <Select
             value={formData.priority}
-            onChange={(e) => setFormData({ ...formData, priority: e.target.value as ScenarioPriority })}
-            className="select-field"
+            onValueChange={(v) => setFormData({ ...formData, priority: v as ScenarioPriority })}
           >
-            {priorityOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger id="priority-trigger">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {priorityOptions.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
       {/* Data Status */}
       <div>
-        <label htmlFor="data_status" className="block text-sm font-medium text-text-secondary mb-2">
+        <Label htmlFor="data-status-trigger" className="block mb-2">
           Data Status
-        </label>
-        <select
-          id="data_status"
+        </Label>
+        <Select
           value={formData.data_status}
-          onChange={(e) => setFormData({ ...formData, data_status: e.target.value as DataStatus })}
-          className="select-field"
+          onValueChange={(v) => setFormData({ ...formData, data_status: v as DataStatus })}
         >
-          {dataStatusOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger id="data-status-trigger">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {dataStatusOptions.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3 pt-4 border-t border-surface-border">
-        <button type="button" onClick={onCancel} disabled={isSubmitting} className="btn-secondary">
+      <div className="flex justify-end gap-3 pt-4 border-t border-border">
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
           Cancel
-        </button>
-        <button type="submit" disabled={isSubmitting} className="btn-primary flex items-center gap-2">
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -289,7 +316,7 @@ export default function ScenarioForm({ scenario, onSuccess, onCancel }: Scenario
           ) : (
             <>{isEditing ? 'Update Scenario' : 'Create Scenario'}</>
           )}
-        </button>
+        </Button>
       </div>
     </form>
   );

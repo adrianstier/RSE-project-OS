@@ -18,132 +18,126 @@ import { useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import {
   CheckSquare,
-  Filter,
   Clock,
-  User,
   AlertCircle,
   Circle,
   Loader2,
   CheckCircle2,
   XCircle,
-  ChevronDown,
   Plus,
-  Pencil,
-  Trash2,
   GripVertical,
   UserCheck,
   Users,
-  Calendar,
-  FileText,
-  Layers,
+  Kanban,
+  List,
 } from 'lucide-react';
 import {
   useActionItems,
   useUpdateActionItem,
-  useDeleteActionItem,
   useRealtimeActionItems,
-  useScenarios,
 } from '../hooks/useSupabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
-import Card from '../components/Card';
-import { StatusBadge } from '../components/StatusBadge';
-import { EmptyState } from '../components/EmptyState';
-import { ListItemSkeleton } from '../components/Skeleton';
-import Modal from '../components/Modal';
-import DeleteConfirm from '../components/DeleteConfirm';
+import { toast } from 'sonner';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import StatusBadge from '../components/StatusBadge';
+import EmptyState from '../components/EmptyState';
+import ActionItemSheet from '../components/ActionItemSheet';
 import { ActionItemForm } from '../components/forms';
-import { useToast } from '../components/Toast';
-import type { ActionItem, ActionItemStatus, Project, Scenario } from '../types/database';
+import type { ActionItem, ActionItemStatus, Project } from '../types/database';
 
-const statusOptions: { value: ActionItemStatus; label: string; icon: typeof Circle }[] = [
-  { value: 'todo', label: 'To Do', icon: Circle },
-  { value: 'in_progress', label: 'In Progress', icon: Loader2 },
-  { value: 'done', label: 'Done', icon: CheckCircle2 },
-  { value: 'blocked', label: 'Blocked', icon: XCircle },
+// ============================================
+// CONSTANTS
+// ============================================
+
+const STATUS_COLUMNS: {
+  value: ActionItemStatus;
+  label: string;
+  icon: typeof Circle;
+  dotColor: string;
+}[] = [
+  { value: 'todo', label: 'To Do', icon: Circle, dotColor: 'bg-slate-400' },
+  { value: 'in_progress', label: 'In Progress', icon: Loader2, dotColor: 'bg-blue-500' },
+  { value: 'done', label: 'Done', icon: CheckCircle2, dotColor: 'bg-emerald-500' },
+  { value: 'blocked', label: 'Blocked', icon: XCircle, dotColor: 'bg-red-500' },
 ];
 
-const projectOptions: { value: Project | 'all'; label: string }[] = [
+const PROJECT_OPTIONS: { value: Project | 'all'; label: string }[] = [
   { value: 'all', label: 'All Projects' },
   { value: 'mote', label: 'Mote' },
   { value: 'fundemar', label: 'Fundemar' },
 ];
 
-type ViewMode = 'list' | 'kanban';
+type ViewMode = 'board' | 'list';
+
+// ============================================
+// HELPERS
+// ============================================
+
+function getDueDateStatus(dueDate: string | null, status: ActionItemStatus) {
+  if (!dueDate || status === 'done') return null;
+  const date = new Date(dueDate);
+  const now = new Date();
+  if (isBefore(date, now) && !isToday(date)) {
+    return { type: 'overdue' as const, label: 'Overdue' };
+  }
+  if (isToday(date)) {
+    return { type: 'today' as const, label: 'Due today' };
+  }
+  if (isTomorrow(date)) {
+    return { type: 'tomorrow' as const, label: 'Due tomorrow' };
+  }
+  return null;
+}
+
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+// ============================================
+// MAIN PAGE
+// ============================================
 
 export default function ActionItems() {
-  const [viewMode, setViewMode] = useState<ViewMode>('kanban');
-  const [statusFilter, setStatusFilter] = useState<ActionItemStatus | 'all'>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('board');
   const [projectFilter, setProjectFilter] = useState<Project | 'all'>('all');
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
+  const [showMyTasks, setShowMyTasks] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ActionItem | null>(null);
-  const [deletingItem, setDeletingItem] = useState<ActionItem | null>(null);
-  const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ActionItem | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
-  // Feature 1: My Tasks toggle
   const { user, displayName } = useAuth();
-  const [showMyTasks, setShowMyTasks] = useState<boolean>(false);
-
-  // Clear stale localStorage preference
-  useEffect(() => {
-    localStorage.removeItem('rse-my-tasks-preference');
-  }, []);
-
-  // Mobile: auto-switch to list view on small screens
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 640 && viewMode === 'kanban') {
-        setViewMode('list');
-      }
-    };
-    handleResize(); // check on mount
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [viewMode]);
-
   const queryClient = useQueryClient();
   const { data: actionItems, isLoading } = useActionItems();
-  const { data: scenarios } = useScenarios();
   const updateActionItem = useUpdateActionItem();
-  const deleteActionItem = useDeleteActionItem();
-  const { success, error: showError } = useToast();
-
-  const getScenarioById = useCallback((id: string | null): Scenario | null => {
-    if (!id || !scenarios) return null;
-    return scenarios.find(s => s.id === id) || null;
-  }, [scenarios]);
 
   // Enable realtime updates
   useRealtimeActionItems();
 
-  // DnD sensors
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor)
-  );
-
-  // Custom collision detection that prioritizes column droppables over cards
-  const collisionDetection: CollisionDetection = useCallback((args) => {
-    const pointerCollisions = pointerWithin(args);
-    const rectCollisions = rectIntersection(args);
-    const allCollisions = [...pointerCollisions, ...rectCollisions];
-    const columnIds: string[] = ['todo', 'in_progress', 'done', 'blocked'];
-
-    // Prioritize column collisions
-    const columnCollision = allCollisions.find(
-      collision => columnIds.includes(collision.id as string)
-    );
-    if (columnCollision) return [columnCollision];
-
-    // Fall back to any collision (card-to-card)
-    return allCollisions.length > 0 ? allCollisions : [];
-  }, []);
+  // Mobile: auto-switch to list view on small screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640 && viewMode === 'board') {
+        setViewMode('list');
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [viewMode]);
 
   // Handle keyboard shortcut for new item
   const openNewForm = useCallback(() => {
@@ -167,11 +161,11 @@ export default function ActionItems() {
     return Array.from(ownerSet).sort();
   }, [actionItems]);
 
-  // Filter items (with My Tasks support)
+  // Filter items
   const filteredItems = useMemo(() => {
     if (!actionItems) return [];
     return actionItems.filter((item) => {
-      // My Tasks filter — match by display name, email, or email prefix
+      // My Tasks filter
       if (showMyTasks && user?.email) {
         const ownerValue = (item.owner || '').toLowerCase().trim();
         if (!ownerValue) return false;
@@ -186,16 +180,23 @@ export default function ActionItems() {
           (firstName && ownerValue === firstName);
         if (!isMyTask) return false;
       }
-      if (statusFilter !== 'all' && item.status !== statusFilter) return false;
       if (projectFilter !== 'all' && item.project !== projectFilter) return false;
       if (ownerFilter !== 'all' && item.owner !== ownerFilter) return false;
       return true;
     });
-  }, [actionItems, statusFilter, projectFilter, ownerFilter, showMyTasks, user, displayName]);
+  }, [actionItems, projectFilter, ownerFilter, showMyTasks, user, displayName]);
 
-  // Group items by status for Kanban view
+  // Count overdue items
+  const overdueCount = useMemo(() => {
+    return filteredItems.filter((item) => {
+      const status = getDueDateStatus(item.due_date, item.status);
+      return status?.type === 'overdue';
+    }).length;
+  }, [filteredItems]);
+
+  // Group items by status for board view
   const itemsByStatus = useMemo(() => {
-    const groups: Record<ActionItemStatus, typeof filteredItems> = {
+    const groups: Record<ActionItemStatus, ActionItem[]> = {
       todo: [],
       in_progress: [],
       done: [],
@@ -207,16 +208,37 @@ export default function ActionItems() {
     return groups;
   }, [filteredItems]);
 
-  // Get the active item for drag overlay
+  // Active item for drag overlay
   const activeItem = useMemo(() => {
     if (!activeId) return null;
     return filteredItems.find((item) => item.id === activeId) || null;
   }, [activeId, filteredItems]);
 
-  // Optimistic status update
+  // ============================================
+  // DnD setup
+  // ============================================
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const collisionDetection: CollisionDetection = useCallback((args) => {
+    const pointerCollisions = pointerWithin(args);
+    const rectCollisions = rectIntersection(args);
+    const allCollisions = [...pointerCollisions, ...rectCollisions];
+    const columnIds = ['todo', 'in_progress', 'done', 'blocked'];
+    const columnCollision = allCollisions.find((c) => columnIds.includes(c.id as string));
+    if (columnCollision) return [columnCollision];
+    return allCollisions.length > 0 ? allCollisions : [];
+  }, []);
+
+  // ============================================
+  // HANDLERS
+  // ============================================
+
   const handleStatusChange = useCallback(
     async (itemId: string, newStatus: ActionItemStatus) => {
-      // Get current data for rollback
       const previousData = queryClient.getQueryData(['actionItems', undefined]) as ActionItem[] | undefined;
 
       // Optimistic update
@@ -229,26 +251,15 @@ export default function ActionItems() {
 
       try {
         await updateActionItem.mutateAsync({ id: itemId, updates: { status: newStatus } });
-        success('Status updated');
+        toast.success('Status updated');
       } catch {
-        // Rollback on error
         queryClient.setQueryData(['actionItems', undefined], previousData);
-        showError('Failed to update status');
+        toast.error('Failed to update status');
       }
     },
-    [queryClient, updateActionItem, success, showError]
+    [queryClient, updateActionItem]
   );
 
-  // Feature 2: Quick toggle done
-  const handleQuickToggleDone = useCallback(
-    (item: ActionItem) => {
-      const newStatus: ActionItemStatus = item.status === 'done' ? 'todo' : 'done';
-      handleStatusChange(item.id, newStatus);
-    },
-    [handleStatusChange]
-  );
-
-  // DnD handlers
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(event.active.id as string);
   }, []);
@@ -257,7 +268,6 @@ export default function ActionItems() {
     (event: DragEndEvent) => {
       const { active, over } = event;
       setActiveId(null);
-
       if (!over) return;
 
       const itemId = active.id as string;
@@ -268,51 +278,22 @@ export default function ActionItems() {
       const columnIds: ActionItemStatus[] = ['todo', 'in_progress', 'done', 'blocked'];
       const previousStatus = draggedItem.status;
 
-      // Check if dropped on a column
       if (columnIds.includes(targetId as ActionItemStatus)) {
         const newStatus = targetId as ActionItemStatus;
-        if (previousStatus !== newStatus) {
-          handleStatusChange(itemId, newStatus);
-        }
+        if (previousStatus !== newStatus) handleStatusChange(itemId, newStatus);
         return;
       }
 
-      // Check if dropped on another card — inherit that card's status
       const overItem = filteredItems.find((i) => i.id === targetId);
-      if (overItem) {
-        const targetStatus = overItem.status;
-        if (previousStatus !== targetStatus) {
-          handleStatusChange(itemId, targetStatus);
-        }
+      if (overItem && previousStatus !== overItem.status) {
+        handleStatusChange(itemId, overItem.status);
       }
     },
     [filteredItems, handleStatusChange]
   );
 
-  // Inline owner editing
-  const handleOwnerChange = useCallback(
-    async (itemId: string, newOwner: string) => {
-      const previousData = queryClient.getQueryData(['actionItems', undefined]) as ActionItem[] | undefined;
-
-      queryClient.setQueryData(['actionItems', undefined], (old: ActionItem[] | undefined) => {
-        if (!old) return old;
-        return old.map((item) =>
-          item.id === itemId ? { ...item, owner: newOwner || null } : item
-        );
-      });
-
-      try {
-        await updateActionItem.mutateAsync({ id: itemId, updates: { owner: newOwner || null } });
-        success('Owner updated');
-      } catch {
-        queryClient.setQueryData(['actionItems', undefined], previousData);
-        showError('Failed to update owner');
-      }
-    },
-    [queryClient, updateActionItem, success, showError]
-  );
-
   const handleEdit = (item: ActionItem) => {
+    setSelectedItem(null);
     setEditingItem(item);
     setIsFormOpen(true);
   };
@@ -322,204 +303,126 @@ export default function ActionItems() {
     setEditingItem(null);
   };
 
-  const handleDelete = async () => {
-    if (!deletingItem) return;
+  const hasActiveFilters = projectFilter !== 'all' || ownerFilter !== 'all' || showMyTasks;
 
-    try {
-      await deleteActionItem.mutateAsync(deletingItem.id);
-      success('Action item deleted successfully');
-      setDeletingItem(null);
-    } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to delete action item');
-    }
-  };
-
-  const getDueDateStatus = (dueDate: string | null, status: ActionItemStatus) => {
-    if (!dueDate || status === 'done') return null;
-    const date = new Date(dueDate);
-    const now = new Date();
-
-    if (isBefore(date, now) && !isToday(date)) {
-      return { type: 'overdue' as const, label: 'Overdue' };
-    }
-    if (isToday(date)) {
-      return { type: 'today' as const, label: 'Due today' };
-    }
-    if (isTomorrow(date)) {
-      return { type: 'tomorrow' as const, label: 'Due tomorrow' };
-    }
-    return null;
-  };
+  // ============================================
+  // RENDER
+  // ============================================
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-5 animate-fade-in">
       {/* Page Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary tracking-tight flex items-center gap-3">
-            <CheckSquare className="w-7 h-7 md:w-8 md:h-8 text-coral-400 flex-shrink-0" />
-            <span className="truncate">Action Items</span>
+          <h1 className="font-semibold text-2xl font-bold text-foreground tracking-tight flex items-center gap-3">
+            <CheckSquare className="w-7 h-7 text-primary flex-shrink-0" />
+            Action Items
           </h1>
-          <p className="mt-1.5 text-text-secondary text-pretty leading-relaxed">
-            Track and manage project tasks and deliverables
+          <p className="mt-1 text-sm text-muted-foreground">
+            {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''}
+            {overdueCount > 0 && (
+              <span className="text-red-600 font-medium ml-1.5">
+                ({overdueCount} overdue)
+              </span>
+            )}
           </p>
         </div>
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <div className="flex items-center gap-1.5 bg-surface-hover p-1 rounded-lg">
+
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Board/List toggle */}
+          <div className="inline-flex rounded-lg border border-border overflow-hidden">
             <button
-              onClick={() => setViewMode('kanban')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                viewMode === 'kanban'
-                  ? 'bg-coral-400/20 text-coral-400'
-                  : 'text-text-secondary hover:text-text-primary'
+              onClick={() => setViewMode('board')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors ${
+                viewMode === 'board'
+                  ? 'bg-primary text-white'
+                  : 'bg-white text-muted-foreground hover:bg-muted'
               }`}
+              aria-pressed={viewMode === 'board'}
             >
-              Kanban
+              <Kanban className="w-4 h-4" />
+              <span className="hidden sm:inline">Board</span>
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors border-l border-border ${
                 viewMode === 'list'
-                  ? 'bg-coral-400/20 text-coral-400'
-                  : 'text-text-secondary hover:text-text-primary'
+                  ? 'bg-primary text-white'
+                  : 'bg-white text-muted-foreground hover:bg-muted'
               }`}
+              aria-pressed={viewMode === 'list'}
             >
-              List
+              <List className="w-4 h-4" />
+              <span className="hidden sm:inline">List</span>
             </button>
           </div>
+
           <button
-            onClick={() => setIsFormOpen(true)}
+            onClick={openNewForm}
             className="btn-primary flex items-center gap-2 whitespace-nowrap"
           >
             <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">New Action Item</span>
+            <span className="hidden sm:inline">New Item</span>
             <span className="sm:hidden">New</span>
           </button>
         </div>
       </div>
 
-      {/* Filters */}
-      <Card compact>
-        <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4">
-          <div className="flex items-center gap-2 text-text-secondary">
-            <Filter className="w-4 h-4" />
-            <span className="text-sm font-medium">Filters:</span>
-          </div>
+      {/* Filter Bar */}
+      <div className="flex flex-wrap items-center gap-3">
+        {/* My Items toggle */}
+        {user && (
+          <button
+            onClick={() => setShowMyTasks(!showMyTasks)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${
+              showMyTasks
+                ? 'bg-primary/10 text-primary border-primary/30'
+                : 'bg-white text-muted-foreground border-border hover:border-ocean-300'
+            }`}
+            aria-pressed={showMyTasks}
+          >
+            {showMyTasks ? <UserCheck className="w-3.5 h-3.5" /> : <Users className="w-3.5 h-3.5" />}
+            My Items
+          </button>
+        )}
 
-          {/* My Tasks / All Tasks toggle */}
-          {user && (
-            <div className="flex items-center gap-1.5 bg-surface-hover p-0.5 rounded-lg">
-              <button
-                onClick={() => setShowMyTasks(true)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium rounded-md transition-all ${
-                  showMyTasks
-                    ? 'bg-coral-400/20 text-coral-400'
-                    : 'text-text-secondary hover:text-text-primary'
-                }`}
-                aria-pressed={showMyTasks}
-              >
-                <UserCheck className="w-3.5 h-3.5" />
-                Mine
-              </button>
-              <button
-                onClick={() => setShowMyTasks(false)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium rounded-md transition-all ${
-                  !showMyTasks
-                    ? 'bg-coral-400/20 text-coral-400'
-                    : 'text-text-secondary hover:text-text-primary'
-                }`}
-                aria-pressed={!showMyTasks}
-              >
-                <Users className="w-3.5 h-3.5" />
-                All
-              </button>
-            </div>
-          )}
+        {/* Owner filter */}
+        <select
+          value={ownerFilter}
+          onChange={(e) => setOwnerFilter(e.target.value)}
+          className="select-field !py-1.5 !text-sm !w-auto min-w-[140px]"
+          aria-label="Filter by owner"
+        >
+          <option value="all">All Owners</option>
+          {owners.map((owner) => (
+            <option key={owner} value={owner}>{owner}</option>
+          ))}
+        </select>
 
-          {/* Status Filter */}
-          <div className="relative">
-            <label htmlFor="status-filter" className="sr-only">Filter by status</label>
-            <select
-              id="status-filter"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as ActionItemStatus | 'all')}
-              className="select-field !py-1.5 !text-sm min-w-[140px]"
-              aria-label="Filter by status"
-            >
-              <option value="all">All Statuses</option>
-              {statusOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Project Filter */}
-          <div className="relative">
-            <label htmlFor="project-filter" className="sr-only">Filter by project</label>
-            <select
-              id="project-filter"
-              value={projectFilter}
-              onChange={(e) => setProjectFilter(e.target.value as Project | 'all')}
-              className="select-field !py-1.5 !text-sm min-w-[140px]"
-              aria-label="Filter by project"
-            >
-              {projectOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Owner Filter */}
-          <div className="relative">
-            <label htmlFor="owner-filter" className="sr-only">Filter by owner</label>
-            <select
-              id="owner-filter"
-              value={ownerFilter}
-              onChange={(e) => setOwnerFilter(e.target.value)}
-              className="select-field !py-1.5 !text-sm min-w-[140px]"
-              aria-label="Filter by owner"
-            >
-              <option value="all">All Owners</option>
-              {owners.map((owner) => (
-                <option key={owner} value={owner}>
-                  {owner}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Item count */}
-          <div className="ml-auto text-sm text-text-muted">
-            {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''}
-          </div>
-        </div>
-      </Card>
+        {/* Project filter */}
+        <select
+          value={projectFilter}
+          onChange={(e) => setProjectFilter(e.target.value as Project | 'all')}
+          className="select-field !py-1.5 !text-sm !w-auto min-w-[140px]"
+          aria-label="Filter by project"
+        >
+          {PROJECT_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
 
       {/* Content */}
       {isLoading ? (
-        <Card>
-          <div className="space-y-0">
-            <ListItemSkeleton />
-            <ListItemSkeleton />
-            <ListItemSkeleton />
-            <ListItemSkeleton />
-            <ListItemSkeleton />
-          </div>
-        </Card>
+        <LoadingSkeleton viewMode={viewMode} />
       ) : filteredItems.length === 0 ? (
-        <Card>
+        <div className="bg-card border border-border rounded-lg">
           <EmptyState
-            variant={statusFilter !== 'all' || projectFilter !== 'all' || ownerFilter !== 'all' || showMyTasks ? 'filter' : 'actions'}
-            actionLabel={statusFilter === 'all' && projectFilter === 'all' && ownerFilter === 'all' && !showMyTasks ? 'Create Action Item' : undefined}
-            onAction={statusFilter === 'all' && projectFilter === 'all' && ownerFilter === 'all' && !showMyTasks ? openNewForm : undefined}
+            variant={hasActiveFilters ? 'filter' : 'actions'}
+            onAction={!hasActiveFilters ? openNewForm : undefined}
           />
-        </Card>
-      ) : viewMode === 'kanban' ? (
-        // Kanban View with Drag and Drop
+        </div>
+      ) : viewMode === 'board' ? (
         <DndContext
           sensors={sensors}
           collisionDetection={collisionDetection}
@@ -529,254 +432,137 @@ export default function ActionItems() {
           <KanbanBoard
             itemsByStatus={itemsByStatus}
             onSelect={setSelectedItem}
-            onEdit={handleEdit}
-            onDelete={setDeletingItem}
-            onOwnerChange={handleOwnerChange}
-            onStatusChange={handleStatusChange}
-            onQuickToggleDone={handleQuickToggleDone}
-            getDueDateStatus={getDueDateStatus}
           />
-
-          {/* Drag Overlay */}
           <DragOverlay>
-            {activeItem ? (
-              <DragOverlayCard
-                item={activeItem}
-                getDueDateStatus={getDueDateStatus}
-              />
-            ) : null}
+            {activeItem ? <DragOverlayCard item={activeItem} /> : null}
           </DragOverlay>
         </DndContext>
       ) : (
-        // List View
-        <Card>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-surface-border">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Title</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Owner</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Project</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Due Date</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Status</th>
-                  <th className="text-right py-3 px-4 text-sm font-medium text-text-secondary">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredItems.map((item) => {
-                  const dueDateStatus = getDueDateStatus(item.due_date, item.status);
-                  return (
-                    <tr
-                      key={item.id}
-                      onClick={() => setSelectedItem(item)}
-                      className="border-b border-surface-border last:border-0 hover:bg-surface-hover transition-colors cursor-pointer"
-                    >
-                      <td className="py-3 px-4">
-                        <p className={`text-sm font-medium text-text-primary ${item.status === 'done' ? 'line-through opacity-60' : ''}`}>
-                          {item.title}
-                        </p>
-                        {item.description && (
-                          <p className="text-xs text-text-muted line-clamp-1 mt-0.5">
-                            {item.description}
-                          </p>
-                        )}
-                      </td>
-                      <td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
-                        <InlineOwnerEdit
-                          owner={item.owner}
-                          onSave={(newOwner) => handleOwnerChange(item.id, newOwner)}
-                        />
-                      </td>
-                      <td className="py-3 px-4">
-                        {item.project ? (
-                          <StatusBadge type="project" value={item.project} />
-                        ) : (
-                          <span className="text-sm text-text-muted">-</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-4">
-                        {item.due_date ? (
-                          <span
-                            className={`flex items-center gap-1 text-sm ${
-                              dueDateStatus?.type === 'overdue'
-                                ? 'text-red-600'
-                                : dueDateStatus?.type === 'today'
-                                ? 'text-amber-600'
-                                : 'text-text-secondary'
-                            }`}
-                          >
-                            {dueDateStatus?.type === 'overdue' && <AlertCircle className="w-3 h-3" />}
-                            {format(new Date(item.due_date), 'MMM d, yyyy')}
-                          </span>
-                        ) : (
-                          <span className="text-text-muted text-xs">No date</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
-                        <select
-                          value={item.status}
-                          onChange={(e) =>
-                            handleStatusChange(item.id, e.target.value as ActionItemStatus)
-                          }
-                          className="select-field !py-1 !text-xs !px-2 !pr-6 w-auto"
-                        >
-                          {statusOptions.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleEdit(item)}
-                            className="p-1.5 text-text-muted hover:text-coral-400 hover:bg-surface-lighter rounded-lg transition-colors"
-                            aria-label="Edit"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setDeletingItem(item)}
-                            className="p-1.5 text-text-muted hover:text-red-600 hover:bg-surface-lighter rounded-lg transition-colors"
-                            aria-label="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+        <ListView
+          items={filteredItems}
+          onSelect={setSelectedItem}
+        />
       )}
 
-      {/* Detail Modal */}
-      <Modal
-        isOpen={!!selectedItem}
+      {/* Detail Sheet */}
+      <ActionItemSheet
+        item={selectedItem}
+        open={!!selectedItem}
         onClose={() => setSelectedItem(null)}
-        title={selectedItem?.title ?? ''}
-        size="lg"
-      >
-        {selectedItem && (
-          <ActionItemDetail
-            item={selectedItem}
-            scenario={getScenarioById(selectedItem.scenario_id)}
-            getDueDateStatus={getDueDateStatus}
-            onEdit={() => {
-              const item = selectedItem;
-              setSelectedItem(null);
-              handleEdit(item);
-            }}
-            onDelete={() => {
-              const item = selectedItem;
-              setSelectedItem(null);
-              setDeletingItem(item);
-            }}
-          />
-        )}
-      </Modal>
-
-      {/* Create/Edit Modal */}
-      <Modal
-        isOpen={isFormOpen}
-        onClose={handleFormClose}
-        title={editingItem ? 'Edit Action Item' : 'New Action Item'}
-        size="lg"
-      >
-        <ActionItemForm
-          actionItem={editingItem || undefined}
-          onSuccess={handleFormClose}
-          onCancel={handleFormClose}
-        />
-      </Modal>
-
-      {/* Delete Confirmation */}
-      <DeleteConfirm
-        isOpen={!!deletingItem}
-        onClose={() => setDeletingItem(null)}
-        onConfirm={handleDelete}
-        title="Delete Action Item"
-        description="Are you sure you want to delete this action item? This action cannot be undone."
-        itemName={deletingItem?.title}
-        isDeleting={deleteActionItem.isPending}
+        onEdit={handleEdit}
       />
+
+      {/* Create/Edit Sheet */}
+      <Sheet open={isFormOpen} onOpenChange={(open) => { if (!open) handleFormClose(); }}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>{editingItem ? 'Edit Action Item' : 'New Action Item'}</SheetTitle>
+          </SheetHeader>
+          <div className="px-6 pb-6">
+            <ActionItemForm
+              actionItem={editingItem || undefined}
+              onSuccess={handleFormClose}
+              onCancel={handleFormClose}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
 
-// Feature 5: Kanban Board with keyboard navigation
+// ============================================
+// LOADING SKELETON
+// ============================================
+
+function LoadingSkeleton({ viewMode }: { viewMode: ViewMode }) {
+  if (viewMode === 'board') {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {STATUS_COLUMNS.map(({ value, label, dotColor }) => (
+          <div key={value} className="space-y-3">
+            <div className="flex items-center gap-2 px-2 py-1">
+              <span className={`w-2.5 h-2.5 rounded-full ${dotColor}`} />
+              <span className="text-sm font-medium text-foreground">{label}</span>
+            </div>
+            <div className="space-y-3 p-1">
+              {[1, 2].map((i) => (
+                <div key={i} className="bg-card border border-border rounded-lg p-4 space-y-3">
+                  <div className="skeleton h-4 w-3/4 rounded" />
+                  <div className="skeleton h-3 w-1/2 rounded" />
+                  <div className="flex gap-2">
+                    <div className="skeleton h-6 w-6 rounded-full" />
+                    <div className="skeleton h-5 w-16 rounded-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-card border border-border rounded-lg">
+      <div className="space-y-0 divide-y divide-border">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="flex items-center gap-3 px-4 py-3">
+            <Skeleton className="h-4 w-4 rounded" />
+            <div className="flex-1 space-y-1.5">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+            <Skeleton className="h-6 w-20 rounded-full" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// KANBAN BOARD
+// ============================================
+
 interface KanbanBoardProps {
   itemsByStatus: Record<ActionItemStatus, ActionItem[]>;
   onSelect: (item: ActionItem) => void;
-  onEdit: (item: ActionItem) => void;
-  onDelete: (item: ActionItem) => void;
-  onOwnerChange: (itemId: string, newOwner: string) => void;
-  onStatusChange: (itemId: string, newStatus: ActionItemStatus) => void;
-  onQuickToggleDone: (item: ActionItem) => void;
-  getDueDateStatus: (dueDate: string | null, status: ActionItemStatus) => { type: 'overdue' | 'today' | 'tomorrow'; label: string } | null;
 }
 
-const STATUS_ORDER: ActionItemStatus[] = ['todo', 'in_progress', 'done', 'blocked'];
-
-function KanbanBoard({
-  itemsByStatus,
-  onSelect,
-  onEdit,
-  onDelete,
-  onOwnerChange,
-  onStatusChange,
-  onQuickToggleDone,
-  getDueDateStatus,
-}: KanbanBoardProps) {
+function KanbanBoard({ itemsByStatus, onSelect }: KanbanBoardProps) {
   const [focusedCol, setFocusedCol] = useState(0);
   const [focusedRow, setFocusedRow] = useState(0);
   const boardRef = useRef<HTMLDivElement>(null);
 
-  // Build a 2D grid of item IDs for keyboard nav
   const grid = useMemo(() => {
-    return STATUS_ORDER.map((status) => itemsByStatus[status]);
+    return STATUS_COLUMNS.map(({ value }) => itemsByStatus[value]);
   }, [itemsByStatus]);
 
-  // Keyboard navigation handler
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle if focus is within the board
       if (!boardRef.current?.contains(document.activeElement)) return;
-
       const target = e.target as HTMLElement;
-      // Skip if in input/select
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.tagName === 'SELECT'
-      ) {
-        return;
-      }
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return;
 
       const currentColItems = grid[focusedCol];
 
       switch (e.key) {
         case 'ArrowDown': {
           e.preventDefault();
-          const nextRow = Math.min(focusedRow + 1, currentColItems.length - 1);
-          setFocusedRow(nextRow);
+          setFocusedRow(Math.min(focusedRow + 1, currentColItems.length - 1));
           break;
         }
         case 'ArrowUp': {
           e.preventDefault();
-          const prevRow = Math.max(focusedRow - 1, 0);
-          setFocusedRow(prevRow);
+          setFocusedRow(Math.max(focusedRow - 1, 0));
           break;
         }
         case 'ArrowRight': {
           e.preventDefault();
-          const nextCol = Math.min(focusedCol + 1, STATUS_ORDER.length - 1);
+          const nextCol = Math.min(focusedCol + 1, STATUS_COLUMNS.length - 1);
           setFocusedCol(nextCol);
-          // Clamp row to new column
           const nextColItems = grid[nextCol];
           if (focusedRow >= nextColItems.length) {
             setFocusedRow(Math.max(nextColItems.length - 1, 0));
@@ -793,22 +579,10 @@ function KanbanBoard({
           }
           break;
         }
-        case ' ': {
-          // Space to toggle done
+        case 'Enter': {
           e.preventDefault();
           const item = currentColItems[focusedRow];
-          if (item) {
-            onQuickToggleDone(item);
-          }
-          break;
-        }
-        case 'Enter': {
-          // Enter to open detail
-          e.preventDefault();
-          const detailItem = currentColItems[focusedRow];
-          if (detailItem) {
-            onSelect(detailItem);
-          }
+          if (item) onSelect(item);
           break;
         }
       }
@@ -816,9 +590,9 @@ function KanbanBoard({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [focusedCol, focusedRow, grid, onSelect, onQuickToggleDone]);
+  }, [focusedCol, focusedRow, grid, onSelect]);
 
-  // Focus the correct card when focusedCol/focusedRow changes
+  // Focus the correct card
   useEffect(() => {
     const item = grid[focusedCol]?.[focusedRow];
     if (item && boardRef.current) {
@@ -829,20 +603,14 @@ function KanbanBoard({
 
   return (
     <div ref={boardRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {statusOptions.map(({ value, label, icon: Icon }, colIndex) => (
+      {STATUS_COLUMNS.map(({ value, label, dotColor }, colIndex) => (
         <KanbanColumn
           key={value}
           status={value}
           label={label}
-          icon={Icon}
+          dotColor={dotColor}
           items={itemsByStatus[value]}
           onSelect={onSelect}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onOwnerChange={onOwnerChange}
-          onStatusChange={onStatusChange}
-          onQuickToggleDone={onQuickToggleDone}
-          getDueDateStatus={getDueDateStatus}
           focusedItemIndex={focusedCol === colIndex ? focusedRow : -1}
           onCardFocus={(rowIndex) => {
             setFocusedCol(colIndex);
@@ -854,19 +622,16 @@ function KanbanBoard({
   );
 }
 
-// Kanban Column Component
+// ============================================
+// KANBAN COLUMN
+// ============================================
+
 interface KanbanColumnProps {
   status: ActionItemStatus;
   label: string;
-  icon: typeof Circle;
+  dotColor: string;
   items: ActionItem[];
   onSelect: (item: ActionItem) => void;
-  onEdit: (item: ActionItem) => void;
-  onDelete: (item: ActionItem) => void;
-  onOwnerChange: (itemId: string, newOwner: string) => void;
-  onStatusChange: (itemId: string, newStatus: ActionItemStatus) => void;
-  onQuickToggleDone: (item: ActionItem) => void;
-  getDueDateStatus: (dueDate: string | null, status: ActionItemStatus) => { type: 'overdue' | 'today' | 'tomorrow'; label: string } | null;
   focusedItemIndex: number;
   onCardFocus: (rowIndex: number) => void;
 }
@@ -874,52 +639,37 @@ interface KanbanColumnProps {
 function KanbanColumn({
   status,
   label,
-  icon: Icon,
+  dotColor,
   items,
   onSelect,
-  onEdit,
-  onDelete,
-  onOwnerChange,
-  onStatusChange,
-  onQuickToggleDone,
-  getDueDateStatus,
   focusedItemIndex,
   onCardFocus,
 }: KanbanColumnProps) {
-  const { setNodeRef, isOver } = useDroppable({
-    id: status,
-  });
+  const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
-    <div ref={setNodeRef} className={`flex flex-col rounded-lg transition-colors ${
-      isOver ? 'bg-coral-400/10 ring-2 ring-coral-400/30' : 'bg-transparent'
-    }`}>
-      <div className="flex items-center justify-between mb-3 px-3 pt-2">
+    <div
+      ref={setNodeRef}
+      className={`flex flex-col rounded-lg transition-colors ${
+        isOver ? 'bg-primary/10 ring-2 ring-primary/30' : 'bg-transparent'
+      }`}
+    >
+      {/* Column header */}
+      <div className="flex items-center justify-between mb-3 px-2 pt-2">
         <div className="flex items-center gap-2">
-          <Icon
-            className={`w-4 h-4 ${
-              status === 'todo'
-                ? 'text-slate-400'
-                : status === 'in_progress'
-                ? 'text-blue-600'
-                : status === 'done'
-                ? 'text-emerald-600'
-                : 'text-red-600'
-            }`}
-          />
-          <span className="text-sm font-medium text-text-primary">{label}</span>
+          <span className={`w-2.5 h-2.5 rounded-full ${dotColor}`} />
+          <span className="text-sm font-medium text-foreground">{label}</span>
         </div>
-        <span className="text-xs text-text-muted bg-surface-hover px-2 py-0.5 rounded-full">
+        <span className="text-xs text-muted-foreground bg-accent px-2 py-0.5 rounded-full">
           {items.length}
         </span>
       </div>
 
-      <div
-        className="space-y-3 flex-1 min-h-[200px] p-2 max-h-[calc(100vh-320px)] overflow-y-auto"
-      >
+      {/* Cards */}
+      <div className="space-y-2.5 flex-1 min-h-[200px] p-1.5 max-h-[calc(100vh-320px)] overflow-y-auto">
         {items.length === 0 ? (
-          <div className="glass-card !p-4 text-center">
-            <p className="text-sm text-text-muted">No items</p>
+          <div className="bg-card border border-border rounded-lg !p-4 text-center border-dashed">
+            <p className="text-sm text-muted-foreground">No items</p>
           </div>
         ) : (
           items.map((item, index) => (
@@ -927,12 +677,6 @@ function KanbanColumn({
               key={item.id}
               item={item}
               onSelect={onSelect}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onOwnerChange={onOwnerChange}
-              onStatusChange={onStatusChange}
-              onQuickToggleDone={onQuickToggleDone}
-              getDueDateStatus={getDueDateStatus}
               isFocused={focusedItemIndex === index}
               onFocus={() => onCardFocus(index)}
             />
@@ -943,40 +687,19 @@ function KanbanColumn({
   );
 }
 
-// Draggable Card Component
+// ============================================
+// DRAGGABLE CARD
+// ============================================
+
 interface DraggableCardProps {
   item: ActionItem;
   onSelect: (item: ActionItem) => void;
-  onEdit: (item: ActionItem) => void;
-  onDelete: (item: ActionItem) => void;
-  onOwnerChange: (itemId: string, newOwner: string) => void;
-  onStatusChange: (itemId: string, newStatus: ActionItemStatus) => void;
-  onQuickToggleDone: (item: ActionItem) => void;
-  getDueDateStatus: (dueDate: string | null, status: ActionItemStatus) => { type: 'overdue' | 'today' | 'tomorrow'; label: string } | null;
   isFocused: boolean;
   onFocus: () => void;
 }
 
-function DraggableCard({
-  item,
-  onSelect,
-  onEdit,
-  onDelete,
-  onOwnerChange,
-  onStatusChange,
-  onQuickToggleDone,
-  getDueDateStatus,
-  isFocused,
-  onFocus,
-}: DraggableCardProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
+function DraggableCard({ item, onSelect, isFocused, onFocus }: DraggableCardProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
   });
 
@@ -987,6 +710,7 @@ function DraggableCard({
   };
 
   const dueDateStatus = getDueDateStatus(item.due_date, item.status);
+  const isBlocked = item.status === 'blocked';
   const isDone = item.status === 'done';
 
   return (
@@ -997,79 +721,75 @@ function DraggableCard({
       tabIndex={0}
       onFocus={onFocus}
       onClick={() => onSelect(item)}
-      className={`glass-card !p-4 outline-none transition-all duration-150 cursor-pointer ${
-        isDragging ? 'shadow-lg ring-2 ring-coral-400/50' : ''
-      } ${
-        isFocused ? 'ring-2 ring-coral-400/60 bg-surface-hover/50' : ''
-      }`}
+      className={`
+        bg-card border border-border rounded-lg !p-3.5 outline-none transition-all duration-150 cursor-pointer group
+        ${isDragging ? 'shadow-lg ring-2 ring-primary/50' : ''}
+        ${isFocused ? 'ring-2 ring-primary/60' : ''}
+        ${isBlocked ? '!bg-red-50 !border-red-200' : ''}
+        hover:border-primary/40
+      `}
     >
-      <div className="space-y-3">
-        <div className="flex items-start justify-between gap-2">
-          {/* Feature 2: Quick action checkbox */}
-          <button
-            onClick={(e) => { e.stopPropagation(); onQuickToggleDone(item); }}
-            className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-150 ${
-              isDone
-                ? 'bg-emerald-50 border-emerald-500 text-emerald-600'
-                : 'border-text-muted/40 hover:border-coral-400 text-transparent hover:text-coral-400/50'
-            }`}
-            aria-label={isDone ? 'Mark as not done' : 'Mark as done'}
-          >
-            {isDone && (
-              <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
-                <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            )}
-          </button>
-          {/* Drag Handle */}
+      <div className="space-y-2.5">
+        {/* Title row with drag handle */}
+        <div className="flex items-start gap-2">
           <button
             {...attributes}
             {...listeners}
-            className="p-1 -ml-1 text-text-muted hover:text-text-secondary cursor-grab active:cursor-grabbing touch-none"
+            className="p-0.5 text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing touch-none opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5"
             aria-label="Drag to reorder"
+            onClick={(e) => e.stopPropagation()}
           >
             <GripVertical className="w-4 h-4" />
           </button>
-          <p className={`text-sm font-medium flex-1 line-clamp-2 transition-all duration-150 ${
-            isDone ? 'line-through text-text-muted' : 'text-text-primary'
-          }`}>
+          <p
+            className={`text-sm font-medium flex-1 line-clamp-2 ${
+              isDone ? 'line-through text-muted-foreground' : 'text-foreground'
+            }`}
+          >
             {item.title}
           </p>
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <button
-              onClick={(e) => { e.stopPropagation(); onEdit(item); }}
-              className="p-1.5 text-text-muted hover:text-coral-400 hover:bg-surface-lighter rounded-lg transition-colors"
-              aria-label="Edit"
-            >
-              <Pencil className="w-4 h-4" />
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); onDelete(item); }}
-              className="p-1.5 text-text-muted hover:text-red-600 hover:bg-surface-lighter rounded-lg transition-colors"
-              aria-label="Delete"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
         </div>
 
-        {item.description && (
-          <p className={`text-xs line-clamp-2 ${isDone ? 'text-text-muted/50' : 'text-text-muted'}`}>
-            {item.description}
-          </p>
+        {/* Blocked description */}
+        {isBlocked && item.description && (
+          <p className="text-xs text-red-600/80 line-clamp-2 pl-6">{item.description}</p>
         )}
 
-        <div className="flex flex-wrap items-center gap-2">
-          {item.project && <StatusBadge type="project" value={item.project} />}
+        {/* Bottom metadata row */}
+        <div className="flex items-center justify-between pl-6">
+          <div className="flex items-center gap-2">
+            {/* Owner avatar */}
+            {item.owner && (
+              <div
+                className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0"
+                title={item.owner}
+              >
+                <span className="text-[10px] font-medium text-primary">
+                  {getInitials(item.owner)}
+                </span>
+              </div>
+            )}
 
+            {/* Project dot */}
+            {item.project && (
+              <span
+                className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                  item.project === 'mote' ? 'bg-mote-400' : 'bg-fundemar-400'
+                }`}
+                title={item.project === 'mote' ? 'Mote' : 'Fundemar'}
+              />
+            )}
+          </div>
+
+          {/* Due date */}
           {item.due_date && (
             <span
               className={`flex items-center gap-1 text-xs ${
                 dueDateStatus?.type === 'overdue'
-                  ? 'text-red-600'
+                  ? 'text-red-600 font-medium'
                   : dueDateStatus?.type === 'today'
                   ? 'text-amber-600'
-                  : 'text-text-muted'
+                  : 'text-muted-foreground'
               }`}
             >
               {dueDateStatus?.type === 'overdue' && <AlertCircle className="w-3 h-3" />}
@@ -1078,76 +798,44 @@ function DraggableCard({
             </span>
           )}
         </div>
-
-        <div className="flex items-center justify-between pt-2 border-t border-surface-border" onClick={(e) => e.stopPropagation()}>
-          {/* Inline Owner Editing */}
-          <InlineOwnerEdit
-            owner={item.owner}
-            onSave={(newOwner) => onOwnerChange(item.id, newOwner)}
-          />
-
-          {/* Status dropdown */}
-          <div className="relative">
-            <label htmlFor={`status-${item.id}`} className="sr-only">Change status for {item.title}</label>
-            <select
-              id={`status-${item.id}`}
-              value={item.status}
-              onChange={(e) =>
-                onStatusChange(item.id, e.target.value as ActionItemStatus)
-              }
-              className="appearance-none bg-transparent text-xs text-text-secondary hover:text-text-primary cursor-pointer focus:outline-none focus:ring-2 focus:ring-coral-400/50 rounded pr-4"
-              aria-label={`Change status for ${item.title}`}
-            >
-              {statusOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 text-text-muted pointer-events-none" aria-hidden="true" />
-          </div>
-        </div>
       </div>
     </div>
   );
 }
 
-// Drag Overlay Card (shown while dragging)
-interface DragOverlayCardProps {
-  item: ActionItem;
-  getDueDateStatus: (dueDate: string | null, status: ActionItemStatus) => { type: 'overdue' | 'today' | 'tomorrow'; label: string } | null;
-}
+// ============================================
+// DRAG OVERLAY CARD
+// ============================================
 
-function DragOverlayCard({ item, getDueDateStatus }: DragOverlayCardProps) {
+function DragOverlayCard({ item }: { item: ActionItem }) {
   const dueDateStatus = getDueDateStatus(item.due_date, item.status);
 
   return (
-    <div className="glass-card !p-4 shadow-xl ring-2 ring-coral-400/50 rotate-2 cursor-grabbing">
-      <div className="space-y-3">
+    <div className="bg-card border border-border rounded-lg !p-3.5 shadow-xl ring-2 ring-primary/50 rotate-2 cursor-grabbing max-w-[280px]">
+      <div className="space-y-2.5">
         <div className="flex items-start gap-2">
-          <GripVertical className="w-4 h-4 text-coral-400" />
-          <p className="text-sm font-medium text-text-primary line-clamp-2 flex-1">
-            {item.title}
-          </p>
+          <GripVertical className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+          <p className="text-sm font-medium text-foreground line-clamp-2 flex-1">{item.title}</p>
         </div>
-
-        {item.description && (
-          <p className="text-xs text-text-muted line-clamp-2">
-            {item.description}
-          </p>
-        )}
-
-        <div className="flex flex-wrap items-center gap-2">
-          {item.project && <StatusBadge type="project" value={item.project} />}
-
+        <div className="flex items-center gap-2 pl-6">
+          {item.owner && (
+            <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center">
+              <span className="text-[10px] font-medium text-primary">
+                {getInitials(item.owner)}
+              </span>
+            </div>
+          )}
+          {item.project && (
+            <span
+              className={`w-2 h-2 rounded-full ${
+                item.project === 'mote' ? 'bg-mote-400' : 'bg-fundemar-400'
+              }`}
+            />
+          )}
           {item.due_date && (
             <span
-              className={`flex items-center gap-1 text-xs ${
-                dueDateStatus?.type === 'overdue'
-                  ? 'text-red-600'
-                  : dueDateStatus?.type === 'today'
-                  ? 'text-amber-600'
-                  : 'text-text-muted'
+              className={`flex items-center gap-1 text-xs ml-auto ${
+                dueDateStatus?.type === 'overdue' ? 'text-red-600' : 'text-muted-foreground'
               }`}
             >
               <Clock className="w-3 h-3" />
@@ -1160,191 +848,123 @@ function DragOverlayCard({ item, getDueDateStatus }: DragOverlayCardProps) {
   );
 }
 
-// Action Item Detail Component
-interface ActionItemDetailProps {
-  item: ActionItem;
-  scenario: Scenario | null;
-  getDueDateStatus: (dueDate: string | null, status: ActionItemStatus) => { type: 'overdue' | 'today' | 'tomorrow'; label: string } | null;
-  onEdit: () => void;
-  onDelete: () => void;
+// ============================================
+// LIST VIEW
+// ============================================
+
+interface ListViewProps {
+  items: ActionItem[];
+  onSelect: (item: ActionItem) => void;
 }
 
-function ActionItemDetail({ item, scenario, getDueDateStatus, onEdit, onDelete }: ActionItemDetailProps) {
-  const dueDateStatus = getDueDateStatus(item.due_date, item.status);
-
+function ListView({ items, onSelect }: ListViewProps) {
   return (
-    <div className="space-y-6">
-      {/* Badges row */}
-      <div className="flex flex-wrap gap-2">
-        <StatusBadge type="action-status" value={item.status} />
-        {item.project && <StatusBadge type="project" value={item.project} />}
-      </div>
-
-      {/* Description */}
-      <div>
-        {item.description ? (
-          <p className="text-sm text-text-secondary whitespace-pre-line leading-relaxed">
-            {item.description}
-          </p>
-        ) : (
-          <p className="text-sm text-text-muted italic">No description provided.</p>
-        )}
-      </div>
-
-      {/* Metadata */}
-      <div className="border-t border-surface-border pt-4">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center gap-2 text-text-secondary">
-            <User className="w-4 h-4" />
-            <span>Owner</span>
-          </div>
-          <div className="text-text-primary">
-            {item.owner || <span className="text-text-muted">Unassigned</span>}
-          </div>
-
-          <div className="flex items-center gap-2 text-text-secondary">
-            <Clock className="w-4 h-4" />
-            <span>Due Date</span>
-          </div>
-          <div className={`flex items-center gap-2 ${
-            dueDateStatus?.type === 'overdue' ? 'text-red-600' :
-            dueDateStatus?.type === 'today' ? 'text-amber-600' :
-            'text-text-primary'
-          }`}>
-            {item.due_date ? (
-              <>
-                {dueDateStatus?.type === 'overdue' && <AlertCircle className="w-3.5 h-3.5" />}
-                {format(new Date(item.due_date), 'MMM d, yyyy')}
-                {dueDateStatus && (
-                  <span className="text-xs opacity-75">({dueDateStatus.label})</span>
-                )}
-              </>
-            ) : (
-              <span className="text-text-muted">No due date</span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 text-text-secondary">
-            <Calendar className="w-4 h-4" />
-            <span>Created</span>
-          </div>
-          <div className="text-text-primary">
-            {format(new Date(item.created_at), 'MMM d, yyyy')}
-          </div>
-
-          <div className="flex items-center gap-2 text-text-secondary">
-            <FileText className="w-4 h-4" />
-            <span>Updated</span>
-          </div>
-          <div className="text-text-primary">
-            {format(new Date(item.updated_at), 'MMM d, yyyy')}
-          </div>
-        </div>
-      </div>
-
-      {/* Linked Scenario */}
-      <div className="border-t border-surface-border pt-4">
-        <h4 className="flex items-center gap-2 text-sm font-medium text-text-primary mb-3">
-          <Layers className="w-4 h-4 text-coral-400" />
-          Linked Scenario
-        </h4>
-        {scenario ? (
-          <div className="flex items-center justify-between p-3 bg-surface-lighter rounded-lg">
-            <div className="flex items-center gap-2 min-w-0">
-              <Layers className="w-4 h-4 text-coral-400 flex-shrink-0" />
-              <span className="text-sm text-text-primary truncate">{scenario.title}</span>
-            </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <StatusBadge type="project" value={scenario.project} />
-              <StatusBadge type="scenario-status" value={scenario.status} />
-            </div>
-          </div>
-        ) : (
-          <p className="text-sm text-text-muted">No linked scenario.</p>
-        )}
-      </div>
-
-      {/* Action buttons */}
-      <div className="border-t border-surface-border pt-4 flex gap-3 justify-end">
-        <button onClick={onDelete} className="btn-secondary flex items-center gap-2 text-red-600 hover:text-red-700">
-          <Trash2 className="w-4 h-4" />
-          Delete
-        </button>
-        <button onClick={onEdit} className="btn-primary flex items-center gap-2">
-          <Pencil className="w-4 h-4" />
-          Edit
-        </button>
+    <div className="bg-card border border-border rounded-lg">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-border">
+              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Title
+              </th>
+              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Owner
+              </th>
+              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Status
+              </th>
+              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Project
+              </th>
+              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Due Date
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => {
+              const dueDateStatus = getDueDateStatus(item.due_date, item.status);
+              return (
+                <tr
+                  key={item.id}
+                  onClick={() => onSelect(item)}
+                  className="border-b border-border last:border-0 hover:bg-accent transition-colors cursor-pointer"
+                >
+                  <td className="py-3 px-4">
+                    <p
+                      className={`text-sm font-medium ${
+                        item.status === 'done'
+                          ? 'line-through text-muted-foreground'
+                          : 'text-foreground'
+                      }`}
+                    >
+                      {item.title}
+                    </p>
+                    {item.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                        {item.description}
+                      </p>
+                    )}
+                  </td>
+                  <td className="py-3 px-4">
+                    {item.owner ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+                          <span className="text-[10px] font-medium text-primary">
+                            {getInitials(item.owner)}
+                          </span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">{item.owner}</span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">Unassigned</span>
+                    )}
+                  </td>
+                  <td className="py-3 px-4">
+                    <StatusBadge type="action-status" value={item.status} />
+                  </td>
+                  <td className="py-3 px-4">
+                    {item.project ? (
+                      <span className="flex items-center gap-1.5">
+                        <span
+                          className={`w-2 h-2 rounded-full ${
+                            item.project === 'mote' ? 'bg-mote-400' : 'bg-fundemar-400'
+                          }`}
+                        />
+                        <span className="text-sm text-muted-foreground capitalize">
+                          {item.project}
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">-</span>
+                    )}
+                  </td>
+                  <td className="py-3 px-4">
+                    {item.due_date ? (
+                      <span
+                        className={`flex items-center gap-1 text-sm ${
+                          dueDateStatus?.type === 'overdue'
+                            ? 'text-red-600 font-medium'
+                            : dueDateStatus?.type === 'today'
+                            ? 'text-amber-600'
+                            : 'text-muted-foreground'
+                        }`}
+                      >
+                        {dueDateStatus?.type === 'overdue' && (
+                          <AlertCircle className="w-3 h-3" />
+                        )}
+                        {format(new Date(item.due_date), 'MMM d, yyyy')}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">No date</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
-  );
-}
-
-// Inline Owner Edit Component
-interface InlineOwnerEditProps {
-  owner: string | null;
-  onSave: (owner: string) => void;
-}
-
-function InlineOwnerEdit({ owner, onSave }: InlineOwnerEditProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(owner || '');
-
-  const teamMembers = [
-    { value: '', label: 'Unassigned' },
-    { value: 'Adrian Stier', label: 'Adrian Stier' },
-    { value: 'Raine Detmer', label: 'Raine Detmer' },
-    { value: 'Darcy Bradley', label: 'Darcy Bradley' },
-    { value: 'Jameal Samhouri', label: 'Jameal Samhouri' },
-  ];
-
-  const handleChange = (newValue: string) => {
-    setValue(newValue);
-    if (newValue !== (owner || '')) {
-      onSave(newValue);
-    }
-    setIsEditing(false);
-  };
-
-  if (isEditing) {
-    return (
-      <select
-        value={value}
-        onChange={(e) => handleChange(e.target.value)}
-        onBlur={() => setIsEditing(false)}
-        autoFocus
-        className="w-32 px-2 py-1 text-xs bg-surface-card border border-surface-border rounded focus:outline-none focus:ring-2 focus:ring-coral-400/50"
-        aria-label="Select owner"
-      >
-        {teamMembers.map((opt) => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
-        ))}
-      </select>
-    );
-  }
-
-  return (
-    <button
-      onClick={() => setIsEditing(true)}
-      className="flex items-center gap-2 group"
-      aria-label={owner ? `Assigned to ${owner}. Click to change owner` : 'Click to assign owner'}
-    >
-      {owner ? (
-        <>
-          <div className="w-6 h-6 rounded-full bg-coral-400/20 flex items-center justify-center" aria-hidden="true">
-            <span className="text-xs font-medium text-coral-400">
-              {owner.slice(0, 2).toUpperCase()}
-            </span>
-          </div>
-          <span className="text-xs text-text-secondary group-hover:text-coral-400 transition-colors">
-            {owner}
-          </span>
-        </>
-      ) : (
-        <span className="flex items-center gap-2 text-text-muted group-hover:text-coral-400 transition-colors">
-          <User className="w-4 h-4" aria-hidden="true" />
-          <span className="text-xs">Assign</span>
-        </span>
-      )}
-    </button>
   );
 }

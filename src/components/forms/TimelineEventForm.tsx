@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Loader2, HelpCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useCreateTimelineEvent, useUpdateTimelineEvent } from '../../hooks/useSupabase';
-import { useToast } from '../Toast';
 import CharacterCount from '../CharacterCount';
-import Tooltip from '../Tooltip';
 import type {
   TimelineEvent,
   TimelineEventInsert,
@@ -36,7 +35,6 @@ const eventTypeOptions: { value: TimelineEventType; label: string }[] = [
 
 export default function TimelineEventForm({ event, onSuccess, onCancel }: TimelineEventFormProps) {
   const isEditing = !!event;
-  const { success, error: showError } = useToast();
 
   const createEvent = useCreateTimelineEvent();
   const updateEvent = useUpdateTimelineEvent();
@@ -101,7 +99,7 @@ export default function TimelineEventForm({ event, onSuccess, onCancel }: Timeli
         };
 
         await updateEvent.mutateAsync({ id: event.id, updates });
-        success('Timeline event updated successfully');
+        toast.success('Timeline event updated successfully');
       } else {
         const newEvent: TimelineEventInsert = {
           title: formData.title,
@@ -112,27 +110,24 @@ export default function TimelineEventForm({ event, onSuccess, onCancel }: Timeli
         };
 
         await createEvent.mutateAsync(newEvent);
-        success('Timeline event created successfully');
+        toast.success('Timeline event created successfully');
       }
 
       onSuccess();
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to save timeline event');
+      toast.error(err instanceof Error ? err.message : 'Failed to save timeline event');
     }
   };
 
   const isSubmitting = createEvent.isPending || updateEvent.isPending;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {/* Title */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <label htmlFor="title" className="flex items-center gap-2 text-sm font-medium text-text-secondary">
-            Title <span className="text-red-600">*</span>
-            <Tooltip content="A descriptive name for this timeline event">
-              <HelpCircle className="w-3.5 h-3.5 text-text-muted cursor-help" />
-            </Tooltip>
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label htmlFor="title" className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+            Title <span className="text-red-500">*</span>
           </label>
           <CharacterCount current={formData.title.length} max={TITLE_MAX_LENGTH} />
         </div>
@@ -148,17 +143,14 @@ export default function TimelineEventForm({ event, onSuccess, onCancel }: Timeli
           aria-required="true"
           aria-invalid={!!errors.title}
         />
-        {errors.title && <p id="title-error" className="mt-1 text-sm text-red-600">{errors.title}</p>}
+        {errors.title && <p id="title-error" className="text-xs text-red-500">{errors.title}</p>}
       </div>
 
       {/* Description */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <label htmlFor="description" className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label htmlFor="description" className="flex items-center gap-1.5 text-sm font-medium text-foreground">
             Description
-            <Tooltip content="Additional details about this event">
-              <HelpCircle className="w-3.5 h-3.5 text-text-muted cursor-help" />
-            </Tooltip>
           </label>
           <CharacterCount current={formData.description.length} max={DESCRIPTION_MAX_LENGTH} />
         </div>
@@ -172,15 +164,15 @@ export default function TimelineEventForm({ event, onSuccess, onCancel }: Timeli
           maxLength={DESCRIPTION_MAX_LENGTH + 50}
           aria-describedby={errors.description ? 'description-error' : undefined}
         />
-        {errors.description && <p id="description-error" className="mt-1 text-sm text-red-600">{errors.description}</p>}
+        {errors.description && <p id="description-error" className="text-xs text-red-500">{errors.description}</p>}
       </div>
 
       {/* Event Date and Type Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Event Date */}
-        <div>
-          <label htmlFor="event_date" className="block text-sm font-medium text-text-secondary mb-2">
-            Event Date <span className="text-red-600">*</span>
+        <div className="space-y-1.5">
+          <label htmlFor="event_date" className="block text-sm font-medium text-foreground">
+            Event Date <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
@@ -192,12 +184,12 @@ export default function TimelineEventForm({ event, onSuccess, onCancel }: Timeli
             aria-invalid={!!errors.event_date}
             aria-describedby={errors.event_date ? 'event-date-error' : undefined}
           />
-          {errors.event_date && <p id="event-date-error" className="mt-1 text-sm text-red-600" role="alert">{errors.event_date}</p>}
+          {errors.event_date && <p id="event-date-error" className="text-xs text-red-500" role="alert">{errors.event_date}</p>}
         </div>
 
         {/* Event Type */}
-        <div>
-          <label htmlFor="event_type" className="block text-sm font-medium text-text-secondary mb-2">
+        <div className="space-y-1.5">
+          <label htmlFor="event_type" className="block text-sm font-medium text-foreground">
             Event Type
           </label>
           <select
@@ -216,8 +208,8 @@ export default function TimelineEventForm({ event, onSuccess, onCancel }: Timeli
       </div>
 
       {/* Project */}
-      <div>
-        <label htmlFor="project" className="block text-sm font-medium text-text-secondary mb-2">
+      <div className="space-y-1.5">
+        <label htmlFor="project" className="block text-sm font-medium text-foreground">
           Project
         </label>
         <select
@@ -235,7 +227,7 @@ export default function TimelineEventForm({ event, onSuccess, onCancel }: Timeli
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3 pt-4 border-t border-surface-border">
+      <div className="flex justify-end gap-3 pt-4 border-t border-border">
         <button type="button" onClick={onCancel} disabled={isSubmitting} className="btn-secondary">
           Cancel
         </button>

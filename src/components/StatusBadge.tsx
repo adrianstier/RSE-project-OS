@@ -77,6 +77,8 @@ interface ProjectDotProps {
   className?: string
 }
 
+export default StatusBadge
+
 export function ProjectDot({ project, className }: ProjectDotProps) {
   const dotColor = project === "mote" ? "bg-mote-400" : "bg-fundemar-400"
   const label = projectLabels[project] ?? project

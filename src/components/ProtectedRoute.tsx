@@ -26,21 +26,21 @@ function DefaultLoadingComponent() {
         {/* Animated logo */}
         <div className="relative mb-8">
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-24 h-24 rounded-full bg-coral-400/10 animate-ping" />
+            <div className="w-24 h-24 rounded-full bg-primary/10 animate-ping" />
           </div>
-          <div className="relative p-4 bg-surface-card rounded-full border border-surface-border shadow-sm">
-            <Shell className="w-12 h-12 text-coral-400" />
+          <div className="relative p-4 bg-card rounded-full border border-border shadow-sm">
+            <Shell className="w-12 h-12 text-primary" />
           </div>
         </div>
 
         {/* Loading text */}
-        <div className="flex items-center justify-center gap-3 text-text-secondary">
+        <div className="flex items-center justify-center gap-3 text-muted-foreground">
           <Loader2 className="w-5 h-5 animate-spin" />
           <span className="font-medium">Authenticating...</span>
         </div>
 
         {/* Subtitle */}
-        <p className="mt-4 text-sm text-text-muted">
+        <p className="mt-4 text-sm text-muted-foreground">
           RSE Tracker - Coral Conservation
         </p>
       </div>

@@ -1,40 +1,65 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { format, isAfter, isBefore, startOfDay, parseISO } from 'date-fns';
-import {
-  Calendar,
-  Filter,
-  Flag,
-  Clock,
-  Users,
-  Package,
-  Circle,
-  Plus,
-  Pencil,
-  Trash2,
-} from 'lucide-react';
+import { format, isBefore, startOfDay, parseISO, compareAsc, isPast } from 'date-fns';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   useTimelineEvents,
   useDeleteTimelineEvent,
   useRealtimeTimeline,
 } from '../hooks/useSupabase';
-import Card, { CardContent } from '../components/Card';
-import { StatusBadge } from '../components/StatusBadge';
-import { EmptyState } from '../components/EmptyState';
-import { TimelineSkeleton } from '../components/Skeleton';
-import Modal from '../components/Modal';
-import DeleteConfirm from '../components/DeleteConfirm';
+import StatusBadge from '../components/StatusBadge';
+import EmptyState from '../components/EmptyState';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { TimelineEventForm } from '../components/forms';
-import { useToast } from '../components/Toast';
 import type { TimelineEvent, TimelineEventType, Project } from '../types/database';
 
-const eventTypeConfig: Record<TimelineEventType, { icon: typeof Flag; color: string; bgColor: string }> = {
-  milestone: { icon: Flag, color: 'text-purple-600', bgColor: 'bg-purple-500' },
-  deadline: { icon: Clock, color: 'text-red-600', bgColor: 'bg-red-500' },
-  meeting: { icon: Users, color: 'text-blue-600', bgColor: 'bg-blue-500' },
-  deliverable: { icon: Package, color: 'text-coral-400', bgColor: 'bg-coral-400' },
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const EVENT_TYPE_COLORS: Record<
+  TimelineEventType,
+  { border: string; dot: string; ring: string }
+> = {
+  milestone: {
+    border: 'border-l-purple-500',
+    dot: 'bg-purple-500',
+    ring: 'ring-purple-500/20',
+  },
+  deadline: {
+    border: 'border-l-red-500',
+    dot: 'bg-red-500',
+    ring: 'ring-red-500/20',
+  },
+  meeting: {
+    border: 'border-l-blue-500',
+    dot: 'bg-blue-500',
+    ring: 'ring-blue-500/20',
+  },
+  deliverable: {
+    border: 'border-l-amber-500',
+    dot: 'bg-amber-500',
+    ring: 'ring-amber-500/20',
+  },
 };
 
-const eventTypeOptions: { value: TimelineEventType | 'all'; label: string }[] = [
+const EVENT_TYPE_OPTIONS: { value: TimelineEventType | 'all'; label: string }[] = [
   { value: 'all', label: 'All Types' },
   { value: 'milestone', label: 'Milestones' },
   { value: 'deadline', label: 'Deadlines' },
@@ -42,11 +67,49 @@ const eventTypeOptions: { value: TimelineEventType | 'all'; label: string }[] = 
   { value: 'deliverable', label: 'Deliverables' },
 ];
 
-const projectOptions: { value: Project | 'all'; label: string }[] = [
+const PROJECT_OPTIONS: { value: Project | 'all'; label: string }[] = [
   { value: 'all', label: 'All Projects' },
   { value: 'mote', label: 'Mote' },
   { value: 'fundemar', label: 'Fundemar' },
 ];
+
+// ---------------------------------------------------------------------------
+// Skeleton for loading state
+// ---------------------------------------------------------------------------
+
+function TimelineLoadingSkeleton() {
+  return (
+    <div className="space-y-8 pl-8 relative">
+      {/* Vertical line */}
+      <div className="absolute left-[9px] top-0 bottom-0 w-px bg-border" />
+
+      {/* Month header skeleton */}
+      <div className="relative flex items-center gap-4 -ml-8 pl-8">
+        <div className="absolute left-[5px] w-[9px] h-[9px] rounded-full bg-border" />
+        <Skeleton className="h-4 w-28 rounded" />
+      </div>
+
+      {/* Event skeletons */}
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="relative flex gap-4 -ml-8 pl-8">
+          <div className="absolute left-[5px] w-[9px] h-[9px] rounded-full bg-border mt-5" />
+          <div className="flex-1 bg-card border border-border rounded-lg p-4 border-l-[3px] border-l-border space-y-3 ml-4">
+            <Skeleton className="h-4 w-2/3 rounded" />
+            <Skeleton className="h-3 w-40 rounded" />
+            <div className="flex gap-2">
+              <Skeleton className="h-5 w-20 rounded-full" />
+              <Skeleton className="h-5 w-16 rounded-full" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
 
 export default function Timeline() {
   const [eventTypeFilter, setEventTypeFilter] = useState<TimelineEventType | 'all'>('all');
@@ -58,7 +121,6 @@ export default function Timeline() {
 
   const { data: events, isLoading } = useTimelineEvents();
   const deleteEvent = useDeleteTimelineEvent();
-  const { success, error: showError } = useToast();
 
   // Enable realtime updates
   useRealtimeTimeline();
@@ -75,44 +137,52 @@ export default function Timeline() {
     return () => window.removeEventListener('rse:new-item', handleNewItem);
   }, [openNewForm]);
 
+  // -----------------------------------------------------------------------
+  // Filtering
+  // -----------------------------------------------------------------------
+
   const filteredEvents = useMemo(() => {
     if (!events) return [];
     const now = startOfDay(new Date());
 
-    return events.filter((event) => {
-      if (eventTypeFilter !== 'all' && event.event_type !== eventTypeFilter) return false;
-      if (projectFilter !== 'all' && event.project !== projectFilter) return false;
-      if (!showPast && isBefore(parseISO(event.event_date), now)) return false;
-      return true;
-    });
+    return events
+      .filter((event) => {
+        if (eventTypeFilter !== 'all' && event.event_type !== eventTypeFilter) return false;
+        if (projectFilter !== 'all' && event.project !== projectFilter) return false;
+        if (!showPast && isBefore(parseISO(event.event_date), now)) return false;
+        return true;
+      })
+      .sort((a, b) => compareAsc(parseISO(a.event_date), parseISO(b.event_date)));
   }, [events, eventTypeFilter, projectFilter, showPast]);
 
-  // Group events by month
+  // -----------------------------------------------------------------------
+  // Group by month
+  // -----------------------------------------------------------------------
+
   const groupedEvents = useMemo(() => {
-    const groups: Record<string, typeof filteredEvents> = {};
+    const groups: { key: string; events: TimelineEvent[] }[] = [];
+    const map = new Map<string, TimelineEvent[]>();
 
     filteredEvents.forEach((event) => {
       const monthKey = format(parseISO(event.event_date), 'MMMM yyyy');
-      if (!groups[monthKey]) {
-        groups[monthKey] = [];
+      if (!map.has(monthKey)) {
+        map.set(monthKey, []);
       }
-      groups[monthKey].push(event);
+      map.get(monthKey)!.push(event);
+    });
+
+    map.forEach((evts, key) => {
+      groups.push({ key, events: evts });
     });
 
     return groups;
   }, [filteredEvents]);
 
-  const monthKeys = Object.keys(groupedEvents);
+  // -----------------------------------------------------------------------
+  // Helpers
+  // -----------------------------------------------------------------------
 
-  const isPastEvent = (dateStr: string) => {
-    return isBefore(parseISO(dateStr), startOfDay(new Date()));
-  };
-
-  const isUpcomingEvent = (dateStr: string) => {
-    const eventDate = parseISO(dateStr);
-    const now = startOfDay(new Date());
-    return isAfter(eventDate, now) || format(eventDate, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd');
-  };
+  const isEventPast = (dateStr: string) => isPast(parseISO(dateStr)) && format(parseISO(dateStr), 'yyyy-MM-dd') !== format(new Date(), 'yyyy-MM-dd');
 
   const handleEdit = (event: TimelineEvent) => {
     setEditingEvent(event);
@@ -129,243 +199,225 @@ export default function Timeline() {
 
     try {
       await deleteEvent.mutateAsync(deletingEvent.id);
-      success('Event deleted successfully');
+      toast.success('Event deleted successfully');
       setDeletingEvent(null);
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to delete event');
+      toast.error(err instanceof Error ? err.message : 'Failed to delete event');
     }
   };
+
+  const hasActiveFilters = eventTypeFilter !== 'all' || projectFilter !== 'all' || !showPast;
+
+  // -----------------------------------------------------------------------
+  // Render
+  // -----------------------------------------------------------------------
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Page Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary tracking-tight flex items-center gap-3">
-            <Calendar className="w-7 h-7 md:w-8 md:h-8 text-coral-400 flex-shrink-0" />
-            <span className="truncate">Timeline</span>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-semibold text-2xl font-bold text-foreground tracking-tight">
+            Timeline
           </h1>
-          <p className="mt-1.5 text-text-secondary text-pretty leading-relaxed">
-            Project milestones, deadlines, and key events
+          <p className="mt-1 text-sm text-muted-foreground">
+            {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <div className="flex items-center gap-4 flex-shrink-0">
-          <span className="text-sm text-text-muted whitespace-nowrap">
-            {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''}
-          </span>
-          <button
-            onClick={() => setIsFormOpen(true)}
-            className="btn-primary flex items-center gap-2 whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">New Event</span>
-            <span className="sm:hidden">New</span>
-          </button>
-        </div>
+        <button onClick={openNewForm} className="btn-primary flex items-center gap-2">
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">New Event</span>
+        </button>
       </div>
 
-      {/* Filters */}
-      <Card className="!p-4">
-        <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4">
-          <div className="flex items-center gap-2 text-text-secondary">
-            <Filter className="w-4 h-4" />
-            <span className="text-sm font-medium">Filters:</span>
-          </div>
-
-          {/* Event Type Filter */}
-          <div className="relative">
-            <label htmlFor="event-type-filter" className="sr-only">Filter by event type</label>
-            <select
-              id="event-type-filter"
-              value={eventTypeFilter}
-              onChange={(e) => setEventTypeFilter(e.target.value as TimelineEventType | 'all')}
-              className="select-field !py-1.5 !text-sm min-w-[140px]"
-              aria-label="Filter by event type"
-            >
-              {eventTypeOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Project Filter */}
-          <div className="relative">
-            <label htmlFor="timeline-project-filter" className="sr-only">Filter by project</label>
-            <select
-              id="timeline-project-filter"
-              value={projectFilter}
-              onChange={(e) => setProjectFilter(e.target.value as Project | 'all')}
-              className="select-field !py-1.5 !text-sm min-w-[140px]"
-              aria-label="Filter by project"
-            >
-              {projectOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Show Past Toggle */}
-          <label className="flex items-center gap-2 cursor-pointer" htmlFor="show-past-events">
-            <input
-              type="checkbox"
-              id="show-past-events"
-              checked={showPast}
-              onChange={(e) => setShowPast(e.target.checked)}
-              className="w-4 h-4 rounded border-ocean-300 bg-white text-coral-400 focus:ring-coral-400/50 focus:ring-offset-0"
-            />
-            <span className="text-sm text-text-secondary">Show past events</span>
-          </label>
+      {/* Filter Bar */}
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Event Type Filter */}
+        <div>
+          <label htmlFor="tl-event-type" className="sr-only">Event type</label>
+          <select
+            id="tl-event-type"
+            value={eventTypeFilter}
+            onChange={(e) => setEventTypeFilter(e.target.value as TimelineEventType | 'all')}
+            className="select-field !py-1.5 !text-sm min-w-[140px]"
+          >
+            {EVENT_TYPE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
         </div>
-      </Card>
 
-      {/* Timeline */}
-      {isLoading ? (
-        <Card>
-          <CardContent>
-            <TimelineSkeleton />
-          </CardContent>
-        </Card>
-      ) : filteredEvents.length === 0 ? (
-        <Card>
-          <EmptyState
-            variant={
-              eventTypeFilter !== 'all' || projectFilter !== 'all' || !showPast ? 'filter' : 'timeline'
-            }
-            actionLabel={eventTypeFilter === 'all' && projectFilter === 'all' && showPast ? 'Add First Event' : undefined}
-            onAction={eventTypeFilter === 'all' && projectFilter === 'all' && showPast ? openNewForm : undefined}
+        {/* Project Filter */}
+        <div>
+          <label htmlFor="tl-project" className="sr-only">Project</label>
+          <select
+            id="tl-project"
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value as Project | 'all')}
+            className="select-field !py-1.5 !text-sm min-w-[140px]"
+          >
+            {PROJECT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Show Past Events Checkbox */}
+        <label htmlFor="tl-show-past" className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            id="tl-show-past"
+            checked={showPast}
+            onChange={(e) => setShowPast(e.target.checked)}
+            className="w-4 h-4 rounded border-border bg-white text-primary focus:ring-primary/50 focus:ring-offset-0"
           />
-        </Card>
+          <span className="text-sm text-muted-foreground">Show past events</span>
+        </label>
+      </div>
+
+      {/* Timeline Content */}
+      {isLoading ? (
+        <TimelineLoadingSkeleton />
+      ) : filteredEvents.length === 0 ? (
+        <EmptyState
+          variant={hasActiveFilters ? 'filter' : 'timeline'}
+          onAction={!hasActiveFilters ? openNewForm : undefined}
+        />
       ) : (
-        <div className="space-y-8">
-          {monthKeys.map((monthKey) => (
-            <div key={monthKey} className="animate-slide-up">
-              {/* Month Header */}
-              <div className="flex items-center gap-4 mb-6">
-                <div className="h-px flex-1 bg-gradient-to-r from-ocean-200 to-transparent" />
-                <h2 className="font-heading text-lg font-semibold text-text-primary">{monthKey}</h2>
-                <div className="h-px flex-1 bg-gradient-to-l from-ocean-200 to-transparent" />
-              </div>
+        <div className="relative pl-8">
+          {/* Vertical line */}
+          <div className="absolute left-[9px] top-2 bottom-2 w-px bg-border" />
 
-              {/* Events */}
-              <div className="relative">
-                {/* Timeline Line */}
-                <div className="absolute left-[18px] top-0 bottom-0 w-0.5 bg-ocean-200" />
+          <div className="space-y-6">
+            {groupedEvents.map((group) => (
+              <div key={group.key}>
+                {/* Month Header */}
+                <div className="relative flex items-center -ml-8 pl-8 mb-4">
+                  {/* Node on the line */}
+                  <div className="absolute left-[5px] w-[9px] h-[9px] rounded-full bg-border border-2 border-border" />
+                  <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                    {group.key}
+                  </h2>
+                </div>
 
-                <div className="space-y-6">
-                  {groupedEvents[monthKey].map((event) => {
-                    const isPast = isPastEvent(event.event_date);
-                    const isUpcoming = isUpcomingEvent(event.event_date);
-                    const config = event.event_type
-                      ? eventTypeConfig[event.event_type]
-                      : { icon: Circle, color: 'text-text-muted', bgColor: 'bg-text-muted' };
-                    const Icon = config.icon;
+                {/* Events in this month */}
+                <div className="space-y-3">
+                  {group.events.map((event) => {
+                    const past = isEventPast(event.event_date);
+                    const colors = event.event_type
+                      ? EVENT_TYPE_COLORS[event.event_type]
+                      : { border: 'border-l-neutral-400', dot: 'bg-neutral-400', ring: 'ring-neutral-400/20' };
 
                     return (
                       <div
                         key={event.id}
-                        className={`relative flex gap-6 ${isPast ? 'opacity-50' : ''}`}
+                        className={`group relative -ml-8 pl-8 ${past ? 'opacity-50' : ''}`}
                       >
-                        {/* Timeline Node */}
-                        <div className="relative z-10 flex-shrink-0">
-                          <div
-                            className={`
-                              w-9 h-9 rounded-full flex items-center justify-center
-                              ${isUpcoming ? config.bgColor + '/20' : 'bg-surface-lighter'}
-                              ${isUpcoming ? 'ring-2 ring-offset-2 ring-offset-white' : ''}
-                              ${isUpcoming ? config.bgColor.replace('bg-', 'ring-') + '/50' : ''}
-                            `}
-                          >
-                            <Icon
-                              className={`w-4 h-4 ${isUpcoming ? config.color : 'text-text-muted'}`}
-                            />
-                          </div>
-                        </div>
+                        {/* Dot on the line */}
+                        <div
+                          className={`
+                            absolute left-[5px] top-5 w-[9px] h-[9px] rounded-full
+                            ${past ? 'bg-neutral-300' : `${colors.dot} ring-2 ${colors.ring}`}
+                          `}
+                        />
 
                         {/* Event Card */}
-                        <Card
+                        <div
                           className={`
-                            flex-1 !p-4
-                            ${isUpcoming ? 'border-coral-400/20' : ''}
+                            ml-4 rounded-lg border border-border bg-card
+                            border-l-[3px] ${colors.border}
+                            p-4 transition-colors
                           `}
                         >
-                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 text-xs text-text-muted mb-1">
-                                <Calendar className="w-3 h-3" />
-                                <span>{format(parseISO(event.event_date), 'EEEE, MMMM d, yyyy')}</span>
-                              </div>
-                              <h3 className="font-heading font-semibold text-text-primary">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-medium text-foreground truncate">
                                 {event.title}
                               </h3>
+                              <p className="text-sm text-muted-foreground mt-0.5">
+                                {format(parseISO(event.event_date), 'EEEE, MMMM d')}
+                              </p>
                               {event.description && (
-                                <p className="mt-2 text-sm text-text-secondary">
+                                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
                                   {event.description}
                                 </p>
                               )}
+                              <div className="flex flex-wrap items-center gap-2 mt-3">
+                                {event.event_type && (
+                                  <StatusBadge type="event-type" value={event.event_type} />
+                                )}
+                                {event.project && (
+                                  <StatusBadge type="project" value={event.project} />
+                                )}
+                              </div>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-2">
-                              {event.event_type && (
-                                <StatusBadge type="event-type" value={event.event_type} />
-                              )}
-                              {event.project && (
-                                <StatusBadge type="project" value={event.project} />
-                              )}
+                            {/* Action buttons (visible on hover) */}
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                               <button
                                 onClick={() => handleEdit(event)}
-                                className="p-1.5 text-text-muted hover:text-coral-400 hover:bg-surface-lighter rounded-lg transition-colors"
-                                aria-label="Edit event"
+                                className="p-1.5 text-muted-foreground hover:text-primary hover:bg-muted rounded-md transition-colors"
+                                aria-label={`Edit ${event.title}`}
                               >
                                 <Pencil className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setDeletingEvent(event)}
-                                className="p-1.5 text-text-muted hover:text-red-600 hover:bg-surface-lighter rounded-lg transition-colors"
-                                aria-label="Delete event"
+                                className="p-1.5 text-muted-foreground hover:text-red-500 hover:bg-muted rounded-md transition-colors"
+                                aria-label={`Delete ${event.title}`}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
                           </div>
-                        </Card>
+                        </div>
                       </div>
                     );
                   })}
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Create/Edit Modal */}
-      <Modal
-        isOpen={isFormOpen}
-        onClose={handleFormClose}
-        title={editingEvent ? 'Edit Event' : 'New Event'}
-        size="lg"
-      >
-        <TimelineEventForm
-          event={editingEvent || undefined}
-          onSuccess={handleFormClose}
-          onCancel={handleFormClose}
-        />
-      </Modal>
+      {/* Create/Edit Sheet */}
+      <Sheet open={isFormOpen} onOpenChange={(open) => { if (!open) handleFormClose(); }}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>{editingEvent ? 'Edit Event' : 'New Event'}</SheetTitle>
+          </SheetHeader>
+          <div className="px-6 pb-6">
+            <TimelineEventForm
+              event={editingEvent || undefined}
+              onSuccess={handleFormClose}
+              onCancel={handleFormClose}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Delete Confirmation */}
-      <DeleteConfirm
-        isOpen={!!deletingEvent}
-        onClose={() => setDeletingEvent(null)}
-        onConfirm={handleDelete}
-        title="Delete Event"
-        description="Are you sure you want to delete this timeline event? This action cannot be undone."
-        itemName={deletingEvent?.title}
-        isDeleting={deleteEvent.isPending}
-      />
+      <AlertDialog open={!!deletingEvent} onOpenChange={(open) => { if (!open) setDeletingEvent(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Event</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete{deletingEvent?.title ? ` "${deletingEvent.title}"` : ' this timeline event'}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteEvent.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleteEvent.isPending}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              {deleteEvent.isPending ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -22,6 +22,8 @@ interface EmptyStateProps {
   className?: string
 }
 
+export default EmptyState
+
 export function EmptyState({ variant = "default", title, description, actionLabel, onAction, className }: EmptyStateProps) {
   const config = variantConfig[variant]
   const Icon = config.icon

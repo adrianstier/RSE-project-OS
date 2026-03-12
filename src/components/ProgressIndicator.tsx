@@ -20,7 +20,7 @@ export default function ProgressIndicator({ steps, className = '' }: ProgressInd
       {/* Progress bar */}
       <div className="relative">
         <div
-          className="h-2 bg-surface-lighter rounded-full overflow-hidden"
+          className="h-2 bg-muted rounded-full overflow-hidden"
           role="progressbar"
           aria-valuenow={completedCount}
           aria-valuemin={0}
@@ -28,11 +28,11 @@ export default function ProgressIndicator({ steps, className = '' }: ProgressInd
           aria-label={`${completedCount} of ${steps.length} steps completed`}
         >
           <div
-            className="h-full bg-coral-400 rounded-full transition-all duration-500"
+            className="h-full bg-primary rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="mt-2 text-xs text-text-muted text-right" aria-hidden="true">
+        <p className="mt-2 text-xs text-muted-foreground text-right" aria-hidden="true">
           {completedCount} of {steps.length} completed
         </p>
       </div>
@@ -48,24 +48,24 @@ export default function ProgressIndicator({ steps, className = '' }: ProgressInd
               key={index}
               className={`
                 flex items-center gap-3 p-3 rounded-lg transition-colors
-                ${isActive ? 'bg-coral-400/10 border border-coral-400/30' : 'bg-surface-lighter/50'}
+                ${isActive ? 'bg-primary/10 border border-primary/30' : 'bg-muted/50'}
               `}
               aria-current={isActive ? 'step' : undefined}
             >
               {isCompleted ? (
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" aria-hidden="true" />
               ) : isActive ? (
-                <Loader2 className="w-5 h-5 text-coral-400 flex-shrink-0 animate-spin" aria-hidden="true" />
+                <Loader2 className="w-5 h-5 text-primary flex-shrink-0 animate-spin" aria-hidden="true" />
               ) : (
-                <Circle className="w-5 h-5 text-text-muted flex-shrink-0" aria-hidden="true" />
+                <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" aria-hidden="true" />
               )}
               <span
                 className={`text-sm ${
                   isCompleted
                     ? 'text-emerald-600'
                     : isActive
-                    ? 'text-coral-400 font-medium'
-                    : 'text-text-muted'
+                    ? 'text-primary font-medium'
+                    : 'text-muted-foreground'
                 }`}
               >
                 {step.label}

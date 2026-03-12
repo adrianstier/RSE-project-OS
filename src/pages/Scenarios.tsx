@@ -1,52 +1,121 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { format } from 'date-fns';
-import {
-  Layers,
-  ChevronDown,
-  ChevronUp,
-  Calendar,
-  FileText,
-  CheckSquare,
-  Plus,
-  Pencil,
-  Trash2,
-} from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   useScenarios,
   useActionItems,
   useDeleteScenario,
   useRealtimeScenarios,
 } from '../hooks/useSupabase';
-import Card, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/Card';
-import { StatusBadge } from '../components/StatusBadge';
-import { EmptyState } from '../components/EmptyState';
-import { CardSkeleton } from '../components/Skeleton';
-import Modal from '../components/Modal';
-import DeleteConfirm from '../components/DeleteConfirm';
+import { Button } from '../components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../components/ui/table';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../components/ui/sheet';
+import StatusBadge from '../components/StatusBadge';
+import EmptyState from '../components/EmptyState';
+import { Skeleton } from '@/components/ui/skeleton';
+import ScenarioSheet from '../components/ScenarioSheet';
 import { ScenarioForm } from '../components/forms';
-import { useToast } from '../components/Toast';
-import type { Project, Scenario } from '../types/database';
+import type { Project, Scenario, ScenarioStatus } from '../types/database';
+
+// ============================================
+// TYPES & CONSTANTS
+// ============================================
 
 type TabFilter = 'all' | Project;
+type SortOption = 'updated' | 'created' | 'title';
 
-const tabs: { value: TabFilter; label: string }[] = [
-  { value: 'all', label: 'All Projects' },
-  { value: 'mote', label: 'Mote Marine' },
-  { value: 'fundemar', label: 'Fundemar' },
+const projectDotColors: Record<Project, string> = {
+  mote: 'bg-mote-400',
+  fundemar: 'bg-fundemar-400',
+};
+
+const projectLabels: Record<Project, string> = {
+  mote: 'Mote',
+  fundemar: 'Fundemar',
+};
+
+const tabs: { value: TabFilter; label: string; dotColor?: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'mote', label: 'Mote', dotColor: 'bg-mote-400' },
+  { value: 'fundemar', label: 'Fundemar', dotColor: 'bg-fundemar-400' },
 ];
+
+const statusFilterOptions: { value: '' | ScenarioStatus; label: string }[] = [
+  { value: '', label: 'All statuses' },
+  { value: 'planning', label: 'Planning' },
+  { value: 'active', label: 'Active' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'on_hold', label: 'On Hold' },
+];
+
+const sortOptions: { value: SortOption; label: string }[] = [
+  { value: 'updated', label: 'Last updated' },
+  { value: 'created', label: 'Date created' },
+  { value: 'title', label: 'Title A-Z' },
+];
+
+// ============================================
+// SKELETON ROWS
+// ============================================
+
+function TableRowSkeleton() {
+  return (
+    <TableRow>
+      <TableCell>
+        <div className="space-y-1.5">
+          <Skeleton className="h-4 w-48" />
+          <Skeleton className="h-3 w-72" />
+        </div>
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-4 w-16" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-6 w-20 rounded-full" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-6 w-20 rounded-full" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-4 w-6" />
+      </TableCell>
+    </TableRow>
+  );
+}
+
+// ============================================
+// MAIN COMPONENT
+// ============================================
 
 export default function Scenarios() {
   const [activeTab, setActiveTab] = useState<TabFilter>('all');
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'' | ScenarioStatus>('');
+  const [sortBy, setSortBy] = useState<SortOption>('updated');
+
+  // Sheet state
+  const [detailScenario, setDetailScenario] = useState<Scenario | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingScenario, setEditingScenario] = useState<Scenario | null>(null);
-  const [deletingScenario, setDeletingScenario] = useState<Scenario | null>(null);
-  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
 
+  // Data hooks
   const { data: scenarios, isLoading: scenariosLoading } = useScenarios();
   const { data: actionItems, isLoading: actionsLoading } = useActionItems();
   const deleteScenario = useDeleteScenario();
-  const { success, error: showError } = useToast();
 
   // Enable realtime updates
   useRealtimeScenarios();
@@ -63,24 +132,70 @@ export default function Scenarios() {
     return () => window.removeEventListener('rse:new-item', handleNewItem);
   }, [openNewForm]);
 
+  // Action items count per scenario
+  const actionCountMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    if (actionItems) {
+      for (const item of actionItems) {
+        if (item.scenario_id) {
+          map[item.scenario_id] = (map[item.scenario_id] || 0) + 1;
+        }
+      }
+    }
+    return map;
+  }, [actionItems]);
+
+  // Filter and sort
   const filteredScenarios = useMemo(() => {
     if (!scenarios) return [];
-    if (activeTab === 'all') return scenarios;
-    return scenarios.filter((s) => s.project === activeTab);
-  }, [scenarios, activeTab]);
+    let result = [...scenarios];
 
-  const getScenarioActions = (scenarioId: string) => {
-    if (!actionItems) return [];
-    return actionItems.filter((a) => a.scenario_id === scenarioId);
-  };
+    // Project filter
+    if (activeTab !== 'all') {
+      result = result.filter((s) => s.project === activeTab);
+    }
 
-  const toggleExpand = (id: string) => {
-    setExpandedId(expandedId === id ? null : id);
+    // Status filter
+    if (statusFilter) {
+      result = result.filter((s) => s.status === statusFilter);
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case 'updated':
+          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        case 'created':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'title':
+          return a.title.localeCompare(b.title);
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [scenarios, activeTab, statusFilter, sortBy]);
+
+  // Handlers
+  const handleRowClick = (scenario: Scenario) => {
+    setDetailScenario(scenario);
+    setIsDetailOpen(true);
   };
 
   const handleEdit = (scenario: Scenario) => {
+    setIsDetailOpen(false);
     setEditingScenario(scenario);
     setIsFormOpen(true);
+  };
+
+  const handleDelete = async (scenarioId: string) => {
+    try {
+      await deleteScenario.mutateAsync(scenarioId);
+      toast.success('Scenario deleted successfully');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete scenario');
+    }
   };
 
   const handleFormClose = () => {
@@ -88,428 +203,229 @@ export default function Scenarios() {
     setEditingScenario(null);
   };
 
-  const handleDelete = async () => {
-    if (!deletingScenario) return;
-
-    try {
-      await deleteScenario.mutateAsync(deletingScenario.id);
-      success('Scenario deleted successfully');
-      setDeletingScenario(null);
-    } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to delete scenario');
-    }
-  };
-
   const isLoading = scenariosLoading || actionsLoading;
+  const totalCount = scenarios?.length ?? 0;
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       {/* Page Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary tracking-tight flex items-center gap-3">
-            <Layers className="w-7 h-7 md:w-8 md:h-8 text-coral-400 flex-shrink-0" />
-            <span className="truncate">Scenarios</span>
-          </h1>
-          <p className="mt-1.5 text-text-secondary text-pretty leading-relaxed">
-            Restoration strategy scenarios for coral conservation
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">Scenarios</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {totalCount} scenario{totalCount !== 1 ? 's' : ''} across 2 projects
           </p>
         </div>
-        <div className="flex items-center gap-4 flex-shrink-0">
-          <span className="text-sm text-text-muted whitespace-nowrap">
-            {filteredScenarios.length} scenario{filteredScenarios.length !== 1 ? 's' : ''}
-          </span>
-          <button
-            onClick={() => setIsFormOpen(true)}
-            className="btn-primary flex items-center gap-2 whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">New Scenario</span>
-            <span className="sm:hidden">New</span>
-          </button>
+        <Button onClick={openNewForm}>
+          <Plus className="w-4 h-4" />
+          New Scenario
+        </Button>
+      </div>
+
+      {/* Filter bar */}
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Project tabs */}
+        <div className="flex items-center gap-1 bg-muted rounded-lg p-1" role="tablist" aria-label="Filter by project">
+          {tabs.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setActiveTab(tab.value)}
+              role="tab"
+              aria-selected={activeTab === tab.value}
+              className={`
+                flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors
+                ${
+                  activeTab === tab.value
+                    ? 'bg-white text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }
+              `}
+            >
+              {tab.dotColor && (
+                <span className={`w-2 h-2 rounded-full ${tab.dotColor}`} aria-hidden="true" />
+              )}
+              {tab.label}
+            </button>
+          ))}
         </div>
-      </div>
 
-      {/* Tab Filter */}
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter scenarios by project">
-        {tabs.map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => setActiveTab(tab.value)}
-            role="tab"
-            aria-selected={activeTab === tab.value}
-            aria-controls="scenarios-panel"
-            id={`tab-${tab.value}`}
-            className={`
-              px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200
-              ${
-                activeTab === tab.value
-                  ? 'bg-coral-400/20 text-coral-400 border border-coral-400/40'
-                  : 'bg-surface-lighter text-text-secondary hover:text-text-primary hover:bg-ocean-100 border border-transparent'
-              }
-            `}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Scenarios Grid */}
-      <div
-        id="scenarios-panel"
-        role="tabpanel"
-        aria-labelledby={`tab-${activeTab}`}
-        aria-live="polite"
-      >
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6" aria-busy="true" aria-label="Loading scenarios">
-            <CardSkeleton />
-            <CardSkeleton />
-            <CardSkeleton />
-            <CardSkeleton />
-            <CardSkeleton />
-            <CardSkeleton />
-          </div>
-        ) : filteredScenarios.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6" role="list" aria-label={`${filteredScenarios.length} scenarios`}>
-            {filteredScenarios.map((scenario) => (
-              <ScenarioCard
-                key={scenario.id}
-                scenario={scenario}
-                actions={getScenarioActions(scenario.id)}
-                isExpanded={expandedId === scenario.id}
-                onToggleExpand={() => toggleExpand(scenario.id)}
-                onEdit={() => handleEdit(scenario)}
-                onDelete={() => setDeletingScenario(scenario)}
-                onSelect={() => setSelectedScenario(scenario)}
-              />
+        {/* Status filter */}
+        <Select
+          value={statusFilter === '' ? '__all__' : statusFilter}
+          onValueChange={(v) => setStatusFilter(v === '__all__' ? '' : v as ScenarioStatus)}
+        >
+          <SelectTrigger className="w-40" aria-label="Filter by status">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {statusFilterOptions.map((opt) => (
+              <SelectItem key={opt.value === '' ? '__all__' : opt.value} value={opt.value === '' ? '__all__' : opt.value}>
+                {opt.label}
+              </SelectItem>
             ))}
-          </div>
-        ) : (
-          <Card>
-            <EmptyState
-              variant={activeTab === 'all' ? 'scenarios' : 'filter'}
-              title={activeTab === 'all' ? undefined : `No ${activeTab === 'mote' ? 'Mote' : 'Fundemar'} scenarios`}
-              description={
-                activeTab === 'all'
-                  ? undefined
-                  : `There are no scenarios for the ${activeTab === 'mote' ? 'Mote Marine Laboratory' : 'Fundemar'} project yet.`
-              }
-              actionLabel={activeTab === 'all' ? 'Create First Scenario' : undefined}
-              onAction={activeTab === 'all' ? openNewForm : undefined}
-            />
-          </Card>
-        )}
+          </SelectContent>
+        </Select>
+
+        {/* Sort */}
+        <Select
+          value={sortBy}
+          onValueChange={(v) => setSortBy(v as SortOption)}
+        >
+          <SelectTrigger className="w-40" aria-label="Sort scenarios">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {sortOptions.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Detail Modal */}
-      <Modal
-        isOpen={!!selectedScenario}
-        onClose={() => setSelectedScenario(null)}
-        title={selectedScenario?.title ?? ''}
-        size="lg"
-      >
-        {selectedScenario && (
-          <ScenarioDetail
-            scenario={selectedScenario}
-            actions={getScenarioActions(selectedScenario.id)}
-            onEdit={() => {
-              setSelectedScenario(null);
-              handleEdit(selectedScenario);
-            }}
-            onDelete={() => {
-              setSelectedScenario(null);
-              setDeletingScenario(selectedScenario);
-            }}
+      {/* Table */}
+      {isLoading ? (
+        <div className="bg-card border border-border rounded-lg" aria-busy="true" aria-label="Loading scenarios">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[40%]">Scenario</TableHead>
+                <TableHead>Project</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Data</TableHead>
+                <TableHead className="text-right">Items</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRowSkeleton />
+              <TableRowSkeleton />
+              <TableRowSkeleton />
+              <TableRowSkeleton />
+              <TableRowSkeleton />
+            </TableBody>
+          </Table>
+        </div>
+      ) : filteredScenarios.length > 0 ? (
+        <div className="bg-card border border-border rounded-lg">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[40%]">Scenario</TableHead>
+                <TableHead>Project</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Data</TableHead>
+                <TableHead className="text-right">Items</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredScenarios.map((scenario) => (
+                <TableRow
+                  key={scenario.id}
+                  onClick={() => handleRowClick(scenario)}
+                  className="cursor-pointer"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleRowClick(scenario);
+                    }
+                  }}
+                  aria-label={`View scenario: ${scenario.title}`}
+                >
+                  {/* Scenario title + description */}
+                  <TableCell>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {scenario.title}
+                      </p>
+                      {scenario.description && (
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">
+                          {scenario.description}
+                        </p>
+                      )}
+                    </div>
+                  </TableCell>
+
+                  {/* Project dot + label */}
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-2 h-2 rounded-full ${projectDotColors[scenario.project]}`}
+                        aria-hidden="true"
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {projectLabels[scenario.project]}
+                      </span>
+                    </div>
+                  </TableCell>
+
+                  {/* Status */}
+                  <TableCell>
+                    <StatusBadge type="scenario-status" value={scenario.status} />
+                  </TableCell>
+
+                  {/* Data status */}
+                  <TableCell>
+                    <StatusBadge type="data-status" value={scenario.data_status} />
+                  </TableCell>
+
+                  {/* Action items count */}
+                  <TableCell className="text-right">
+                    <span className="text-sm text-muted-foreground">
+                      {actionCountMap[scenario.id] ?? 0}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      ) : (
+        <div className="bg-card border border-border rounded-lg">
+          <EmptyState
+            variant={activeTab === 'all' && !statusFilter ? 'scenarios' : 'filter'}
+            title={
+              activeTab === 'all' && !statusFilter
+                ? undefined
+                : 'No matching scenarios'
+            }
+            description={
+              activeTab === 'all' && !statusFilter
+                ? undefined
+                : 'Try adjusting your filters to see more results.'
+            }
+            onAction={activeTab === 'all' && !statusFilter ? openNewForm : undefined}
           />
-        )}
-      </Modal>
+        </div>
+      )}
 
-      {/* Create/Edit Modal */}
-      <Modal
-        isOpen={isFormOpen}
-        onClose={handleFormClose}
-        title={editingScenario ? 'Edit Scenario' : 'New Scenario'}
-        size="lg"
-      >
-        <ScenarioForm
-          scenario={editingScenario || undefined}
-          onSuccess={handleFormClose}
-          onCancel={handleFormClose}
-        />
-      </Modal>
-
-      {/* Delete Confirmation */}
-      <DeleteConfirm
-        isOpen={!!deletingScenario}
-        onClose={() => setDeletingScenario(null)}
-        onConfirm={handleDelete}
-        title="Delete Scenario"
-        description="Are you sure you want to delete this scenario? This action cannot be undone."
-        itemName={deletingScenario?.title}
+      {/* Detail Sheet */}
+      <ScenarioSheet
+        scenario={detailScenario}
+        open={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
         isDeleting={deleteScenario.isPending}
       />
-    </div>
-  );
-}
 
-interface ScenarioCardProps {
-  scenario: Scenario;
-  actions: { id: string; title: string; status: string }[];
-  isExpanded: boolean;
-  onToggleExpand: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
-  onSelect: () => void;
-}
-
-function ScenarioCard({ scenario, actions, isExpanded, onToggleExpand, onEdit, onDelete, onSelect }: ScenarioCardProps) {
-  return (
-    <Card hover onClick={onSelect} className="flex flex-col" role="listitem">
-      <CardHeader className="flex-shrink-0">
-        <div className="flex-1 min-w-0">
-          <CardTitle className="line-clamp-2">{scenario.title}</CardTitle>
-        </div>
-        <div className="flex items-center gap-2">
-          <StatusBadge type="project" value={scenario.project} />
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit();
-            }}
-            className="p-1.5 text-text-muted hover:text-coral-400 hover:bg-surface-lighter rounded-lg transition-colors"
-            aria-label="Edit scenario"
-          >
-            <Pencil className="w-4 h-4" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="p-1.5 text-text-muted hover:text-red-600 hover:bg-surface-lighter rounded-lg transition-colors"
-            aria-label="Delete scenario"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
-      </CardHeader>
-
-      <CardContent className="flex-1">
-        <CardDescription lines={isExpanded ? undefined : 2}>
-          {scenario.description ?? 'No description provided.'}
-        </CardDescription>
-
-        {/* Badges */}
-        <div className="flex flex-wrap gap-2 mt-4">
-          <StatusBadge type="scenario-status" value={scenario.status} />
-          <StatusBadge type="priority" value={scenario.priority} />
-          <StatusBadge type="data-status" value={scenario.data_status} />
-        </div>
-
-        {/* Expanded Content */}
-        {isExpanded && (
-          <div className="mt-6 pt-4 border-t border-surface-border space-y-4 animate-fade-in">
-            {/* Metadata */}
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div className="flex items-center gap-2 text-text-secondary">
-                <Calendar className="w-4 h-4" />
-                <span>Created</span>
-              </div>
-              <div className="text-text-primary">
-                {format(new Date(scenario.created_at), 'MMM d, yyyy')}
-              </div>
-
-              <div className="flex items-center gap-2 text-text-secondary">
-                <FileText className="w-4 h-4" />
-                <span>Updated</span>
-              </div>
-              <div className="text-text-primary">
-                {format(new Date(scenario.updated_at), 'MMM d, yyyy')}
-              </div>
-            </div>
-
-            {/* Linked Action Items */}
-            {actions.length > 0 && (
-              <div>
-                <h4 className="flex items-center gap-2 text-sm font-medium text-text-primary mb-3">
-                  <CheckSquare className="w-4 h-4 text-coral-400" />
-                  Linked Action Items ({actions.length})
-                </h4>
-                <div className="space-y-2">
-                  {actions.slice(0, 5).map((action) => (
-                    <div
-                      key={action.id}
-                      className="flex items-center justify-between p-2 bg-surface-lighter rounded-lg"
-                    >
-                      <span className="text-sm text-text-secondary truncate flex-1 mr-2">
-                        {action.title}
-                      </span>
-                      <StatusBadge type="action-status" value={action.status} />
-                    </div>
-                  ))}
-                  {actions.length > 5 && (
-                    <p className="text-xs text-text-muted text-center py-1">
-                      +{actions.length - 5} more items
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
+      {/* Form Sheet for Create/Edit */}
+      <Sheet open={isFormOpen} onOpenChange={handleFormClose}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>{editingScenario ? 'Edit Scenario' : 'New Scenario'}</SheetTitle>
+          </SheetHeader>
+          <div className="px-6 pb-6">
+            <ScenarioForm
+              scenario={editingScenario || undefined}
+              onSuccess={handleFormClose}
+              onCancel={handleFormClose}
+            />
           </div>
-        )}
-      </CardContent>
-
-      <CardFooter className="flex-shrink-0">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleExpand();
-          }}
-          className="flex items-center justify-center gap-2 w-full text-sm text-text-secondary hover:text-coral-400 transition-colors"
-        >
-          {isExpanded ? (
-            <>
-              <ChevronUp className="w-4 h-4" />
-              <span>Show less</span>
-            </>
-          ) : (
-            <>
-              <ChevronDown className="w-4 h-4" />
-              <span>Show details</span>
-            </>
-          )}
-        </button>
-      </CardFooter>
-    </Card>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Scenario Detail (rendered inside the detail modal)                */
-/* ------------------------------------------------------------------ */
-
-const SECTION_HEADERS = ['Question:', 'Data needs:', 'Outputs:'] as const;
-
-function renderDescription(description: string | null) {
-  if (!description) {
-    return <p className="text-text-secondary">No description provided.</p>;
-  }
-
-  const lines = description.split('\n');
-  const elements: React.ReactNode[] = [];
-  let currentParagraph: string[] = [];
-
-  const flushParagraph = (key: string) => {
-    if (currentParagraph.length > 0) {
-      elements.push(
-        <p key={key} className="text-text-secondary leading-relaxed whitespace-pre-line">
-          {currentParagraph.join('\n')}
-        </p>,
-      );
-      currentParagraph = [];
-    }
-  };
-
-  lines.forEach((line, idx) => {
-    const matchedHeader = SECTION_HEADERS.find((h) => line.trim().startsWith(h));
-    if (matchedHeader) {
-      flushParagraph(`p-before-${idx}`);
-      const rest = line.trim().slice(matchedHeader.length).trim();
-      elements.push(
-        <div key={`section-${idx}`} className="mt-4 first:mt-0">
-          <h4 className="text-sm font-bold text-text-primary mb-1">{matchedHeader}</h4>
-          {rest && <p className="text-text-secondary leading-relaxed">{rest}</p>}
-        </div>,
-      );
-    } else {
-      currentParagraph.push(line);
-    }
-  });
-
-  flushParagraph('p-end');
-
-  return <div className="space-y-2">{elements}</div>;
-}
-
-interface ScenarioDetailProps {
-  scenario: Scenario;
-  actions: { id: string; title: string; status: string }[];
-  onEdit: () => void;
-  onDelete: () => void;
-}
-
-function ScenarioDetail({ scenario, actions, onEdit, onDelete }: ScenarioDetailProps) {
-  return (
-    <div className="space-y-6">
-      {/* Badges row */}
-      <div className="flex flex-wrap gap-2">
-        <StatusBadge type="project" value={scenario.project} />
-        <StatusBadge type="scenario-status" value={scenario.status} />
-        <StatusBadge type="data-status" value={scenario.data_status} />
-        <StatusBadge type="priority" value={scenario.priority} />
-      </div>
-
-      {/* Description */}
-      <div>{renderDescription(scenario.description)}</div>
-
-      {/* Metadata */}
-      <div className="border-t border-surface-border pt-4">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center gap-2 text-text-secondary">
-            <Calendar className="w-4 h-4" />
-            <span>Created</span>
-          </div>
-          <div className="text-text-primary">
-            {format(new Date(scenario.created_at), 'MMM d, yyyy')}
-          </div>
-
-          <div className="flex items-center gap-2 text-text-secondary">
-            <FileText className="w-4 h-4" />
-            <span>Updated</span>
-          </div>
-          <div className="text-text-primary">
-            {format(new Date(scenario.updated_at), 'MMM d, yyyy')}
-          </div>
-        </div>
-      </div>
-
-      {/* Linked Action Items */}
-      <div className="border-t border-surface-border pt-4">
-        <h4 className="flex items-center gap-2 text-sm font-medium text-text-primary mb-3">
-          <CheckSquare className="w-4 h-4 text-coral-400" />
-          Linked Action Items ({actions.length})
-        </h4>
-        {actions.length > 0 ? (
-          <div className="space-y-2">
-            {actions.map((action) => (
-              <div
-                key={action.id}
-                className="flex items-center justify-between p-2 bg-surface-lighter rounded-lg"
-              >
-                <span className="text-sm text-text-secondary truncate flex-1 mr-2">
-                  {action.title}
-                </span>
-                <StatusBadge type="action-status" value={action.status} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-text-muted">No linked action items yet.</p>
-        )}
-      </div>
-
-      {/* Action buttons */}
-      <div className="border-t border-surface-border pt-4 flex gap-3 justify-end">
-        <button onClick={onDelete} className="btn-secondary flex items-center gap-2 text-red-600 hover:text-red-700">
-          <Trash2 className="w-4 h-4" />
-          Delete
-        </button>
-        <button onClick={onEdit} className="btn-primary flex items-center gap-2">
-          <Pencil className="w-4 h-4" />
-          Edit
-        </button>
-      </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

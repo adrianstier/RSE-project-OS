@@ -1,12 +1,15 @@
 import { useState, FormEvent } from 'react';
 import { User, Save, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useToast } from '../components/Toast';
-import Card, { CardHeader, CardTitle, CardContent } from '../components/Card';
+import { toast } from 'sonner';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 export default function Profile() {
   const { user, displayName, avatarUrl, updateProfile } = useAuth();
-  const toast = useToast();
 
   const [name, setName] = useState(displayName || '');
   const [saving, setSaving] = useState(false);
@@ -39,81 +42,79 @@ export default function Profile() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h2 className="font-heading text-2xl font-bold text-text-primary tracking-tight">
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">
           Profile Settings
         </h2>
-        <p className="mt-1 text-text-secondary">
+        <p className="mt-1 text-muted-foreground">
           Manage your display name and account details.
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle as="h3">Your Profile</CardTitle>
+          <CardTitle>Your Profile</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Avatar preview */}
             <div className="flex items-center gap-4">
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt="Profile avatar"
-                  className="w-16 h-16 rounded-full border-2 border-surface-border"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-coral-400/20 to-gold-400/10 border-2 border-surface-border flex items-center justify-center">
-                  <User className="w-7 h-7 text-coral-400" />
-                </div>
-              )}
+              <Avatar className="w-16 h-16 border-2 border-border">
+                {avatarUrl ? (
+                  <AvatarImage
+                    src={avatarUrl}
+                    alt="Profile avatar"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : null}
+                <AvatarFallback className="bg-muted">
+                  <User className="w-7 h-7 text-muted-foreground" />
+                </AvatarFallback>
+              </Avatar>
               <div>
-                <p className="text-sm font-medium text-text-primary">
+                <p className="text-sm font-medium text-foreground">
                   {displayName || 'No display name set'}
                 </p>
-                <p className="text-xs text-text-muted">{user?.email}</p>
+                <p className="text-xs text-muted-foreground">{user?.email}</p>
               </div>
             </div>
 
             {/* Display Name */}
             <div className="space-y-1.5">
-              <label htmlFor="displayName" className="block text-sm font-medium text-text-secondary">
+              <Label htmlFor="displayName">
                 Display Name
-              </label>
-              <input
+              </Label>
+              <Input
                 id="displayName"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your display name"
-                className="input-field"
                 autoComplete="name"
               />
             </div>
 
             {/* Email (read-only) */}
             <div className="space-y-1.5">
-              <label htmlFor="email" className="block text-sm font-medium text-text-secondary">
+              <Label htmlFor="email">
                 Email
-              </label>
-              <input
+              </Label>
+              <Input
                 id="email"
                 type="email"
                 value={user?.email || ''}
                 readOnly
-                className="input-field opacity-60 cursor-not-allowed"
+                className="opacity-60 cursor-not-allowed"
               />
-              <p className="text-xs text-text-muted">
+              <p className="text-xs text-muted-foreground">
                 Email is managed by your authentication provider and cannot be changed here.
               </p>
             </div>
 
             {/* Save button */}
             <div className="pt-2">
-              <button
+              <Button
                 type="submit"
                 disabled={saving}
-                className="btn-primary inline-flex items-center gap-2"
               >
                 {saving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -121,7 +122,7 @@ export default function Profile() {
                   <Save className="w-4 h-4" />
                 )}
                 {saving ? 'Saving...' : 'Save Changes'}
-              </button>
+              </Button>
             </div>
           </form>
         </CardContent>

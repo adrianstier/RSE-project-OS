@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Loader2, HelpCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   useCreateActionItem,
   useUpdateActionItem,
   useScenarios,
 } from '../../hooks/useSupabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { useToast } from '../Toast';
 import CharacterCount from '../CharacterCount';
-import Tooltip from '../Tooltip';
 import type {
   ActionItem,
   ActionItemInsert,
@@ -49,7 +48,6 @@ const statusOptions: { value: ActionItemStatus; label: string }[] = [
 
 export default function ActionItemForm({ actionItem, onSuccess, onCancel }: ActionItemFormProps) {
   const isEditing = !!actionItem;
-  const { success, error: showError } = useToast();
   const { displayName } = useAuth();
 
   const createActionItem = useCreateActionItem();
@@ -118,7 +116,7 @@ export default function ActionItemForm({ actionItem, onSuccess, onCancel }: Acti
         };
 
         await updateActionItem.mutateAsync({ id: actionItem.id, updates });
-        success('Action item updated successfully');
+        toast.success('Action item updated successfully');
       } else {
         const newItem: ActionItemInsert = {
           title: formData.title,
@@ -131,12 +129,12 @@ export default function ActionItemForm({ actionItem, onSuccess, onCancel }: Acti
         };
 
         await createActionItem.mutateAsync(newItem);
-        success('Action item created successfully');
+        toast.success('Action item created successfully');
       }
 
       onSuccess();
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to save action item');
+      toast.error(err instanceof Error ? err.message : 'Failed to save action item');
     }
   };
 
@@ -148,15 +146,12 @@ export default function ActionItemForm({ actionItem, onSuccess, onCancel }: Acti
   );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {/* Title */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <label htmlFor="title" className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label htmlFor="title" className="flex items-center gap-2 text-sm font-medium text-foreground">
             Title <span className="text-red-600">*</span>
-            <Tooltip content="A clear, actionable task description">
-              <HelpCircle className="w-3.5 h-3.5 text-text-muted cursor-help" />
-            </Tooltip>
           </label>
           <CharacterCount current={formData.title.length} max={TITLE_MAX_LENGTH} />
         </div>
@@ -172,17 +167,16 @@ export default function ActionItemForm({ actionItem, onSuccess, onCancel }: Acti
           aria-required="true"
           aria-invalid={!!errors.title}
         />
-        {errors.title && <p id="title-error" className="mt-1 text-sm text-red-600" role="alert">{errors.title}</p>}
+        {errors.title && (
+          <p id="title-error" className="text-sm text-red-600" role="alert">{errors.title}</p>
+        )}
       </div>
 
       {/* Description */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <label htmlFor="description" className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label htmlFor="description" className="flex items-center gap-2 text-sm font-medium text-foreground">
             Description
-            <Tooltip content="Additional context or requirements for this task">
-              <HelpCircle className="w-3.5 h-3.5 text-text-muted cursor-help" />
-            </Tooltip>
           </label>
           <CharacterCount current={formData.description.length} max={DESCRIPTION_MAX_LENGTH} />
         </div>
@@ -196,14 +190,15 @@ export default function ActionItemForm({ actionItem, onSuccess, onCancel }: Acti
           maxLength={DESCRIPTION_MAX_LENGTH + 50}
           aria-describedby={errors.description ? 'description-error' : undefined}
         />
-        {errors.description && <p id="description-error" className="mt-1 text-sm text-red-600">{errors.description}</p>}
+        {errors.description && (
+          <p id="description-error" className="text-sm text-red-600">{errors.description}</p>
+        )}
       </div>
 
       {/* Owner and Status Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Owner */}
-        <div>
-          <label htmlFor="owner" className="block text-sm font-medium text-text-secondary mb-2">
+        <div className="space-y-1.5">
+          <label htmlFor="owner" className="block text-sm font-medium text-foreground">
             Owner
           </label>
           <select
@@ -220,9 +215,8 @@ export default function ActionItemForm({ actionItem, onSuccess, onCancel }: Acti
           </select>
         </div>
 
-        {/* Status */}
-        <div>
-          <label htmlFor="status" className="block text-sm font-medium text-text-secondary mb-2">
+        <div className="space-y-1.5">
+          <label htmlFor="status" className="block text-sm font-medium text-foreground">
             Status
           </label>
           <select
@@ -242,9 +236,8 @@ export default function ActionItemForm({ actionItem, onSuccess, onCancel }: Acti
 
       {/* Due Date and Project Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Due Date */}
-        <div>
-          <label htmlFor="due_date" className="block text-sm font-medium text-text-secondary mb-2">
+        <div className="space-y-1.5">
+          <label htmlFor="due_date" className="block text-sm font-medium text-foreground">
             Due Date
           </label>
           <input
@@ -256,9 +249,8 @@ export default function ActionItemForm({ actionItem, onSuccess, onCancel }: Acti
           />
         </div>
 
-        {/* Project */}
-        <div>
-          <label htmlFor="project" className="block text-sm font-medium text-text-secondary mb-2">
+        <div className="space-y-1.5">
+          <label htmlFor="project" className="block text-sm font-medium text-foreground">
             Project
           </label>
           <select
@@ -288,8 +280,8 @@ export default function ActionItemForm({ actionItem, onSuccess, onCancel }: Acti
       </div>
 
       {/* Linked Scenario */}
-      <div>
-        <label htmlFor="scenario_id" className="block text-sm font-medium text-text-secondary mb-2">
+      <div className="space-y-1.5">
+        <label htmlFor="scenario_id" className="block text-sm font-medium text-foreground">
           Linked Scenario
         </label>
         <select
@@ -308,7 +300,7 @@ export default function ActionItemForm({ actionItem, onSuccess, onCancel }: Acti
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3 pt-4 border-t border-surface-border">
+      <div className="flex justify-end gap-3 pt-4 border-t border-border">
         <button type="button" onClick={onCancel} disabled={isSubmitting} className="btn-secondary">
           Cancel
         </button>
