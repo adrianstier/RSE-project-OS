@@ -1,0 +1,269 @@
+Speaker 1  00:00
+Right, so it's just a one through five. One is great. Five is health, not healthy. So we have like just a one through five scale of their health and their bleaching, which for mother colonies, of course, the beginning would be all fine. And then we take a picture. So here's the thing: we take a picture of the the area before and after we take a sample from it, and then we go back every 369, 12 months to photograph it to show that it's healing over. We don't actually, and then we do the health scores as well, right? But we don't we don't do anything other than just photographic evidence that it's recovering or not. We it's hard it's hard to find them again. So some of them, if we think we can find them again, we put we put a marker, and for all of them, we take a habitat picture and we put a tag so that we can try and like find them. And then I was just talking with the team yesterday. Like, so this year's ones maybe we put a red tag, and then next year's we put a yellow tag because after 369, 12 months, we're not going to monitor them. Like we have to figure out at what point do we call them healed, and then we're not responsible if in three years that coral bleaches and dies, right? Like so, we have to kind of find what that is. So maybe after the first round, then all the other ones we just monitor them annually, right? Or maybe we even stop and say, look, our intervention is is over. They're fine or they're not. Okay, so that's what we do, and then we bring them into the nursery. So we know they're mother colony for all of them, and some of them we think we can find again, and we put them in the nursery. And we're changing how we do it. We have been putting them in those plastic ropes, and now we're going to hang them on a wire because the plastic ropes were plastic, and the curl grows around them. And then it's also a conduit of things into the curl when we put them out. So good, and it's also harder to remove them when they they're dead, they're diseased, or so we're moving to that button. So we put them on ropes. We have we have 20 fragments from each colony that we collect, and maybe we might have more. Like so, it could make. But anyway, one rope is 10 and 10 now. Used to be a bit more, and some of the data that we have will probably be like 12 and 13. So we had 25. Now we're moving to standard 10 and 10, and then we do a T zero monitoring of that, which is not exactly T zero because it's when we've done seeding the whole nursery, which can take a few months. Anyway, and then we measure. We do like a full monitoring and a less no full monitoring, and then we do bleaching monitoring. So full monitoring is 369, 12, and then bleaching monitoring kicks in every two weeks once it gets hot. And for that, we measure length, width, height, state, so health, bleaching, and then there we just have check boxes for anything. And I can get you exactly, but it's like algae, sediment, fish, snail, disease-if it's dead or not, right? Dead or alive. I think that's it. So that if you had a health score that wasn't full, you say why, right? Just check it off. And then we have also just a a click for crabs or fish associates because we want to know at what size do they come to the nursery?
+
+Adrian Stier  03:25
+Yeah,
+
+Speaker 1  03:25
+and that's it. Oh, and then we take a picture from the top and from the top of 10% of them. They don't all have pictures, so and they don't all get measured. Some of them it's just a state they are, and some of them get measured. So 10% get measured, 20% get monitored, some level.
+
+Adrian Stier  03:43
+Got it.
+
+Speaker 1  03:44
+Yep. And then the the bleaching nursery or nursery bleaching is just bleaching score, health score. I think health and bleaching picture picture fast.
+
+Adrian Stier  03:56
+Again for time. Yeah.
+
+Speaker 1  04:02
+I would check maybe 20% I'd have to check 20 or 10. Yeah, and that may have changed because Rich figured out what we needed. But I think it's either 20 or 10. I think it's 20 or 10, but I'm not sure. I can find out exactly. And then, so and then, but the thing is, so then when we outplant them, we do that. You know, we do a monitoring before we outplant them, so we know what size they are, so we can calculate the volume, and we know their health states, right? We don't want to outplant ones that are like really healthy, and we know if they have symbionts or not, right? And then we know we know where we put them, generally, but we don't follow individuals once they're out planted. So, and we're kind of in a transition where we have been putting them on bombies or cells, like one by one meter cells, whatever it is, because Fiji just doesn't have balmies; just have like a read, and we monitor that, and we went around with photogrammetry, and then like it didn't work right. But anyway, what we do now as a placeholder is we put them out there so we know which cell they go into, right? And we try not to put more than three from any rope on one army, And then we measure just as a placeholder percent coral cover live percent coral cover when we're done of each cell survival. This comes in a bit later and bleaching status, and that's just an eyeball with two gardeners estimating it, and then comparing and putting a number as a placeholder for when the tech gets around to having a better thing that we can do. Right. So now we're trying to do. We were trying to do individual balmy photogrammetry with our phones that proved to be not what we're doing now. So we're trying to do actually videos, and then have it just analyzed automatically. So then we wouldn't need the cells, right? It would just be area that we we monitor and we track the progress over time. So we're kind of in the middle of that because the video is not it's getting there, but we don't have the analysis pipeline figured out exactly yet. So, and then we measure. We had measured fish community, and we're going to again. We had these cameras that Sam made that were identifying the fish in real time, and it was like all the time from dawn to dusk, and then stereoscopic, so we could get size of fish, and then there's a live feed and a low light camera, so we could not on desk, and the AI camera. So we had, so we were doing that. We have moved because we don't have Sammy more to work with us, but we want to do the fish community composition, a functional group composition, and so we're moving. And Taylor's this new person's coming down, and we're going to try just GoPros, just to get the video, and then go through the AI pipeline to identify the fish. So we would have fish community structure as one of our metrics. We had hydrophones in our cameras, and also we work with Conservation Metrics out of Santa Cruz to measure. And this was part of the grant with Becky and Darren and all to measure sound, right? And our restoration is a little bit noisier, so that's good. But so we have bioacoustics that we're measuring, and then we are hoping because we're talking with Mindru to have this eDNA as like our. We're trying to have like a community level biodiversity metric that's easy to collect. So it's either our or probably both a hydrophone out there plus some eDNA samples at certain intervals. The team has been doing you know like traditional fish transects and then benthic photos, and like, and looking for recruits and key invertebrates and stuff. And so we're trying to move away from that. But right now, they still that data until we have a better option for them.
+
+Adrian Stier  08:14
+So in the
+
+Speaker 1  08:14
+and
+
+Adrian Stier  08:15
+outplants, do you have? So you have you put out corals to the cell, and you stop following individual corals, but you have how much coral ballpark is alive in there through time for that cell?
+
+Speaker 2  08:28
+Yeah,
+
+Speaker 1  08:29
+but we don't. So for the out for the out plant monitoring, we do it just kind of once a year, but in two sections. So we do it before we outplant, and we outplant, and we do it after we outplant, and then we wait a year to do like things like percent coral cover, live coral cover, bleaching, and and that's survival of the things we put out. So that's only once a year right now. That level, and then we'll augment what the fish will be probably every three months. And and if we get a tool that's really fast to do the benefit cover, we may do it more often. But benthic covers doesn't change that fast, really great. So we do once a year. And we need to put out probably recruitment tiles. I think we've just been doing like counting recruits on the transect, and then invertebrates. We had to figure out because I don't think we can get the invertebrates out of our video, but we'd like, but we can get out of the EDNA, right? So yeah, so we're kind of in a transition to figure out exactly what we're measuring in the outline as these technologies come on board, and we get grants or not to like support some of these things. So that's we measure. Measure anything else. We are. We do have light sensors and temperature sensors, and again, that's all getting standardized. We're trying to. We're trying to quantify hot pockets, and then collect from hot pockets and not hot pockets and compare because we say we collect from hot pockets, but we don't have any data to prove that. So we're like covering our bases a little bit. I don't know that there's too many hot pockets around Moorea. I mean, we'll see. But I mean, there's maybe areas that are anyway. And also, what's the definition of a hot pocket? People say that all the time. What is it? Is it always hotter? Is it hotter during hot time? Is it a degree hotter? What is the definition? So we're just trying to get a handle on like what is the difference. And Fiji might, you know, have because they have bigger tides, right? And they do have like intertidal pockets, right? And then Thailand, Thailand's a bit different as well. So anyway, we're we're just trying to figure out what it means. What is a hot pocket, and if we go in there, does it matter? Yeah,
+
+Adrian Stier  10:50
+for your that's control and experimental sites, the ones you guys had like 50 and 50 for, is that right or 25? I can't remember how many did, but your edition sites.
+
+Speaker 1  11:01
+What do you mean, 1550?
+
+Adrian Stier  11:03
+At some point, I feel maybe I'm misremembering. I thought you had told me that there were like 50 bombies that you were trying to get to 50% coral cover or something like that, and then another 50 or something like that that you were following as controls when you were doing your experiment. But maybe I'm not remembering, right?
+
+Speaker 1  11:21
+Yeah. So when I first got here, and I was getting them to put out whole coral colonies instead of breaking them up.
+
+Adrian Stier  11:28
+Yeah. It
+
+Speaker 1  11:29
+was an experiment, right? So we had whole coral colonies versus partial coral colonies versus just fragments, but the results were so apparent and lopsided that I just called it off. Well, I didn't feel like it was responsible to keep going with that experiment because it was obvious all of our fragments were getting chowed instantly, and yeah, it was just obvious. So we just, I just, I abandoned the experiment and just went to like, okay, we're doing full out plant bulb protons. This is what we're doing, but yeah, would have been nice data points, but I wasn't comfortable doing that for data points, so that. But we still call the experiment, even though I'm like, stop calling it that. So now every site that we do, well, our whole thing is an experiment, right? But every site that we do, we have a restoration site and a control. So all of our right, everywhere, and must have that
+
+Adrian Stier  12:19
+cell level. Is that right? When you say restoration and control, you mean like a meter squared that is restored and a meter squared that's not, or something else?
+
+Speaker 1  12:28
+No, no, I mean an area.
+
+Adrian Stier  12:30
+Okay.
+
+Speaker 1  12:32
+So I mean an area. So we have our restoration area, and then we have our control area that are similar. One we interviewing one we don't. We all. also have a reference site, right? And so, if we had unlimited resources, we have a reference site for each of our sites. So, like for example, on Moorea, we have Tiaya, which is the main place that you went to. Yeah. Then we have a new nursery over on the west side at Howdu, just north of Papiti, and then we have a newer one in Tivaro on the east side, just north of Waiari Pass. And so everywhere in Infini and everywhere we always have a restoration site and a control. But then we have also a reference site, and yeah. So if if we had unlimited resources, we'd have a reference site for each of our sites, but we don't, so we have like an island reference site. So we'll see how well that works. But for Marea, it's a site on Haiti. Okay. So yeah. So that's our reference.
+
+Adrian Stier  13:35
+Okay.
+
+Speaker 1  13:36
+And it's it's not a pristine reference, but it's a reference that hopefully will surpass with our restoration, maybe at some point, but in any case, so that helps us understand like what species-not really species-I'm not really concerned too much about species, although that's interesting. But like, what complexity are we aiming for? That's another big thing that we're measuring-is with this spatial intelligence, is this videoing of like the benthos. So it should be able to tell us substrate type, like live versus dead versus algae, and all that stuff. And then also complexity. I'm kind of convinced that complexity and morphological diversity is important, more important than species diversity, or just as important. Maybe not more important, but just as important, and so the reference is like what we're you know tells us like indicates what we should be aiming for, right? So yeah, so we do measure complexity, and for that we have a model that measures like like six different types of complexity, right? And so I've asked our engineers like to just give me the top three and figure out how you want to. I was wanting one number because what we're doing is make a reef that. So everything that we collect, every piece of data we collect, should go into this reef health index, and then we can break it apart by like complexity, and that's made up of these things. And this is how we measure them. And and then there's like biodiversity, and right now that's measured by our transects, but hopefully it'll be bioacoustics and eDNA, and then you know, and so we'll have this equation that explodes out, and then we can look at about. So you can have a health score, which is important for us, for like people that we work with who need a number,
+
+Adrian Stier  15:14
+yeah,
+
+Speaker 1  15:14
+right. But then you can break it apart and look what's where the problem is or not. Cool. So, and then everything goes into that. So, I think other rehearsal indices are made made up of a subset of components, and I'm trying to make it like if we're collecting this data, it's going into this metric, or we're not collecting it. Why would we?
+
+Adrian Stier  15:33
+Yeah. So,
+
+Speaker 1  15:33
+so I'm trying to do right now. And the rehearsal index is made up of like Biodiversity structural and functional components, right, and all of the things we measure fall into one of those categories. And right now we've waited because that's the other thing you got to weight it, and that's kind of the fun part. This is modeling that you're talking about. So right now I've just given an even weighting until our data indicates different. Except that of course if they don't have any coral cover, it's a zero.
+
+Adrian Stier  16:02
+Yeah. Yeah, makes sense. So, yeah. If you have a gut feeling of what is working really well in the sites where it's working,
+
+Speaker 1  16:13
+well, RTI outline is actually working really quite well, and I mean, obviously, it's because the corals we're putting out corals with their associates, and also, well, this is kind of interesting too. Is like, okay, so now we have, we have a like a structure, right? Because the other thing too is when we outplant. So the next year, you go out to the outplant area that you did the year before, and you monitor it, and then you remove all the dead corals, like not that we output that we put out. So you remove those, and then when you outplant, you fill in again. So you're always maintaining the area at 50% live coral cover, and you remove the algal so you do cleanup, right? And then and then if you have extra corals, then you expand, right? And then the next year you're going to have to make sure that that you know fill in that area before you can expand too. So that was a thing that tripped us up a little bit because we like to say, I don't like to say, but some people like to say this many corals equals this many hectares of reef, and that's that's not how it works with us. So I was not popular for a little while there, but yeah, because you can't just put it out. Like you have to tend these things, right? And you have to like go back, and you have to. And but but here's the other thing. So then, one of the things we're trying to figure out is how long to keep the corals in the nursery.
+
+Adrian Stier  17:35
+Yeah,
+
+Speaker 1  17:36
+and right, and and so initially, like it probably maybe is a longer time because if you're working with an area that you're first going into and you're trying to you know make some reef structure and a reef that's functioning, so you would put you would make wait what you need in a coral might be a little bit different once you have it going and you have that maybe then you can put out some smaller ones because there's already those other things right so it might be that it's a time like a nursery age or outplant age dependent thing, because because we also have pressure for increased throughput, right? Because we're not so like different groups are adopting, right? And then we also need number. We do need numbers, so we're still on the number thing. But because we are we are adopt people want to adopt them. So like Prada wants to adopt 50,000 corals or something, right? So then it's like okay, and then when can we re can someone adopt the next set?
+
+Adrian Stier  18:34
+Yeah,
+
+Speaker 1  18:35
+right. So so that kind of thing, and so to so the staggering thing-I was like one, two, and three years-and we were trying to figure out how long that was because we know that longer in the nursery tends to not do as well.
+
+Adrian Stier  18:50
+Yeah,
+
+Speaker 1  18:50
+and that's kind of cool actually because it's a really artificial habitat, right? So when they're younger, they need the protection, but when they're older, they need the reef things, right? And
+
+Adrian Stier  19:01
+when they get
+
+Speaker 1  19:01
+they yeah when they got really big they started to kind of die in the center they got algae growing in them they yeah they they just kind of started to die in the center
+
+Adrian Stier  19:14
+fascinating
+
+Speaker 1  19:15
+and that kind of makes sense actually I thought it'd be the other way around but then I thought about it because on the reef they have like all the other fish and all the other organisms and all the things and the snails and everybody like that would keep those things down potentially, right? Yeah. And so, but in the nursery, they don't have those things. They have maybe you know they'll have some fish and probably invertebrates, but they don't have the whole community. So I don't know what they're missing, but it seems like whatever they're missing is important.
+
+Adrian Stier  19:41
+Yeah, that's cool.
+
+Speaker 1  19:43
+Yeah, it's really cool, and that was a surprising result because we got through the 2024 bleaching event differently than I thought we would. So I, we had like about 40% bleaching death in our nurseries. We only had 25% so 75% survival through that at our restoration site, which was pretty incredible, actually. And I was surprised by that. I thought it'd be different, but then I thought about it more, and I'm like, actually, it kind of makes sense if the ecosystem, if we can restore it so that it's functioning like an ecosystem should should have the mechanisms within it to be more resilient than our artificial road structures.
+
+Adrian Stier  20:27
+Yeah, that
+
+Speaker 1  20:28
+was cool. Yeah, yeah, it's really cool. And so as and maybe I talked about this with you, but as we try and like expand, and I'm responsible for making this methodology that works across all our sites, I'm taking a step back, and people always say, "Oh, you can't do it; they're so different. I'm like, "They're not different. Reefs and the same mechanism support a reef, and the same mechanism actually support any habitat-forming community. You could apply the same things to kelp forests, probably, or an oyster reef, or rocky reef, right? Like, kind of the same things, sort of. So, anyway, so that's what I'm trying to do, and then it's more mechanistic, functional approach, right? The bigger picture stuff. Think.
+
+Speaker 3  21:14
+So,
+
+Adrian Stier  21:17
+would it be helpful to try to quantify some of these differences that you've seen in terms of growth and survival through time across some of the different genotyped corals that you have, and try to see if there's linkages between the benthic substrate that are on your outplants before you put them out, and how much coral you have to replace, or to try to describe how different genotypes or species are growing at different rates, or that kind-are those things helpful or interesting to you?
+
+Speaker 1  22:03
+Yes, sir. I mean, it's all interesting. The only thing is that we we don't follow individuals in the nursery, or once we outplant them because we move to ecosystem level metrics. So I'm pretty conscious of like how it fits into our monitoring, right? So, yes, kind of. I'm more interested. I mean, it it it's the individual that matters, but it's individual that makes the result. But I'm more interested in the ecosystem side. You know, and so like, kind of.
+
+Adrian Stier  22:45
+I wonder, like, okay, so there's this black box of who is making up the community that's there. But you know who you put there, right? You know that was like, you know, colonies A through F went to cell one, and colonies G colonies G through H I J K went through cell two, right? So you have some information that's just imperfect information about who's living and dying, right?
+
+Speaker 1  23:09
+Right. We know, yeah, yeah. We don't.
+
+Adrian Stier  23:12
+And then you have a general response variable of the output, right? Right. Is it? Yeah. Lots of coral alive or not so much, and so you could tie from parent colony to performance in the nursery to aggregate response at the reef level to potentially say something about what's working and what's not. I find to think about like just getting to know your coral species a little bit better and how they're doing in your nursery, like okay, you have all this information for monitoring their growth and survival, and you know that they came from different parents. How much variation is there in growth rate? And like you were mentioning in in New Zealand, that like some of these corals they're growing so fast, like polka. It's like why are we putting these out at three years instead of two, or one instead of two? Like those types of questions that are kind of basic questions about you know how fast are they growing and how are they doing, or who are their neighbors on the transect nearby? That kind of thing, where you've learned that like you know different parents maybe argue with each other when you put too many possible opera next to each other. That kind of stuff, I think, is all
+
+Speaker 1  24:25
+yeah
+
+Adrian Stier  24:26
+pretty interesting food for thought. You know, might not necessarily instantly lead to a decision change, but is kind of cool to get to know your your critters really well.
+
+Speaker 1  24:38
+Yes, and also, so what exactly, exactly, and we're collecting so much data to be able to do exactly that, and with the with the idea that the gardeners and the they don't have to think because it's all programmed in from our data, right? So when they go out there, it's already figured out. Okay, we're out planting, and it's like okay, this rope goes here, right? And they just like do it, and we can back up each decision we make exactly for that reason, right? Yeah. So we are in the process of collecting enough data to do that. So we've had like some hit and misses, right? So Rich kind of recently just redid the whole database, and when our when we have a new thing in our app and it doesn't quite work exactly right because it's tricky to get everything, then you know people put on spreadsheets and we lose some stuff. So it's like being able to have enough data to answer those questions to make the algorithms to plug it in. I don't know that we're there yet, you know, like with the NUPS data, but we could certainly look at it. And our most complete site, well, is our most complete site is here at TIA. Yeah. So we could start poking around at that and see what we have and how many years. Like we're getting into with our nursery stuff. Our out plan is trickier because we haven't. We had like all starts. We were collecting photogrammetry data that like nobody was going to analyze, and then the person analyzed this left, and we don't have the computer vision model, blah, whatever, right? So, um, so we don't have the beautiful data set that we will have at one point in the future, but it could be worth a look.
+
+Adrian Stier  26:22
+Yeah, and even I think like starting to look at the nursery data that is longer, yes, and a little bit higher frequency could yield some interesting insights into, you know, how your different corals are performing, and maybe there's some secrets in there about things that are working really well in some places and less swell in other places that would change how you thought about it.
+
+Speaker 1  26:43
+Yeah, I bet there are. I bet there are. So that would be cool. Very cool.
+
+Adrian Stier  26:49
+For the numbers game work with, like, how are you thinking about like? So okay, so you did this experiment initially where you showed that the smaller fragments were getting toasted and the larger ones were doing better, makes sense. Are you, you know, that puts a damper on how many corals you can get donated, right?
+
+Speaker 1  27:15
+Yeah.
+
+Adrian Stier  27:15
+At a time.
+
+Speaker 1  27:16
+That was
+
+Adrian Stier  27:17
+so. If if there was one thing to optimize, given that's how much people care about that. It seems like an interesting thing to explore with with additional experiments. You know, like how much do you really, really need? And so, like, here's a couple questions that came to mind. You're going to deploy a an area of cover, so you have your one meter square cell, right? And so, is it really that different when you do one meter squared of tiny things versus a one meter squared coral? Obviously, you don't have a one meter square coral. This is just like hypothetical. Like, you have, and how much does that depend on the species? You know, like polka is super tasty, so it's going to get numbed. But if it's Passilopera, can you put 100 little guys in exchange for every one big guy? And just trying to do those types of like a couple of experiments like that to try to learn more about where the pinch point is in terms of size and in terms of these like density versus size trade-offs to try to say, oh, for this species, we can crank out lots of little guys because, yeah, especially because we put them all together and that dilutes things, you know, in terms of prediction pressure coming in, and when together they're pretty happy. Or this other species hates growing together, and so we got to spread it apart and put it in different areas, and that makes it really hard for putting out little guys because when they're isolated and small, then they get knocked out. You know, so like there's kind of kind of some fun experiments, doing to try to figure out what works. And I bet the answer is different for different species. Like Hunter's data suggests, Passloper, and you guys have data for this too has this like of the of the three genera very strong competition right and so okay those guys have to put be spread out or you have to put out clusters of the same genotype or whatever it is you know like that there's those are all interesting questions that I think we really don't know the answer to in basic science but if you knew that, then you could change. You could potentially have people donate more corals. You could have higher turnover in your nursery, and that's a way to have more donors feel included.
+
+Speaker 1  29:38
+Yes. Okay. So yes, exactly. And also the age thing, like that. So that might change with time of the restoration and how it's doing, right? Exactly. So if you have you have high complexity, then maybe the little ones are fine, like all that kind of stuff. Yes, that's exactly what we know. And so the the thing that was interesting about changing from counting corals, and I'm trying to get us away from counting corals at all. And we got in trouble from Rolex. I had to dig us out of the doghouse from Rolex. They were like, "It was true. She didn't know how to call with them, and he was. They were like, "Give you more money than we give other groups, and you have planted less coral. What is going on?
+
+Adrian Stier  30:20
+Yeah,
+
+Speaker 1  30:20
+right. And I had to come and say, well, because we changed breaking it apart and putting. Yeah, so I had to like, and then they by the end of that call, they were like, wow, that makes a lot of sense. We're going to reevaluate how we evaluate all these other restoration, which is good, I think. Like, just anyway, but um, but yeah, that was a problem because stop me if I told you this, but this coral, right? We would normally break it down and call it 40. And I was like, we're not breaking it, so we're going to plan it out. That's one. Or if we need, because we did it mid-year, right? And this is before it first came. We were really into our numbers. We're going to plant a million corals, whatever. So we had a column on the data sheet was like was fragment equivalents. So if you were, if you would have broken this down into fragments, how many would it be? And then we translated because same amount of coral, right? So we translated it. Yeah. So that so anyway. So but then we changed that because that wasn't. We felt like that was misleading. So then we just went to one is one, no matter what, and so our numbers like right decrease tenfold. So then we got into trouble with people we promised high numbers too, but we could explain it and it made sense. But I had to do a lot of that, and it was very unpopular here for a while for that reason. But I think, and I you know I was I was encouraged at ICRS that I think the field is moving beyond that. Like I, I like David Sujitz. I like his scaling up slide. Do you see that? You see his plenary. Okay. David plenary on the last day at noon.
+
+Adrian Stier  31:57
+Yeah, I was there. Yeah,
+
+Speaker 1  31:59
+so he had one. It was I can send you a picture, but it was it was a box, and it was talking about scaling up, and we've been talking about that a lot. But like, what is scaling up? We're always told we need to scale up, right? And that's like more corals, more area. But like, really, what are we scaling up? Like, we're scaling up engagement, we're scaling up awareness. So we had a box, and it was like scale up, scale out, and scale deep, right? And you could define that however you wanted. But one of it's like, but that's interesting for us because we can be like we we can redefine this our impact, you know, like because we're doing so many other things that are arguably just as important as the number, well, way more important than the number of quotes we put out, right? So I thought that was interesting from him at that meeting because hopefully we get away from numbers too. So that's cool. That's
+
+Adrian Stier  32:49
+cool.
+
+Speaker 1  32:51
+Yeah, and and we're yeah. So we're I'm trying to get into what nursery and it's it's like a measure of our work. Like we can tell you how many corals we have in our nurseries, and that gives you a sense of how much we're working with and the size and scale of our operations. So it's a skill for that, right? And our team, if we can, if we can, we know how many we plant out, so we can say like we planted 50,000 corals or whatever this year. It's a measure of work, kind of, not a measure of like restoration success or nothing size maybe but yeah but it's good they actually they trusted me to do that to their credit was like he you know he had his issues he had to work around but and now I think this reef health index so for me the most because people ask like what's the most what what do we talk about then? And I would say, well, I think percent cover of live coral one, two, and three years out in our restoration, and probably when we can measure it well, complexity of that habitat is probably the things that I would think we would report on. And then obviously the top trophic level, like or the biodiversity metric, right? Like something like that. But I think percent survival of your corals that you put out in like two and three years-it's harder though with all these bleaching events and stuff. But at least like, yeah, because everyone stops at like we planted all these corals. It doesn't mean anything.
+
+Adrian Stier  34:20
+Yep, every single every single organization's annual report is like that. I get it. It's super easy for people to to to attach to, but it's disconnected from what actually happens after.
+
+Speaker 1  34:31
+And so many those crows don't make it, especially if they plant them out like really in dumb ways, which most people do. I think like just planting fragments is really dumb. So that's the other part. Like, okay, that doesn't. What's what's happening really? So the
+
+Adrian Stier  34:49
+um the thing that seems interesting to me from a index internally is like on investment. So like you got this many dollars from Rolex, and you took Strategy A, and the percent cover at year three, or combined with your biodiversity is 10, and then you got the same amount of money from whatever other perfume company, and they your your return on investment is 30. You know, your is like if you're trying to think about your organization, it seems or the interest of like internally be like, okay, how are we? How how successful were we this year or the past three years or whatever with turning dollars into the metrics that think they have?
+
+Speaker 1  35:40
+Right, right. So we're doing a lot of that with our KPIs and stuff, and also we want to we want to be as efficient as possible. So if we don't need to measure it, we don't want to. So if we can just do like an eDNA sample, then and no transects and no acoustics and whatever, like if that's telling us even confidence, yeah, then that's what we do, right? And that helps us. It helps us in me more sites, but also in new places, right? To get up and running, and our dollar goes further. So, yeah, the minimum minimum necessary. Yeah. Yeah, and right now we're we're over sampling out what we need to measure and how frequently.
+
+Adrian Stier  36:34
+Yeah, that makes sense too.
+
+Speaker 4  36:36
+Yeah.
+
+Adrian Stier  36:40
+Okay.
+
+Speaker 5  36:41
+Yay.
+
+Adrian Stier  36:42
+I'm gonna try to boil some of this down into specific questions that it sounds like you might be interested in answering, and then I'll send you like a one pager trying to summarize that, and you can comment on it, or again decide if I've heard you right or if I'm missing something, and then we can see what happens next. If that sounds good,
+
+Speaker 1  37:11
+sure. If you want to put in a Google Doc too, then we can both. I can edit it right in there. Sure. And then also, so there's like that from the modeling side, trying to figure out from our data. But then there's also like our wound experiment. Think about that too. So that would be I'd like to get that going, and we're kind of we're getting set up to be able
+
+Adrian Stier  37:31
+to do that. Cool. Like where we could put
+
+Speaker 1  37:36
+yeah, because I have can always make a research nursery.
+
+Adrian Stier  37:39
+Yeah,
+
+Speaker 1  37:40
+right. I have a little one where we're testing wire versus rope to see exactly what the difference is. So, yes, and also incorporating it into what we're doing anyway is is cool. So yeah, there's all there's lots of options to get something started. Yeah,
+
+Adrian Stier  37:56
+yeah. I don't think most of this stuff is going to make. I think bear skeleton is going to be the worst option. That's my guess. So any a dab of any of these things, I think, is probably going to be better than nothing.
+
+Speaker 1  38:09
+But then, and then we'll, but then we will do the calculation of the cost and time, right?
+
+Adrian Stier  38:15
+Yep.
+
+Speaker 1  38:15
+Because if it's only a little bit, then maybe it's not worth it. Oh, but we need snow.
+
+Adrian Stier  38:21
+I don't know. I know. All right, dude. Okay. Cool. To a document in the next week or so, I'm headed to Seattle for some fun. But
+
+Speaker 1  38:34
+fun, good unplug. Okay, cool. Well, whenever it's not urgent, but soon would be nice because I because we're kind of I could that could start soon
+
+Adrian Stier  38:43
+cool
+
+Speaker 1  38:43
+the yeah okay cool all right nice chatting so as usual
+
+
+Transcribed by https://otter.ai

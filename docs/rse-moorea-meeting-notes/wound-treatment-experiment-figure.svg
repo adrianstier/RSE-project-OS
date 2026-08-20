@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1400" viewBox="0 0 1800 1400" role="img" aria-labelledby="title desc">
+  <title id="title">Nursery fragment wound-cover test</title>
+  <desc id="desc">A three-panel schematic for a coral nursery fragment wound-cover test. Panel A checks whether the Scripps or Hybrid Reefs material belongs in a fresh-wound test. Panel B shows nursery fragments assigned at random to four cover types and checked through time. Panel C shows the simple decision rule for keeping a cover in later work.</desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#5b6875"/>
+    </marker>
+    <style>
+      .bg { fill: #f6f8f7; }
+      .panel { fill: #ffffff; stroke: #d4ddd9; stroke-width: 2; }
+      .card { fill: #ffffff; stroke: #d4ddd9; stroke-width: 2; }
+      .soft { fill: #f3f6f5; stroke: #d4ddd9; stroke-width: 2; }
+      .blue { fill: #e8f3f9; stroke: #0072B2; stroke-width: 2.4; }
+      .green { fill: #e9f6f0; stroke: #009E73; stroke-width: 2.4; }
+      .orange { fill: #fff5df; stroke: #E69F00; stroke-width: 2.4; }
+      .gray { fill: #f7f9fb; stroke: #657487; stroke-width: 2.2; }
+      .magenta { fill: #fbedf6; stroke: #CC79A7; stroke-width: 2.4; }
+      .accent-blue { fill: #0072B2; }
+      .accent-green { fill: #009E73; }
+      .accent-orange { fill: #E69F00; }
+      .accent-gray { fill: #657487; }
+      .accent-magenta { fill: #CC79A7; }
+      .title { font: 700 43px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #16222d; }
+      .subtitle { font: 400 22px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #4d5d6d; }
+      .panel-label { font: 800 30px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #16222d; }
+      .panel-title { font: 700 25px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #16222d; }
+      .step-number { font: 800 20px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #ffffff; }
+      .heading { font: 700 21px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #1d2a35; }
+      .body { font: 400 18px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #405365; }
+      .small { font: 400 16px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #4f5f6f; }
+      .tag { font: 700 14px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #16222d; letter-spacing: 0; }
+      .arrow { stroke: #5b6875; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .timeline { stroke: #24313a; stroke-width: 4; stroke-linecap: round; }
+      .divider { stroke: #d4ddd9; stroke-width: 2; }
+      .watermark { opacity: 0.16; }
+      .corner-icon { opacity: 0.72; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1800" height="1400"/>
+
+  <text class="title" x="70" y="72">Nursery fragment wound-cover test</text>
+  <text class="subtitle" x="70" y="110">Compare simple wound covers and ask whether any is worth the extra handling.</text>
+
+  <rect class="panel" x="60" y="145" width="1680" height="315" rx="8"/>
+  <text class="panel-label" x="92" y="198">A</text>
+  <text class="panel-title" x="132" y="198">Check the Scripps / Hybrid Reefs material before adding it</text>
+
+  <rect class="green" x="110" y="232" width="445" height="172" rx="8"/>
+  <rect class="accent-green" x="110" y="232" width="12" height="172" rx="6"/>
+  <image class="watermark" href="assets/icons/phylopic-pocillopora-guillaume-dera-cc0.svg" x="466" y="340" width="62" height="41" preserveAspectRatio="xMidYMid meet"/>
+  <text class="tag" x="142" y="262">LIKELY SCRIPPS LINK</text>
+  <text class="heading" x="142" y="297">CoralGuard / Coral Guard</text>
+  <text class="body" x="142" y="328">Antifouling reef material.</text>
+  <text class="body" x="142" y="356">Include it in this test only if it can</text>
+  <text class="body" x="142" y="382">cover wounds without irritating tissue.</text>
+
+  <rect class="gray" x="590" y="232" width="445" height="172" rx="8"/>
+  <rect class="accent-gray" x="590" y="232" width="12" height="172" rx="6"/>
+  <image class="watermark" href="assets/icons/bioicons-hydrogel-marcel-tisch-cc0.svg" x="942" y="248" width="62" height="62" preserveAspectRatio="xMidYMid meet"/>
+  <text class="tag" x="622" y="262">MAY BE A SEPARATE TEST</text>
+  <text class="heading" x="622" y="297">SNAP-X and Brink</text>
+  <text class="body" x="622" y="328">Scripps / UCSD settlement materials.</text>
+  <text class="body" x="622" y="356">Likely better for larval settlement,</text>
+  <text class="body" x="622" y="382">substrate design, or fusion experiments.</text>
+
+  <rect class="orange" x="1070" y="232" width="620" height="172" rx="8"/>
+  <rect class="accent-orange" x="1070" y="232" width="12" height="172" rx="6"/>
+  <image class="watermark" href="assets/icons/lucide-shield-check-isc.svg" x="1586" y="255" width="68" height="68" preserveAspectRatio="xMidYMid meet"/>
+  <text class="tag" x="1102" y="262">ADD ONLY IF IT FITS</text>
+  <text class="heading" x="1102" y="297">Can it touch a fresh wound?</text>
+  <text class="body" x="1102" y="328">Check adhesion, contact with fresh skeleton,</text>
+  <text class="body" x="1102" y="356">curing or breakdown, and tissue irritation.</text>
+  <text class="body" x="1102" y="384">If not, test it as a nursery surface instead.</text>
+
+  <rect class="panel" x="60" y="490" width="1680" height="555" rx="8"/>
+  <text class="panel-label" x="92" y="543">B</text>
+  <text class="panel-title" x="132" y="543">Nursery-fragment wound test</text>
+
+  <rect class="soft" x="110" y="582" width="300" height="150" rx="8"/>
+  <circle class="accent-blue" cx="142" cy="614" r="18"/>
+  <text class="step-number" x="136" y="621">1</text>
+  <text class="heading" x="174" y="621">Group fragments</text>
+  <text class="body" x="140" y="654">Group fragments by species,</text>
+  <text class="body" x="140" y="680">parent colony, genotype,</text>
+  <text class="body" x="140" y="704">size, and nursery neighborhood.</text>
+
+  <path class="arrow" d="M 425 645 H 480"/>
+
+  <rect class="soft" x="500" y="582" width="300" height="150" rx="8"/>
+  <circle class="accent-orange" cx="532" cy="614" r="18"/>
+  <text class="step-number" x="526" y="621">2</text>
+  <text class="heading" x="564" y="621">Same wound</text>
+  <text class="body" x="530" y="654">Make one repeatable wound</text>
+  <text class="body" x="530" y="680">with the same target area.</text>
+  <text class="body" x="530" y="704">Photo immediately at T0.</text>
+
+  <path class="arrow" d="M 815 645 H 870"/>
+
+  <rect class="soft" x="890" y="582" width="300" height="150" rx="8"/>
+  <circle class="accent-green" cx="922" cy="614" r="18"/>
+  <text class="step-number" x="916" y="621">3</text>
+  <text class="heading" x="954" y="621">Assign at random</text>
+  <text class="body" x="920" y="654">Mix cover types within</text>
+  <text class="body" x="920" y="680">each group so parent colony</text>
+  <text class="body" x="920" y="704">does not explain the result.</text>
+
+  <path class="arrow" d="M 1205 645 H 1260"/>
+
+  <rect class="card" x="1280" y="558" width="410" height="220" rx="8"/>
+  <text class="heading" x="1310" y="596">Cover types</text>
+  <rect class="gray" x="1310" y="628" width="160" height="56" rx="8"/>
+  <text class="small" x="1330" y="662">Open wound</text>
+  <rect class="gray" x="1495" y="628" width="160" height="56" rx="8"/>
+  <text class="small" x="1515" y="662">Concrete patch</text>
+  <rect class="blue" x="1310" y="700" width="160" height="56" rx="8"/>
+  <text class="small" x="1330" y="734">Apoxie Sculpt</text>
+  <rect class="orange" x="1495" y="700" width="160" height="56" rx="8"/>
+  <text class="small" x="1515" y="722">Confirmed</text>
+  <text class="small" x="1515" y="744">Scripps material</text>
+
+  <rect class="green" x="110" y="805" width="750" height="145" rx="8"/>
+  <image class="corner-icon" href="assets/icons/bioicons-bacteria-colonies-cc0.svg" x="742" y="845" width="78" height="62" preserveAspectRatio="xMidYMid meet"/>
+  <text class="heading" x="140" y="842">Healing measures</text>
+  <text class="body" x="140" y="876">Wound-closure rate from repeated photos; percent fouling</text>
+  <text class="body" x="140" y="906">on exposed skeleton or cover; scar infill and new skeleton;</text>
+  <text class="body" x="140" y="936">tissue loss, disease signs, survival, and fragment growth.</text>
+
+  <rect class="blue" x="900" y="805" width="790" height="145" rx="8"/>
+  <image class="corner-icon" href="assets/icons/lucide-clock-isc.svg" x="1550" y="825" width="46" height="46" preserveAspectRatio="xMidYMid meet"/>
+  <image class="corner-icon" href="assets/icons/lucide-badge-dollar-sign-isc.svg" x="1622" y="825" width="46" height="46" preserveAspectRatio="xMidYMid meet"/>
+  <text class="heading" x="930" y="842">Time and cost measures</text>
+  <text class="body" x="930" y="876">Material cost; preparation time; underwater handling time;</text>
+  <text class="body" x="930" y="906">whether the cover falls off; rework or removal time;</text>
+  <text class="body" x="930" y="936">and fit with Coral Gardeners' normal nursery work.</text>
+
+  <text class="heading" x="110" y="988">Monitoring schedule</text>
+  <line class="timeline" x1="150" y1="1008" x2="1625" y2="1008"/>
+  <path d="M 1625 990 L 1675 1008 L 1625 1026 z" fill="#24313a"/>
+
+  <circle cx="175" cy="1008" r="13" fill="#ffffff" stroke="#24313a" stroke-width="3"/>
+  <circle cx="445" cy="1008" r="13" fill="#ffffff" stroke="#24313a" stroke-width="3"/>
+  <circle cx="715" cy="1008" r="13" fill="#ffffff" stroke="#24313a" stroke-width="3"/>
+  <circle cx="985" cy="1008" r="13" fill="#ffffff" stroke="#24313a" stroke-width="3"/>
+  <circle cx="1255" cy="1008" r="13" fill="#ffffff" stroke="#24313a" stroke-width="3"/>
+  <circle cx="1525" cy="1008" r="13" fill="#ffffff" stroke="#24313a" stroke-width="3"/>
+
+  <text class="small" x="151" y="1034">T0 baseline</text>
+  <text class="small" x="405" y="1034">2 wk retention</text>
+  <text class="small" x="675" y="1034">1 mo closure</text>
+  <text class="small" x="944" y="1034">3 mo healing</text>
+  <text class="small" x="1211" y="1034">6 mo value</text>
+  <text class="small" x="1466" y="1034">9-12 mo optional</text>
+
+  <rect class="panel" x="60" y="1075" width="1680" height="245" rx="8"/>
+  <text class="panel-label" x="92" y="1128">C</text>
+  <text class="panel-title" x="132" y="1128">Decision rule: keep a cover only if the benefit beats the work</text>
+
+  <rect class="green" x="110" y="1164" width="370" height="118" rx="8"/>
+  <text class="heading" x="140" y="1202">Better healing</text>
+  <text class="body" x="140" y="1234">Faster closure, less fouling,</text>
+  <text class="body" x="140" y="1262">more scar infill, better growth.</text>
+
+  <path class="arrow" d="M 495 1223 H 545"/>
+
+  <rect class="orange" x="565" y="1164" width="370" height="118" rx="8"/>
+  <text class="heading" x="595" y="1202">Extra work</text>
+  <text class="body" x="595" y="1234">Time, cost, retention failure,</text>
+  <text class="body" x="595" y="1262">rework, and dive complexity.</text>
+
+  <path class="arrow" d="M 950 1223 H 1000"/>
+
+  <rect class="magenta" x="1020" y="1164" width="300" height="118" rx="8"/>
+  <text class="heading" x="1050" y="1202">No harm</text>
+  <text class="body" x="1050" y="1234">No recession, disease,</text>
+  <text class="body" x="1050" y="1262">or mortality penalty.</text>
+
+  <path class="arrow" d="M 1335 1223 H 1385"/>
+
+  <rect class="blue" x="1405" y="1164" width="285" height="118" rx="8"/>
+  <text class="heading" x="1435" y="1202">Keep testing</text>
+  <text class="body" x="1435" y="1234">Use in a larger test only</text>
+  <text class="body" x="1435" y="1262">if the result repeats.</text>
+</svg>

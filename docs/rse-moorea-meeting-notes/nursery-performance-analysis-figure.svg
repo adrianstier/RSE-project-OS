@@ -1,0 +1,206 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1080" viewBox="0 0 1600 1080" role="img" aria-labelledby="title desc">
+  <title id="title">Coral Gardeners nursery performance analysis figure</title>
+  <desc id="desc">A three-panel schematic showing the nursery data Coral Gardeners collects, the hierarchical analysis model, and the decision outputs for parent colony, genotype, neighborhood, and outplant-readiness decisions.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f4f7f6; }
+      .panel { fill: #ffffff; stroke: #cfd8d6; stroke-width: 1.5; }
+      .card { fill: #ffffff; stroke: #c7d0cf; stroke-width: 1.4; }
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 34px; font-weight: 700; fill: #17212b; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 18px; fill: #485563; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 25px; font-weight: 700; fill: #17212b; }
+      .panel-title { font-family: Arial, Helvetica, sans-serif; font-size: 21px; font-weight: 700; fill: #17212b; }
+      .box-title { font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: 700; fill: #202b36; }
+      .body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; fill: #334155; }
+      .small { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #53616f; }
+      .tiny { font-family: Arial, Helvetica, sans-serif; font-size: 11px; fill: #53616f; }
+      .blue { fill: #edf7fc; stroke: #56b4e9; stroke-width: 1.5; }
+      .green { fill: #edf8f2; stroke: #009e73; stroke-width: 1.5; }
+      .gold { fill: #fff7e8; stroke: #e69f00; stroke-width: 1.5; }
+      .rose { fill: #fbf0f6; stroke: #cc79a7; stroke-width: 1.5; }
+      .gray { fill: #f4f6f8; stroke: #8491a0; stroke-width: 1.5; }
+      .ink { fill: #17212b; }
+      .muted { fill: #64748b; }
+      .arrow { stroke: #526071; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrow-light { stroke: #8b97a5; stroke-width: 1.6; fill: none; marker-end: url(#arrow-light); }
+      .dash { stroke: #9ca3af; stroke-width: 1.2; stroke-dasharray: 6 6; fill: none; }
+      .axis { stroke: #24303b; stroke-width: 1.5; fill: none; }
+      .grid { stroke: #e5e7eb; stroke-width: 1; }
+      .line-blue { stroke: #0072b2; stroke-width: 3; fill: none; }
+      .line-green { stroke: #009e73; stroke-width: 3; fill: none; }
+      .line-gold { stroke: #e69f00; stroke-width: 3; fill: none; }
+      .line-rose { stroke: #cc79a7; stroke-width: 3; fill: none; }
+      .node { fill: #ffffff; stroke: #24303b; stroke-width: 1.5; }
+      .watermark { opacity: 0.15; }
+      .corner-icon { opacity: 0.62; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <polygon points="0 0, 10 4, 0 8" fill="#526071" />
+    </marker>
+    <marker id="arrow-light" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <polygon points="0 0, 10 4, 0 8" fill="#8b97a5" />
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1600" height="1080" />
+  <text class="title" x="70" y="70">Coral Gardeners nursery performance analysis</text>
+  <text class="subtitle" x="70" y="104">Use parent, genotype, nursery context, and repeated monitoring to predict growth, condition, and outplant readiness</text>
+
+  <rect class="panel" x="55" y="135" width="1490" height="350" rx="18" />
+  <text class="label" x="85" y="184">A</text>
+  <text class="panel-title" x="124" y="184">What Hannah described collecting in the nursery</text>
+
+  <rect class="blue" x="92" y="225" width="240" height="116" rx="12" />
+  <image class="watermark" href="assets/icons/phylopic-pocillopora-guillaume-dera-cc0.svg" x="264" y="246" width="48" height="32" preserveAspectRatio="xMidYMid meet" />
+  <text class="box-title" x="118" y="256">Source identity</text>
+  <text class="body" x="118" y="283">mother colony</text>
+  <text class="body" x="118" y="305">species/genus</text>
+  <text class="small" x="118" y="329">genotype where available</text>
+
+  <path class="arrow" d="M332 283 L377 283" />
+
+  <rect class="green" x="390" y="225" width="278" height="116" rx="12" />
+  <text class="box-title" x="416" y="256">Nursery unit</text>
+  <text class="body" x="416" y="283">rope / wire / batch</text>
+  <text class="body" x="416" y="305">site, structure, position</text>
+  <text class="small" x="416" y="329">historical counts vary by cohort</text>
+
+  <path class="arrow" d="M668 283 L713 283" />
+
+  <rect class="gold" x="726" y="225" width="300" height="116" rx="12" />
+  <image class="watermark" href="assets/icons/lucide-clock-isc.svg" x="964" y="294" width="36" height="36" preserveAspectRatio="xMidYMid meet" />
+  <text class="box-title" x="752" y="256">Monitoring cadence</text>
+  <text class="body" x="752" y="283">T0, then 3, 6, 9, 12 months</text>
+  <text class="body" x="752" y="305">2-week bleaching checks when hot</text>
+  <text class="small" x="752" y="329">T0 may lag nursery seeding</text>
+
+  <path class="arrow" d="M1026 283 L1071 283" />
+
+  <rect class="rose" x="1084" y="200" width="386" height="166" rx="12" />
+  <image class="watermark" href="assets/icons/lucide-camera-isc.svg" x="1400" y="217" width="38" height="38" preserveAspectRatio="xMidYMid meet" />
+  <image class="watermark" href="assets/icons/bioicons-bacteria-colonies-cc0.svg" x="1395" y="301" width="44" height="35" preserveAspectRatio="xMidYMid meet" />
+  <text class="box-title" x="1110" y="231">Measured responses and flags</text>
+  <text class="body" x="1110" y="258">length, width, height</text>
+  <text class="body" x="1110" y="280">health, bleaching, alive/dead</text>
+  <text class="body" x="1110" y="302">algae, sediment, fish, snails, disease</text>
+  <text class="body" x="1110" y="324">crab/fish associates and subset photos</text>
+  <text class="small" x="1110" y="348">not all fragments measured or photographed</text>
+
+  <rect class="card" x="92" y="385" width="1378" height="70" rx="12" />
+  <image class="watermark" href="assets/icons/lucide-shield-check-isc.svg" x="1414" y="400" width="34" height="34" preserveAspectRatio="xMidYMid meet" />
+  <text class="box-title" x="120" y="415">Data caveats to build into analysis</text>
+  <text class="body" x="120" y="440">monitoring fractions vary (about 10-20%); app changes created spreadsheet side paths; persistent individual histories may be incomplete</text>
+
+  <rect class="panel" x="55" y="520" width="725" height="440" rx="18" />
+  <text class="label" x="85" y="569">B</text>
+  <text class="panel-title" x="124" y="569">Hierarchical model: what explains nursery performance?</text>
+
+  <rect class="gray" x="92" y="615" width="195" height="92" rx="12" />
+  <image class="watermark" href="assets/icons/phylopic-pocillopora-guillaume-dera-cc0.svg" x="230" y="636" width="44" height="29" preserveAspectRatio="xMidYMid meet" />
+  <text class="box-title" x="118" y="645">Biological identity</text>
+  <text class="body" x="118" y="672">parent colony</text>
+  <text class="body" x="118" y="692">genotype, species/genus</text>
+
+  <rect class="gray" x="92" y="737" width="195" height="92" rx="12" />
+  <text class="box-title" x="118" y="767">Nursery context</text>
+  <text class="body" x="118" y="794">site, structure, cohort</text>
+  <text class="body" x="118" y="814">position, neighborhood</text>
+
+  <rect class="gray" x="92" y="859" width="195" height="68" rx="12" />
+  <image class="watermark" href="assets/icons/lucide-shield-check-isc.svg" x="240" y="879" width="28" height="28" preserveAspectRatio="xMidYMid meet" />
+  <text class="box-title" x="118" y="889">Starting state</text>
+  <text class="body" x="118" y="914">size, health, bleaching</text>
+
+  <path class="arrow" d="M287 661 C335 661, 356 696, 404 717" />
+  <path class="arrow" d="M287 783 C335 783, 356 761, 404 739" />
+  <path class="arrow" d="M287 893 C335 893, 356 792, 404 762" />
+
+  <rect class="blue" x="416" y="652" width="270" height="146" rx="14" />
+  <image class="watermark" href="assets/icons/lucide-clock-isc.svg" x="626" y="675" width="32" height="32" preserveAspectRatio="xMidYMid meet" />
+  <image class="watermark" href="assets/icons/lucide-camera-isc.svg" x="626" y="722" width="32" height="32" preserveAspectRatio="xMidYMid meet" />
+  <text class="box-title" x="444" y="684">Repeated-measures model</text>
+  <text class="body" x="444" y="714">growth trajectory</text>
+  <text class="body" x="444" y="736">condition and bleaching risk</text>
+  <text class="body" x="444" y="758">mortality and issue flags</text>
+  <text class="small" x="444" y="783">partial pooling across parent/genotype</text>
+
+  <path class="arrow" d="M686 725 L724 725" />
+
+  <rect class="green" x="724" y="602" width="1" height="1" rx="1" opacity="0" />
+  <rect class="green" x="505" y="840" width="205" height="88" rx="12" />
+  <image class="watermark" href="assets/icons/lucide-shield-check-isc.svg" x="655" y="855" width="32" height="32" preserveAspectRatio="xMidYMid meet" />
+  <text class="box-title" x="531" y="870">Readiness score</text>
+  <text class="body" x="531" y="896">fast growth + low risk</text>
+  <text class="small" x="531" y="918">ready now, hold, or cull</text>
+
+  <path class="arrow-light" d="M552 793 L590 840" />
+
+  <rect class="panel" x="820" y="520" width="725" height="440" rx="18" />
+  <text class="label" x="850" y="569">C</text>
+  <text class="panel-title" x="889" y="569">Analysis panels that answer the collaboration questions</text>
+
+  <rect class="card" x="850" y="610" width="202" height="145" rx="12" />
+  <text class="box-title" x="878" y="638">1. Growth curves</text>
+  <line class="grid" x1="884" y1="662" x2="1020" y2="662" />
+  <line class="grid" x1="884" y1="696" x2="1020" y2="696" />
+  <line class="axis" x1="884" y1="722" x2="1022" y2="722" />
+  <line class="axis" x1="884" y1="662" x2="884" y2="722" />
+  <path class="line-blue" d="M892 714 C920 694, 946 674, 1010 662" />
+  <path class="line-green" d="M892 716 C928 710, 960 698, 1010 684" />
+  <path class="line-gold" d="M892 718 C925 715, 960 714, 1010 708" />
+  <text class="tiny" x="884" y="742">time in nursery</text>
+
+  <rect class="card" x="1072" y="610" width="202" height="145" rx="12" />
+  <image class="watermark" href="assets/icons/phylopic-pocillopora-guillaume-dera-cc0.svg" x="1210" y="626" width="42" height="28" preserveAspectRatio="xMidYMid meet" />
+  <text class="box-title" x="1100" y="638">2. Parent effects</text>
+  <line class="axis" x1="1110" y1="722" x2="1244" y2="722" />
+  <line class="axis" x1="1110" y1="662" x2="1110" y2="722" />
+  <rect x="1124" y="686" width="18" height="36" fill="#56b4e9" />
+  <rect x="1154" y="674" width="18" height="48" fill="#009e73" />
+  <rect x="1184" y="704" width="18" height="18" fill="#e69f00" />
+  <rect x="1214" y="666" width="18" height="56" fill="#cc79a7" />
+  <line class="dash" x1="1110" y1="692" x2="1244" y2="692" />
+  <text class="tiny" x="1110" y="742">rank parent/genotype</text>
+
+  <rect class="card" x="1294" y="610" width="202" height="145" rx="12" />
+  <text class="box-title" x="1322" y="638">3. Neighborhoods</text>
+  <circle class="node" cx="1360" cy="685" r="13" />
+  <circle class="node" cx="1405" cy="665" r="13" />
+  <circle class="node" cx="1432" cy="705" r="13" />
+  <circle class="node" cx="1388" cy="725" r="13" />
+  <line class="arrow-light" x1="1373" y1="681" x2="1392" y2="671" />
+  <line class="arrow-light" x1="1414" y1="676" x2="1425" y2="692" />
+  <line class="arrow-light" x1="1420" y1="711" x2="1401" y2="721" />
+  <text class="tiny" x="1332" y="742">who grows next to whom?</text>
+
+  <rect class="card" x="850" y="788" width="202" height="145" rx="12" />
+  <text class="box-title" x="878" y="816">4. Bleaching risk</text>
+  <line class="axis" x1="884" y1="900" x2="1022" y2="900" />
+  <line class="axis" x1="884" y1="835" x2="884" y2="900" />
+  <path class="line-rose" d="M892 892 C928 886, 956 860, 1010 840" />
+  <path class="line-blue" d="M892 896 C932 894, 966 884, 1010 870" />
+  <text class="tiny" x="884" y="920">hot-period checks</text>
+
+  <rect class="card" x="1072" y="788" width="202" height="145" rx="12" />
+  <image class="watermark" href="assets/icons/bioicons-bacteria-colonies-cc0.svg" x="1208" y="843" width="42" height="33" preserveAspectRatio="xMidYMid meet" />
+  <text class="box-title" x="1100" y="816">5. Issue flags</text>
+  <circle cx="1124" cy="852" r="7" fill="#e69f00" />
+  <text class="small" x="1142" y="856">algae</text>
+  <circle cx="1124" cy="878" r="7" fill="#8a95a3" />
+  <text class="small" x="1142" y="882">sediment</text>
+  <circle cx="1124" cy="904" r="7" fill="#cc79a7" />
+  <text class="small" x="1142" y="908">snails / disease</text>
+  <text class="tiny" x="1110" y="924">early warnings of failure</text>
+
+  <rect class="green" x="1294" y="788" width="202" height="145" rx="12" />
+  <image class="watermark" href="assets/icons/lucide-shield-check-isc.svg" x="1448" y="803" width="34" height="34" preserveAspectRatio="xMidYMid meet" />
+  <text class="box-title" x="1322" y="816">6. Decisions</text>
+  <text class="body" x="1322" y="846">outplant now</text>
+  <text class="body" x="1322" y="870">hold longer</text>
+  <text class="body" x="1322" y="894">avoid pairing</text>
+  <text class="small" x="1322" y="918">route rope/batch to site</text>
+
+  <rect class="card" x="92" y="990" width="1408" height="48" rx="10" />
+  <text class="box-title" x="120" y="1019">Primary analysis question</text>
+  <text class="body" x="348" y="1019">Which parent colonies, genotypes, nursery contexts, and neighborhoods produce fast growth with low bleaching, low fouling, and high outplant readiness?</text>
+</svg>

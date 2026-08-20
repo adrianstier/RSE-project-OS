@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" role="img" aria-labelledby="title desc">
+  <title id="title">Vector icon options for wound-treatment experiment figure</title>
+  <desc id="desc">A preview sheet of reusable SVG icons selected for the coral nursery fragment wound-treatment experiment proposal.</desc>
+  <style>
+    .bg { fill: #f6f8f7; }
+    .card { fill: #ffffff; stroke: #d4ddd9; stroke-width: 2; }
+    .title { font: 700 34px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #16222d; }
+    .subtitle { font: 400 18px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #4d5d6d; }
+    .heading { font: 700 20px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #1d2a35; }
+    .body { font: 400 16px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #405365; }
+    .source { font: 400 13px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; fill: #667487; }
+    .green { fill: #e9f6f0; stroke: #009E73; stroke-width: 2; }
+    .blue { fill: #e8f3f9; stroke: #0072B2; stroke-width: 2; }
+    .orange { fill: #fff5df; stroke: #E69F00; stroke-width: 2; }
+    .gray { fill: #f3f6f5; stroke: #657487; stroke-width: 2; }
+    .magenta { fill: #fbedf6; stroke: #CC79A7; stroke-width: 2; }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="1500" height="900"/>
+  <text class="title" x="60" y="62">Reusable vector art for the Coral Gardeners wound-treatment proposal</text>
+  <text class="subtitle" x="60" y="96">Curated for scientific accuracy, permissive reuse, and clean rendering at proposal-figure scale.</text>
+
+  <rect class="card" x="60" y="135" width="315" height="310" rx="8"/>
+  <rect class="green" x="85" y="165" width="265" height="130" rx="8"/>
+  <image href="assets/icons/phylopic-pocillopora-guillaume-dera-cc0.svg" x="120" y="184" width="195" height="91" preserveAspectRatio="xMidYMid meet"/>
+  <text class="heading" x="85" y="335">Pocillopora</text>
+  <text class="body" x="85" y="363">Coral fragments, parent colonies,</text>
+  <text class="body" x="85" y="387">or nursery block identity.</text>
+  <text class="source" x="85" y="423">PhyloPic; Guillaume Dera; CC0 1.0</text>
+
+  <rect class="card" x="415" y="135" width="315" height="310" rx="8"/>
+  <rect class="green" x="440" y="165" width="265" height="130" rx="8"/>
+  <image href="assets/icons/bioicons-bacteria-colonies-cc0.svg" x="505" y="178" width="135" height="104" preserveAspectRatio="xMidYMid meet"/>
+  <text class="heading" x="440" y="335">Fouling proxy</text>
+  <text class="body" x="440" y="363">Abstract biofilm or fouling marker,</text>
+  <text class="body" x="440" y="387">not a coral-specific organism.</text>
+  <text class="source" x="440" y="423">Bioicons; B--Gideon-Bergheim; CC0</text>
+
+  <rect class="card" x="770" y="135" width="315" height="310" rx="8"/>
+  <rect class="orange" x="795" y="165" width="265" height="130" rx="8"/>
+  <image href="assets/icons/bioicons-hydrogel-marcel-tisch-cc0.svg" x="875" y="178" width="105" height="104" preserveAspectRatio="xMidYMid meet"/>
+  <text class="heading" x="795" y="335">Biomaterial gel</text>
+  <text class="body" x="795" y="363">Use for Scripps / Hybrid Reefs</text>
+  <text class="body" x="795" y="387">material concepts.</text>
+  <text class="source" x="795" y="423">Bioicons; Marcel Tisch; CC0</text>
+
+  <rect class="card" x="1125" y="135" width="315" height="310" rx="8"/>
+  <rect class="blue" x="1150" y="165" width="265" height="130" rx="8"/>
+  <image href="assets/icons/lucide-camera-isc.svg" x="1234" y="197" width="68" height="68" preserveAspectRatio="xMidYMid meet"/>
+  <text class="heading" x="1150" y="335">Photo monitoring</text>
+  <text class="body" x="1150" y="363">Repeated images for wound area,</text>
+  <text class="body" x="1150" y="387">closure, and fouling metrics.</text>
+  <text class="source" x="1150" y="423">Lucide Static v1.30.0; ISC</text>
+
+  <rect class="card" x="60" y="495" width="315" height="310" rx="8"/>
+  <rect class="gray" x="85" y="525" width="265" height="130" rx="8"/>
+  <image href="assets/icons/lucide-pipette-isc.svg" x="183" y="557" width="68" height="68" preserveAspectRatio="xMidYMid meet"/>
+  <text class="heading" x="85" y="695">Prep workflow</text>
+  <text class="body" x="85" y="723">Material preparation and</text>
+  <text class="body" x="85" y="747">standardized application.</text>
+  <text class="source" x="85" y="783">Lucide Static v1.30.0; ISC</text>
+
+  <rect class="card" x="415" y="495" width="315" height="310" rx="8"/>
+  <rect class="gray" x="440" y="525" width="265" height="130" rx="8"/>
+  <image href="assets/icons/lucide-clock-isc.svg" x="538" y="557" width="68" height="68" preserveAspectRatio="xMidYMid meet"/>
+  <text class="heading" x="440" y="695">Time burden</text>
+  <text class="body" x="440" y="723">Handling time, dive time,</text>
+  <text class="body" x="440" y="747">and monitoring schedule.</text>
+  <text class="source" x="440" y="783">Lucide Static v1.30.0; ISC</text>
+
+  <rect class="card" x="770" y="495" width="315" height="310" rx="8"/>
+  <rect class="orange" x="795" y="525" width="265" height="130" rx="8"/>
+  <image href="assets/icons/lucide-badge-dollar-sign-isc.svg" x="893" y="557" width="68" height="68" preserveAspectRatio="xMidYMid meet"/>
+  <text class="heading" x="795" y="695">Cost / ROI</text>
+  <text class="body" x="795" y="723">Material cost and</text>
+  <text class="body" x="795" y="747">cost-adjusted value.</text>
+  <text class="source" x="795" y="783">Lucide Static v1.30.0; ISC</text>
+
+  <rect class="card" x="1125" y="495" width="315" height="310" rx="8"/>
+  <rect class="magenta" x="1150" y="525" width="265" height="130" rx="8"/>
+  <image href="assets/icons/lucide-shield-check-isc.svg" x="1248" y="557" width="68" height="68" preserveAspectRatio="xMidYMid meet"/>
+  <text class="heading" x="1150" y="695">No-harm gate</text>
+  <text class="body" x="1150" y="723">No recession, disease,</text>
+  <text class="body" x="1150" y="747">or mortality penalty.</text>
+  <text class="source" x="1150" y="783">Lucide Static v1.30.0; ISC</text>
+</svg>
